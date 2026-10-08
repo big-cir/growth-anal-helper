@@ -1,0 +1,40 @@
+{
+  "d_as_of.as_of": "ordinary",
+
+  "d_member.member_id": { "identifier": "member" },
+  "d_member.signup_at": "ordinary",
+  "d_member.signup_week": "ordinary",
+  "d_member.deleted_at": "ordinary",
+  "d_member.country": "ordinary",
+
+  "d_activity.member_id": { "identifier": "member" },
+  "d_activity.board_id": { "identifier": "board" },
+  "d_activity.kind": "ordinary",
+  "d_activity.at": "ordinary",
+  "d_activity.source_deleted": "ordinary",
+  "d_activity.post_id": { "identifier": "post" },
+
+  "d_membership.board_id": { "identifier": "board" },
+  "d_membership.member_id": { "identifier": "member" },
+  "d_membership.joined_at": "ordinary",
+  "d_membership.ended_at": "ordinary",
+  "d_membership.is_owner": "ordinary",
+
+  "d_member_first_week.member_id": { "identifier": "member" },
+  "d_member_first_week.signup_at": "ordinary",
+  "d_member_first_week.signup_week": "ordinary",
+  "d_member_first_week.week_end": "ordinary",
+  "d_member_first_week.board_state": "ordinary",
+  "d_member_first_week.board_at": "ordinary",
+  "d_member_first_week.connected_state": "ordinary",
+  "d_member_first_week.connected_at": "ordinary",
+  "d_member_first_week.post_state": "ordinary",
+  "d_member_first_week.first_post_at": "ordinary",
+  "d_member_first_week.received_state": "ordinary",
+  "d_member_first_week.received_at": "ordinary",
+
+  "d_member_activity_week.member_id": { "identifier": "member" },
+  "d_member_activity_week.life_week": "ordinary",
+  "d_member_activity_week.any_cnt": "ordinary",
+  "d_member_activity_week.post_cnt": "ordinary"
+}

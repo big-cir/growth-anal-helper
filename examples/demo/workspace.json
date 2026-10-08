@@ -1,0 +1,9 @@
+{
+  "name": "demo-board",
+  "outDir": ".out",
+  "source": { "type": "sqlite", "path": ".out/source.sqlite" },
+  "policy": { "readablePrefixes": ["r_", "d_", "snapshot_"] },
+  "params": { "cohort_start": "2024-01-01 00:00:00.000000", "calendar_start": "2024-01-01 00:00:00.000000", "quality_min_ts": "2020-01-01 00:00:00.000000" },
+  "agent": { "dataMode": "pseudonymized" },
+  "server": { "port": 4170 }
+}

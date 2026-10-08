@@ -1,0 +1,29 @@
+{
+  "id": "recent_first_post",
+  "metric": "first_week_activation",
+  "title": "최근 4주 가입자의 7일 내 첫 글 비율",
+  "question": "최근 4주 가입자 중 7일 안에 첫 글을 쓴 비율은?",
+  "sql": "SELECT sum(post_state = 'reached') AS numerator,\n       count(*) AS denominator,\n       '최근 4주 가입자' AS label\nFROM d_member_first_week\nWHERE signup_at >= strftime('%Y-%m-%d %H:%M:%S', :as_of, '-35 days') || substr(:as_of, 20)",
+  "display": {
+    "type": "number",
+    "label": "label"
+  },
+  "definition": [
+    [
+      "모집단",
+      "기준 시각 전 35일 안에 가입했고 가입 후 7일이 지난 회원 (= 최근 4주 코호트)"
+    ],
+    [
+      "분자",
+      "가입 후 7일 안에, 다른 회원과 연결된 뒤 첫 글을 쓴 회원"
+    ]
+  ],
+  "caveats": [],
+  "answers": [
+    {
+      "question": "기간",
+      "answer": "최근 4주",
+      "defaulted": false
+    }
+  ]
+}

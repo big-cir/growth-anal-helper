@@ -1,0 +1,59 @@
+[
+  {
+    "source": "member", "target": "r_member", "key": ["id"], "cutoffColumn": "created_at",
+    "columns": [
+      { "expr": "id", "as": "id", "kind": "int", "role": { "identifier": "member" } },
+      { "expr": "created_at", "as": "created_at", "kind": "ts", "role": "ordinary" },
+      { "expr": "deleted_at", "as": "deleted_at", "kind": "ts", "role": "ordinary", "nullAfterCutoff": true },
+      { "expr": "country", "as": "country", "kind": "text", "maxLength": 8, "role": "ordinary" }
+    ]
+  },
+  {
+    "source": "board", "target": "r_board", "key": ["id"], "cutoffColumn": "created_at",
+    "columns": [
+      { "expr": "id", "as": "id", "kind": "int", "role": { "identifier": "board" } },
+      { "expr": "created_at", "as": "created_at", "kind": "ts", "role": "ordinary" },
+      { "expr": "deleted_at", "as": "deleted_at", "kind": "ts", "role": "ordinary", "nullAfterCutoff": true },
+      { "expr": "owner_id", "as": "owner_member_id", "kind": "int", "role": { "identifier": "member" } }
+    ]
+  },
+  {
+    "source": "board_member", "target": "r_board_member", "key": ["board_id", "member_id"], "cutoffColumn": "joined_at",
+    "columns": [
+      { "expr": "board_id", "as": "board_id", "kind": "int", "role": { "identifier": "board" } },
+      { "expr": "member_id", "as": "member_id", "kind": "int", "role": { "identifier": "member" } },
+      { "expr": "joined_at", "as": "joined_at", "kind": "ts", "role": "ordinary" },
+      { "expr": "left_at", "as": "left_at", "kind": "ts", "role": "ordinary", "nullAfterCutoff": true }
+    ]
+  },
+  {
+    "source": "post", "target": "r_post", "key": ["id"], "cutoffColumn": "created_at",
+    "columns": [
+      { "expr": "id", "as": "id", "kind": "int", "role": { "identifier": "post" } },
+      { "expr": "board_id", "as": "board_id", "kind": "int", "role": { "identifier": "board" } },
+      { "expr": "member_id", "as": "member_id", "kind": "int", "role": { "identifier": "member" } },
+      { "expr": "created_at", "as": "created_at", "kind": "ts", "role": "ordinary" },
+      { "expr": "deleted_at", "as": "deleted_at", "kind": "ts", "role": "ordinary", "nullAfterCutoff": true }
+    ]
+  },
+  {
+    "source": "reply", "target": "r_reply", "key": ["id"], "cutoffColumn": "created_at",
+    "columns": [
+      { "expr": "id", "as": "id", "kind": "int", "role": { "identifier": "reply" } },
+      { "expr": "post_id", "as": "post_id", "kind": "int", "role": { "identifier": "post" } },
+      { "expr": "member_id", "as": "member_id", "kind": "int", "role": { "identifier": "member" } },
+      { "expr": "parent_reply_id IS NOT NULL", "as": "is_nested", "kind": "bool", "role": "ordinary" },
+      { "expr": "created_at", "as": "created_at", "kind": "ts", "role": "ordinary" },
+      { "expr": "deleted_at", "as": "deleted_at", "kind": "ts", "role": "ordinary", "nullAfterCutoff": true }
+    ]
+  },
+  {
+    "source": "reaction", "target": "r_reaction", "key": ["id"], "cutoffColumn": "created_at",
+    "columns": [
+      { "expr": "id", "as": "id", "kind": "int", "role": { "identifier": "reaction" } },
+      { "expr": "post_id", "as": "post_id", "kind": "int", "role": { "identifier": "post" } },
+      { "expr": "member_id", "as": "member_id", "kind": "int", "role": { "identifier": "member" } },
+      { "expr": "created_at", "as": "created_at", "kind": "ts", "role": "ordinary" }
+    ]
+  }
+]

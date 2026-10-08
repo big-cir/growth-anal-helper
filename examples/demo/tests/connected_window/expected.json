@@ -1,0 +1,17 @@
+[
+  {
+    "query": "SELECT member_id, board_state, board_at, connected_state, connected_at FROM d_member_first_week ORDER BY member_id",
+    "rows": [
+      { "member_id": 1001, "board_state": "reached", "board_at": "2024-03-02 09:00:00.000000", "connected_state": "reached", "connected_at": "2024-03-02 09:00:00.000000" },
+      { "member_id": 1002, "board_state": "reached", "board_at": "2024-03-01 10:00:00.000000", "connected_state": "not", "connected_at": null },
+      { "member_id": 1003, "board_state": "reached", "board_at": "2024-03-02 09:00:00.000000", "connected_state": "not", "connected_at": null },
+      { "member_id": 2001, "board_state": "reached", "board_at": "2024-02-01 10:00:00.000000", "connected_state": "not", "connected_at": null },
+      { "member_id": 2002, "board_state": "not", "board_at": null, "connected_state": null, "connected_at": null },
+      { "member_id": 2003, "board_state": "reached", "board_at": "2024-02-01 10:00:00.000000", "connected_state": "not", "connected_at": null }
+    ]
+  },
+  {
+    "query": "SELECT count(*) AS n, min(week_start) AS first, max(week_start) AS last FROM d_calendar_week",
+    "rows": [{ "n": 4, "first": "2024-02-26 00:00:00.000000", "last": "2024-03-18 00:00:00.000000" }]
+  }
+]

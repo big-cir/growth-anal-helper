@@ -1,0 +1,7 @@
+-- 참조 대상이 없는 행 수(0건이어도 출력)
+SELECT 'post→board' AS link, count(*) AS orphans FROM r_post p WHERE NOT EXISTS (SELECT 1 FROM r_board b WHERE b.id = p.board_id)
+UNION ALL SELECT 'post→member', count(*) FROM r_post p WHERE NOT EXISTS (SELECT 1 FROM r_member m WHERE m.id = p.member_id)
+UNION ALL SELECT 'reply→post', count(*) FROM r_reply x WHERE NOT EXISTS (SELECT 1 FROM r_post p WHERE p.id = x.post_id)
+UNION ALL SELECT 'reaction→post', count(*) FROM r_reaction x WHERE NOT EXISTS (SELECT 1 FROM r_post p WHERE p.id = x.post_id)
+UNION ALL SELECT 'board_member→board', count(*) FROM r_board_member bm WHERE NOT EXISTS (SELECT 1 FROM r_board b WHERE b.id = bm.board_id)
+UNION ALL SELECT 'board_member→member', count(*) FROM r_board_member bm WHERE NOT EXISTS (SELECT 1 FROM r_member m WHERE m.id = bm.member_id)

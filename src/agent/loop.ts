@@ -1,14 +1,15 @@
-// 요청 하나(사용자 입력 하나)의 상태 머신. 턴 = claude 호출 1회.
+// State machine for one request (one user input). A turn is one agent call.
 import type { PanelRunResult } from '../panels/run.ts';
 import type { PanelSpec } from '../panels/spec.ts';
 import type { QueryResult } from '../query/executor.ts';
 import type { ResultColumn } from '../query/worker.ts';
 import type { Row } from '../panels/contract.ts';
 import { ActionError, parseAction, type Action, type AskQuestion } from './actions.ts';
-import type { CallResult } from './claude.ts';
+import type { CallResult } from './runner.ts';
 import { OutboundBlocked, type Outbound } from './outbound.ts';
-import { SENSITIVE_MESSAGE } from '../query/worker.ts';
+import { sensitiveMessage } from '../query/worker.ts';
 import { secretAssignment, secretShape } from './sensitive.ts';
+import { tr } from '../i18n.ts';
 
 export type RequestState = 'calling' | 'querying' | 'checking' | 'waiting_user' | 'done' | 'failed' | 'cancelling' | 'cancelled';
 
@@ -42,7 +43,7 @@ export type LoopDeps = {
   limits: Limits;
   emit(ev: LoopEvent, turnNo: number): void;
   onIsolationFailure(): void;
-  /** 진행 표시 간격(ms) */
+  /** Progress heartbeat interval (ms) */
   heartbeatMs?: number;
 };
 
@@ -50,7 +51,7 @@ export type StartInput = {
   text: string;
   current: PanelSpec | null;
   resumeSessionId: string | null;
-  /** 새 세션 첫 턴에 넣을 이전 대화 요약 */
+  /** Summary of the earlier conversation for the first turn of a new session */
   recovery: string | null;
 };
 
@@ -58,6 +59,17 @@ export const MIN_CALL_BUDGET = 0.02;
 const RATE_WAITS = [10_000, 30_000];
 
 class Stop extends Error {}
+
+/** True when there are rows, at least one number column, and every number is 0 (NULL counts as 0) */
+export function allZero(rows: Row[]): boolean {
+  let numbers = 0;
+  for (const row of rows) for (const v of row) {
+    if (typeof v !== 'number') continue;
+    numbers++;
+    if (v !== 0) return false;
+  }
+  return rows.length > 0 && numbers > 0;
+}
 
 export class AgentRequest {
   readonly id: string;
@@ -67,13 +79,15 @@ export class AgentRequest {
   costTotal = 0;
   sessionId: string | null = null;
   pendingAsk: { questions: AskQuestion[]; turnNo: number } | null = null;
-  /** 사전 밖 패널 승인 대기 */
+  /** Waiting for approval of an off-dictionary panel */
   pendingOffdict: { spec: PanelSpec; columns: ResultColumn[]; rows: Row[]; agentRows: Row[]; tables: string[]; turnNo: number } | null = null;
 
   private readonly deps: LoopDeps;
   private readonly ac = new AbortController();
-  /** 수정 횟수는 다음 호출을 시작할 때 센다 */
+  /** A fix is counted when the next call starts */
   private fixPending = false;
+  /** The all-zero warning is sent once per request */
+  private zeroWarned = false;
   private work: Promise<void> = Promise.resolve();
   private start: StartInput | null = null;
 
@@ -97,7 +111,7 @@ export class AgentRequest {
     return this.work;
   }
 
-  /** 현재 질문의 turnNo와 맞을 때만 받는다 */
+  /** Accepted only for the current question's turnNo */
   answer(turnNo: number, given: Record<string, string | undefined>): Promise<void> | null {
     if (this.state !== 'waiting_user' || !this.pendingAsk || this.pendingAsk.turnNo !== turnNo) return null;
     const ask = this.pendingAsk;
@@ -119,7 +133,7 @@ export class AgentRequest {
     return this.work;
   }
 
-  /** 사전 밖 패널: 승인하면 미리보기, 거절하면 사전 지표로 다시 만들게 한다 */
+  /** Off-dictionary panel: approve to preview it, reject to have it rebuilt from a dictionary metric */
   approveOffdict(turnNo: number, approve: boolean): Promise<void> | null {
     const p = this.pendingOffdict;
     if (this.state !== 'waiting_user' || !p || p.turnNo !== turnNo) return null;
@@ -187,15 +201,15 @@ export class AgentRequest {
     let resumeRecovered = false;
     for (;;) {
       if (this.cancelled) throw new Stop();
-      if (this.counts.turns >= L.maxTurns) this.fail('turn_limit', `한 요청의 호출 한도(${L.maxTurns}회)에 도달했어요`);
+      if (this.counts.turns >= L.maxTurns) this.fail('turn_limit', tr(`Reached the call limit for one request (${L.maxTurns})`, `한 요청의 호출 한도(${L.maxTurns}회)에 도달했어요`));
       const remaining = L.requestBudgetUsd - this.costTotal;
-      if (remaining < MIN_CALL_BUDGET) this.fail('request_budget', '요청 한도에 도달했어요');
+      if (remaining < MIN_CALL_BUDGET) this.fail('request_budget', tr('Reached the request budget', '요청 한도에 도달했어요'));
       this.state = 'calling';
       if (this.fixPending) {
         this.fixPending = false;
         this.counts.fixes++;
       }
-      this.emit({ type: 'step', kind: 'calling', text: '에이전트가 생각하는 중' });
+      this.emit({ type: 'step', kind: 'calling', text: tr('The agent is thinking', '에이전트가 생각하는 중') });
       const res = await this.deps.call({ input, sessionId: this.sessionId, budgetUsd: Math.min(L.callBudgetUsd, remaining), signal: this.ac.signal });
       this.counts.turns++;
       this.turnNo++;
@@ -212,30 +226,30 @@ export class AgentRequest {
             throw new Stop();
           case 'isolation':
             this.deps.onIsolationFailure();
-            this.fail('isolation', '에이전트 격리 점검 실패: 에이전트 기능을 껐어요');
+            this.fail('isolation', tr('Agent isolation check failed: the agent has been turned off', '에이전트 격리 점검 실패: 에이전트 기능을 껐어요'));
           case 'budget':
-            this.fail('call_budget', '호출 한도에 도달했어요');
+            this.fail('call_budget', tr('Reached the call budget', '호출 한도에 도달했어요'));
           case 'rate_limit':
             if (rateRetries < RATE_WAITS.length) {
               const wait = RATE_WAITS[rateRetries++];
-              this.emit({ type: 'step', kind: 'retry', text: `API가 바빠요. ${wait / 1000}초 뒤 다시 시도` });
+              this.emit({ type: 'step', kind: 'retry', text: tr(`The API is busy. Retrying in ${wait / 1000}s`, `API가 바빠요. ${wait / 1000}초 뒤 다시 시도`) });
               await this.deps.sleep(wait, this.ac.signal);
               continue;
             }
-            this.fail('rate_limit', 'API 제한·과부하가 계속돼요. 잠시 뒤 다시 시도해 주세요');
+            this.fail('rate_limit', tr('The API is still rate-limited or overloaded. Please try again later', 'API 제한·과부하가 계속돼요. 잠시 뒤 다시 시도해 주세요'));
           case 'resume':
             if (!resumeRecovered && this.start) {
               resumeRecovered = true;
               this.sessionId = null;
               input = this.deps.outbound.request(this.start.text, this.start.current, this.start.recovery);
-              this.emit({ type: 'step', kind: 'retry', text: '이전 세션을 이어갈 수 없어 새 세션으로 이어가요' });
+              this.emit({ type: 'step', kind: 'retry', text: tr('Could not resume the earlier session, continuing in a new one', '이전 세션을 이어갈 수 없어 새 세션으로 이어가요') });
               continue;
             }
-            this.fail('resume', '세션을 이어갈 수 없어요');
+            this.fail('resume', tr('Could not resume the session', '세션을 이어갈 수 없어요'));
           default:
             if (!processRetried) {
               processRetried = true;
-              this.emit({ type: 'step', kind: 'retry', text: `호출 실패(${res.message}), 다시 시도` });
+              this.emit({ type: 'step', kind: 'retry', text: tr(`Call failed (${res.message}), retrying`, `호출 실패(${res.message}), 다시 시도`) });
               continue;
             }
             this.fail(res.type === 'timeout' ? 'timeout' : res.type === 'error' ? 'error' : 'process', res.message);
@@ -246,14 +260,14 @@ export class AgentRequest {
         this.sessionId = res.sessionId;
         this.emit({ type: 'session', sessionId: res.sessionId });
       }
-      // 에이전트가 낸 문자열(SQL 포함)에 비밀처럼 생긴 값이 있으면 형식 검사 전에 버리고 끝낸다
+      // If agent output (SQL included) contains a secret-looking value, drop it and stop before parsing
       const raw = JSON.stringify(res.structured ?? null);
-      if (secretShape(raw) || secretAssignment(raw)) this.fail('sensitive', SENSITIVE_MESSAGE);
+      if (secretShape(raw) || secretAssignment(raw)) this.fail('sensitive', sensitiveMessage());
       try {
         return parseAction(res.structured);
       } catch (e) {
         if (!(e instanceof ActionError)) throw e;
-        if (schemaRetried) this.fail('schema', `응답이 행동 스키마에 맞지 않아요: ${e.message}`);
+        if (schemaRetried) this.fail('schema', tr(`The reply does not match the action schema: ${e.message}`, `응답이 행동 스키마에 맞지 않아요: ${e.message}`));
         schemaRetried = true;
         input = this.deps.outbound.schemaMismatch(e.message);
       }
@@ -263,7 +277,7 @@ export class AgentRequest {
   private async withHeartbeat<T>(kind: 'querying' | 'checking', label: string, fn: () => Promise<T>): Promise<T> {
     const t0 = Date.now();
     this.emit({ type: 'step', kind, text: label });
-    const timer = setInterval(() => this.emit({ type: 'step', kind, text: `${label} (${Math.round((Date.now() - t0) / 1000)}초)`, ms: Date.now() - t0 }), this.deps.heartbeatMs ?? 5000);
+    const timer = setInterval(() => this.emit({ type: 'step', kind, text: `${label} (${Math.round((Date.now() - t0) / 1000)}${tr('s', '초')})`, ms: Date.now() - t0 }), this.deps.heartbeatMs ?? 5000);
     try {
       return await fn();
     } finally {
@@ -290,25 +304,32 @@ export class AgentRequest {
           return;
         case 'probe': {
           this.emit({ type: 'plan', text: action.plan });
-          if (this.counts.probes >= L.maxProbes) this.fail('probe_limit', `탐색 한도(${L.maxProbes}회)에 도달했어요`);
-          this.counts.probes++; // 실패해도 센다
+          if (this.counts.probes >= L.maxProbes) this.fail('probe_limit', tr(`Reached the probe limit (${L.maxProbes})`, `탐색 한도(${L.maxProbes}회)에 도달했어요`));
+          this.counts.probes++; // failures count too
           this.state = 'querying';
-          const r = await this.withHeartbeat('querying', `탐색 쿼리 실행: ${action.purpose}`, () => this.deps.probe(action.sql, this.ac.signal));
+          const r = await this.withHeartbeat('querying', tr(`Running probe query: ${action.purpose}`, `탐색 쿼리 실행: ${action.purpose}`), () => this.deps.probe(action.sql, this.ac.signal));
           if (this.cancelled) throw new Stop();
-          // 민감 데이터를 읽으려 하면 에이전트에게 아무것도 돌려주지 않고 끝낸다
-          if (!r.ok && r.kind === 'sensitive') this.fail('sensitive', SENSITIVE_MESSAGE);
+          // An attempt to read sensitive data ends the request without returning anything to the agent
+          if (!r.ok && r.kind === 'sensitive') this.fail('sensitive', sensitiveMessage());
           this.emit(r.ok
-            ? { type: 'step', kind: 'query_done', text: `${action.purpose}: ${r.rows.length}행${r.more ? '+' : ''}`, ms: r.ms, rows: r.rows.length }
-            : { type: 'step', kind: 'query_done', text: `${action.purpose}: 실패 (${r.message})` });
+            ? { type: 'step', kind: 'query_done', text: `${action.purpose}: ${r.rows.length}${r.more ? '+' : ''} ${tr('rows', '행')}`, ms: r.ms, rows: r.rows.length }
+            : { type: 'step', kind: 'query_done', text: `${action.purpose}: ${tr('failed', '실패')} (${r.message})` });
           input = this.deps.outbound.probeResult(r, L.maxProbes - this.counts.probes);
           break;
         }
         case 'panel': {
           this.emit({ type: 'plan', text: action.plan });
           this.state = 'checking';
-          const r = await this.withHeartbeat('checking', '패널 검사·실행', () => this.deps.panel(action.panel, this.ac.signal));
+          const r = await this.withHeartbeat('checking', tr('Checking and running the panel', '패널 검사·실행'), () => this.deps.panel(action.panel, this.ac.signal));
           if (this.cancelled) throw new Stop();
-          if (r.ok && r.real.some((row) => row.some((v) => typeof v === 'string' && (secretShape(v) || secretAssignment(v))))) this.fail('sensitive', SENSITIVE_MESSAGE);
+          if (r.ok && r.real.some((row) => row.some((v) => typeof v === 'string' && (secretShape(v) || secretAssignment(v))))) this.fail('sensitive', sensitiveMessage());
+          // All-zero/NULL numbers usually mean a join or format mistake. Ask once to check; accept the same result if sent again
+          if (r.ok && !this.zeroWarned && allZero(r.real)) {
+            this.zeroWarned = true;
+            this.emit({ type: 'step', kind: 'check_failed', text: tr('All result numbers are 0 → asking to check the conditions', '결과 숫자가 모두 0 → 조건 확인 요청') });
+            input = this.deps.outbound.zeroResult();
+            break;
+          }
           if (r.ok) {
             if (action.panel.metric === null) {
               this.pendingOffdict = { spec: action.panel, columns: r.columns, rows: r.real, agentRows: r.agent, tables: r.tables, turnNo: this.turnNo };
@@ -322,9 +343,9 @@ export class AgentRequest {
             return;
           }
           if (r.stage === 'cancelled') throw new Stop();
-          if (r.stage === 'sensitive') this.fail('sensitive', SENSITIVE_MESSAGE);
-          this.emit({ type: 'step', kind: 'check_failed', text: `패널 검사 실패(${r.stage}) → 수정 중` });
-          if (this.counts.fixes >= L.maxFixes) this.fail('fix_limit', `패널 수정 한도(${L.maxFixes}회)에 도달했어요: ${r.message}`);
+          if (r.stage === 'sensitive') this.fail('sensitive', sensitiveMessage());
+          this.emit({ type: 'step', kind: 'check_failed', text: tr(`Panel check failed (${r.stage}) → fixing`, `패널 검사 실패(${r.stage}) → 수정 중`) });
+          if (this.counts.fixes >= L.maxFixes) this.fail('fix_limit', tr(`Reached the panel fix limit (${L.maxFixes}): ${r.message}`, `패널 수정 한도(${L.maxFixes}회)에 도달했어요: ${r.message}`));
           this.fixPending = true;
           input = this.deps.outbound.panelFailure(r, L.maxFixes - this.counts.fixes - 1);
           break;

@@ -1,13 +1,13 @@
-// 패턴별 결과 계약·불변식·대표 숫자.
+// Result contracts, invariants and headline numbers per pattern.
 import type { ResultColumn, Tagged } from '../query/worker.ts';
-import { COMPARISON_CAVEAT, OFFDICT_CAVEAT, type PanelSpec } from './spec.ts';
+import { comparisonCaveat, offdictCaveat, type PanelSpec } from './spec.ts';
 
-/** 계약·불변식·대표 숫자 규칙이 바뀌면 올린다 */
+/** Bump when contract, invariant or headline rules change */
 export const PATTERN_CONTRACT_VERSION = 1;
 
 export type Value = string | number | null;
 export type Row = Value[];
-/** 불변식 위반. index는 결과 안 순번(행 전체 위반이면 null) */
+/** Invariant violation. index is the row position (null for whole-result violations) */
 export type Violation = { row: string; problem: string; index: number | null; rule: string; column: string | null };
 
 export class ContractError extends Error {}
@@ -15,7 +15,7 @@ export class ContractError extends Error {}
 export function columnIndex(columns: ResultColumn[]): Map<string, number> {
   const m = new Map<string, number>();
   columns.forEach((c, i) => {
-    if (m.has(c.name)) throw new ContractError(`결과 칸 이름이 중복됨: ${c.name}`);
+    if (m.has(c.name)) throw new ContractError(`duplicate result column name: ${c.name}`);
     m.set(c.name, i);
   });
   return m;
@@ -27,13 +27,13 @@ function usedColumns(spec: PanelSpec): Record<string, string> {
   return out;
 }
 
-/** 필요한 칸이 결과에 있는지 */
+/** Whether the required columns are in the result */
 export function checkContract(spec: PanelSpec, columns: ResultColumn[]): void {
   const idx = columnIndex(columns);
   const need = [...Object.values(usedColumns(spec)), ...spec.display.extra, ...spec.display.key];
   const missing = need.filter((c) => !idx.has(c));
   if (missing.length) {
-    throw new ContractError(`${spec.display.type} 패턴에 필요한 칸이 결과에 없음: ${missing.join(', ')} (결과 칸: ${columns.map((c) => c.name).join(', ')})`);
+    throw new ContractError(`result is missing columns the ${spec.display.type} pattern needs: ${missing.join(', ')} (result columns: ${columns.map((c) => c.name).join(', ')})`);
   }
 }
 
@@ -69,19 +69,19 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
   const keyRoles = type === 'table' ? [] : KEY_ROLES[type].filter((r) => used[r]);
   const keyCols = type === 'table' ? spec.display.key : keyRoles.map((r) => used[r]);
   const rowKey = (row: Row, i: number) =>
-    keyCols.length ? keyCols.map((c) => `${c}=${show(row[idx.get(c)!])}`).join(', ') : `${i + 1}번째 행`;
+    keyCols.length ? keyCols.map((c) => `${c}=${show(row[idx.get(c)!])}`).join(', ') : `row ${i + 1}`;
   const out: Violation[] = [];
   const add = (row: Row, i: number, rule: string, column: string | null, problem: string) => out.push({ row: rowKey(row, i), problem, index: i, rule, column });
   const whole = (rule: string, column: string | null, problem: string) => out.push({ row: '-', problem, index: null, rule, column });
 
-  if (rows.length === 0) return [{ row: '-', problem: '결과 행이 없음', index: null, rule: 'rows_nonempty', column: null }];
-  if (type === 'number' && rows.length !== 1) return [{ row: '-', problem: `number 패턴은 행이 1개여야 함 (${rows.length}개)`, index: null, rule: 'number_one_row', column: null }];
+  if (rows.length === 0) return [{ row: '-', problem: 'result has no rows', index: null, rule: 'rows_nonempty', column: null }];
+  if (type === 'number' && rows.length !== 1) return [{ row: '-', problem: `the number pattern needs exactly 1 row (got ${rows.length})`, index: null, rule: 'number_one_row', column: null }];
 
   const countCols = [...COUNT_ROLES[type].filter((r) => used[r]).map((r) => used[r]), ...spec.display.extra];
   rows.forEach((row, i) => {
     for (const c of countCols) {
       const v = row[idx.get(c)!];
-      if (!isCount(v)) add(row, i, 'count_nonneg_int', c, `${c}는 0 이상 정수여야 함 (${show(v)})`);
+      if (!isCount(v)) add(row, i, 'count_nonneg_int', c, `${c} must be an integer ≥ 0 (${show(v)})`);
     }
     const [num, den] = type === 'funnel' ? ['reached', 'eligible'] : ['numerator', 'denominator'];
     if (used[num] && used[den]) {
@@ -91,7 +91,7 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
     }
     if (type === 'number' && used.value) {
       const v = get(row, 'value');
-      if (typeof v !== 'number') add(row, i, 'value_number', used.value, `value는 수여야 함 (${show(v)})`);
+      if (typeof v !== 'number') add(row, i, 'value_number', used.value, `value must be a number (${show(v)})`);
     }
   });
 
@@ -99,18 +99,18 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
     const seen = new Map<string, number>();
     rows.forEach((row, i) => {
       const k = JSON.stringify(keyCols.map((c) => row[idx.get(c)!]));
-      if (seen.has(k)) add(row, i, 'unique_row_key', null, `행 키가 중복됨 (${seen.get(k)! + 1}번째 행과 같음)`);
+      if (seen.has(k)) add(row, i, 'unique_row_key', null, `duplicate row key (same as row ${seen.get(k)! + 1})`);
       else seen.set(k, i);
     });
   }
 
   if (type === 'line' || type === 'bar') {
     const xs = rows.map((r) => get(r, 'x'));
-    if (xs.some((x) => x === null)) whole('x_not_null', used.x, 'x에 NULL이 있음');
-    else if (new Set(xs.map((x) => typeof x)).size > 1) whole('x_sortable', used.x, 'x 값의 형식이 섞여 정렬할 수 없음 (수와 문자열)');
+    if (xs.some((x) => x === null)) whole('x_not_null', used.x, 'x has NULL');
+    else if (new Set(xs.map((x) => typeof x)).size > 1) whole('x_sortable', used.x, 'x mixes numbers and strings and cannot be sorted');
     if (used.series) {
       const series = new Set(rows.map((r) => show(get(r, 'series'))));
-      if (series.size > 6) whole('series_max_6', used.series, `series가 ${series.size}개 (6개 이하)`);
+      if (series.size > 6) whole('series_max_6', used.series, `${series.size} series (6 or fewer)`);
     }
   }
 
@@ -123,18 +123,18 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
     for (const list of groups.values()) {
       const bad = list.find(({ row }) => !Number.isInteger(get(row, 'step_no')));
       if (bad) {
-        add(bad.row, bad.i, 'step_no_int', used.step_no, 'step_no는 정수여야 함');
+        add(bad.row, bad.i, 'step_no_int', used.step_no, 'step_no must be an integer');
         continue;
       }
       list.sort((a, b) => (get(a.row, 'step_no') as number) - (get(b.row, 'step_no') as number));
       list.forEach(({ row, i }, n) => {
-        if (get(row, 'step_no') !== n + 1) add(row, i, 'steps_consecutive', used.step_no, `단계 번호가 1부터 연속이 아님 (${n + 1}이어야 함)`);
+        if (get(row, 'step_no') !== n + 1) add(row, i, 'steps_consecutive', used.step_no, `step numbers are not consecutive from 1 (expected ${n + 1})`);
         if (n === 0) return;
         const prev = list[n - 1].row;
         const [r, pr, e, u] = [get(row, 'reached'), get(prev, 'reached'), get(row, 'eligible'), get(row, 'unknown')];
         if (![r, pr, e, u].every(isCount)) return;
-        if ((r as number) > (pr as number)) add(row, i, 'reached_nonincreasing', used.reached, `도달(${r})이 앞 단계 도달(${pr})보다 많음`);
-        if (e !== (pr as number) - (u as number)) add(row, i, 'eligible_is_prev_minus_unknown', used.eligible, `분모(${e}) ≠ 앞 단계 도달(${pr}) − 판정 불가(${u})`);
+        if ((r as number) > (pr as number)) add(row, i, 'reached_nonincreasing', used.reached, `reached (${r}) is more than the previous step's reached (${pr})`);
+        if (e !== (pr as number) - (u as number)) add(row, i, 'eligible_is_prev_minus_unknown', used.eligible, `eligible (${e}) ≠ previous step's reached (${pr}) − unknown (${u})`);
       });
     }
   }
@@ -143,7 +143,7 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
     const groups = new Map<string, { row: Row; i: number }[]>();
     rows.forEach((row, i) => {
       const p = get(row, 'period');
-      if (!Number.isInteger(p) || (p as number) < 0) add(row, i, 'period_nonneg_int', used.period, `period는 0 이상 정수여야 함 (${show(p)})`);
+      if (!Number.isInteger(p) || (p as number) < 0) add(row, i, 'period_nonneg_int', used.period, `period must be an integer ≥ 0 (${show(p)})`);
       const g = JSON.stringify([get(row, 'cohort'), used.series ? get(row, 'series') : null]);
       groups.set(g, [...(groups.get(g) ?? []), { row, i }]);
     });
@@ -152,7 +152,7 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
       ok.sort((a, b) => (get(a.row, 'period') as number) - (get(b.row, 'period') as number));
       for (let n = 1; n < ok.length; n++) {
         const [d, pd] = [get(ok[n].row, 'denominator') as number, get(ok[n - 1].row, 'denominator') as number];
-        if (d > pd) add(ok[n].row, ok[n].i, 'denominator_nonincreasing', used.denominator, `period가 늘었는데 분모가 늘었음 (${pd} → ${d}, 관측 가능 조건 위반)`);
+        if (d > pd) add(ok[n].row, ok[n].i, 'denominator_nonincreasing', used.denominator, `denominator grew as period grew (${pd} → ${d}, breaks the observability condition)`);
       }
     }
   }
@@ -161,10 +161,10 @@ export function checkInvariants(spec: PanelSpec, columns: ResultColumn[], rows: 
 
 export function formatViolations(vs: Violation[], max = 10): string {
   const head = vs.slice(0, max).map((v) => `- ${v.row}: ${v.problem}`).join('\n');
-  return vs.length > max ? `${head}\n- … 외 ${vs.length - max}건` : head;
+  return vs.length > max ? `${head}\n- … and ${vs.length - max} more` : head;
 }
 
-/** 엔진 자동 문구를 앞에 붙인다: 사전 밖 → 관측 비교(series 2개 이상) */
+/** Prepends engine caveats: off-dictionary → observational comparison (2+ series) */
 export function effectiveCaveats(spec: PanelSpec, columns: ResultColumn[], rows: Row[]): string[] {
   const used = usedColumns(spec);
   const t = spec.display.type;
@@ -174,14 +174,16 @@ export function effectiveCaveats(spec: PanelSpec, columns: ResultColumn[], rows:
     comparison = new Set(rows.map((r) => show(r[i]))).size >= 2;
   }
   const auto: string[] = [];
-  if (spec.metric === null && !spec.caveats.some((c) => c.includes(OFFDICT_CAVEAT))) auto.push(OFFDICT_CAVEAT);
-  if (comparison && !spec.caveats.some((c) => c.includes(COMPARISON_CAVEAT))) auto.push(COMPARISON_CAVEAT);
+  const offdict = offdictCaveat();
+  const compare = comparisonCaveat();
+  if (spec.metric === null && !spec.caveats.some((c) => c.includes(offdict))) auto.push(offdict);
+  if (comparison && !spec.caveats.some((c) => c.includes(compare))) auto.push(compare);
   return [...auto, ...spec.caveats];
 }
 
 export type Headline = { value: number; numerator: number | null; denominator: number | null; lowN: boolean; label: string } | null;
 
-/** 대표 숫자: display.headline 지정이 없으면 패턴별 기본 규칙. 분모 30 미만은 lowN */
+/** Headline number: the pattern's default rule unless display.headline is set. Denominator under 30 is lowN */
 export function computeHeadline(spec: PanelSpec, columns: ResultColumn[], rows: Row[]): Headline {
   const t = spec.display.type;
   if (t === 'table' || t === 'cohort' || rows.length === 0) return null;
@@ -200,25 +202,25 @@ export function computeHeadline(spec: PanelSpec, columns: ResultColumn[], rows: 
   if (t === 'line' || t === 'bar') {
     const seriesOrder = used.series ? [...new Set(rows.map((r) => show(get(r, 'series'))))] : [''];
     const wantSeries = h && 'series' in h ? (h.series === null ? 'NULL' : h.series!) : seriesOrder[0];
-    if (used.series && !seriesOrder.includes(wantSeries)) throw new ContractError(`대표 숫자로 지정한 series가 결과에 없음: ${wantSeries}`);
+    if (used.series && !seriesOrder.includes(wantSeries)) throw new ContractError(`headline series not in the result: ${wantSeries}`);
     const inSeries = rows.filter((r) => !used.series || show(get(r, 'series')) === wantSeries);
     let row: Row | undefined;
     if (h?.x !== undefined) {
       row = inSeries.find((r) => show(get(r, 'x')) === h.x);
-      if (!row) throw new ContractError(`대표 숫자로 지정한 x가 결과에 없음: ${h.x}`);
+      if (!row) throw new ContractError(`headline x not in the result: ${h.x}`);
     } else {
       row = [...inSeries].sort((a, b) => compareValues(get(a, 'x'), get(b, 'x'))).at(-1)!;
     }
     return rate(get(row, 'numerator') as number, get(row, 'denominator') as number, `${show(get(row, 'x'))}${used.series ? ` · ${wantSeries}` : ''}`);
   }
 
-  // funnel: 마지막 단계의 처음 대비 비율(코호트가 있으면 'ALL' 행)
+  // funnel: last step as a share of the first (the 'ALL' row when there are cohorts)
   let group = rows;
   if (used.cohort) {
     const want = h?.x ?? 'ALL';
     group = rows.filter((r) => show(get(r, 'cohort')) === want);
     if (group.length === 0) {
-      if (h?.x !== undefined) throw new ContractError(`대표 숫자로 지정한 코호트가 결과에 없음: ${h.x}`);
+      if (h?.x !== undefined) throw new ContractError(`headline cohort not in the result: ${h.x}`);
       return null;
     }
   }
@@ -228,7 +230,7 @@ export function computeHeadline(spec: PanelSpec, columns: ResultColumn[], rows: 
   return rate(get(last, 'reached') as number, get(first, 'reached') as number, `${show(get(last, 'step_name'))} / ${show(get(first, 'step_name'))}`);
 }
 
-/** NULL < 수 < 문자열 */
+/** NULL < number < string */
 export function compareValues(a: Value, b: Value): number {
   const rank = (v: Value) => (v === null ? 0 : typeof v === 'number' ? 1 : 2);
   if (rank(a) !== rank(b)) return rank(a) - rank(b);

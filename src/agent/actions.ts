@@ -1,4 +1,4 @@
-// 에이전트 행동 스키마와 검증.
+// Agent action schema and validation.
 import { readFileSync } from 'node:fs';
 import { parsePanelSpec, PanelSpecError, type PanelSpec } from '../panels/spec.ts';
 
@@ -17,24 +17,24 @@ export class ActionError extends Error {}
 type Obj = Record<string, unknown>;
 
 function only(o: Obj, keys: string[], path: string): void {
-  for (const k of Object.keys(o)) if (!keys.includes(k)) throw new ActionError(`${path}.${k}: 알 수 없는 키`);
-  for (const k of keys) if (!(k in o)) throw new ActionError(`${path}.${k}: 필수`);
+  for (const k of Object.keys(o)) if (!keys.includes(k)) throw new ActionError(`${path}.${k}: unknown key`);
+  for (const k of keys) if (!(k in o)) throw new ActionError(`${path}.${k}: required`);
 }
 function str(v: unknown, path: string, max: number): string {
-  if (typeof v !== 'string' || v.trim() === '') throw new ActionError(`${path}: 비어 있지 않은 문자열`);
-  if ([...v].length > max) throw new ActionError(`${path}: ${max}자 이하`);
+  if (typeof v !== 'string' || v.trim() === '') throw new ActionError(`${path}: must be a non-empty string`);
+  if ([...v].length > max) throw new ActionError(`${path}: at most ${max} characters`);
   return v;
 }
 function obj(v: unknown, path: string): Obj {
-  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new ActionError(`${path}: 객체여야 함`);
+  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new ActionError(`${path}: must be an object`);
   return v as Obj;
 }
 function list(v: unknown, path: string, min: number, max: number): unknown[] {
-  if (!Array.isArray(v) || v.length < min || v.length > max) throw new ActionError(`${path}: ${min}~${max}개 배열`);
+  if (!Array.isArray(v) || v.length < min || v.length > max) throw new ActionError(`${path}: must be an array of ${min}–${max} items`);
   return v;
 }
 
-/** structured_output({ step: 행동 })을 행동으로 */
+/** structured_output ({ step: action }) to an action */
 export function parseAction(raw: unknown): Action {
   const top = obj(raw, 'structured_output');
   only(top, ['step'], '');
@@ -48,7 +48,7 @@ export function parseAction(raw: unknown): Action {
         const x = obj(q, p);
         only(x, ['id', 'text', 'options', 'allow_free_text'], p);
         if (typeof x.id !== 'string' || !/^[a-z_]{1,32}$/.test(x.id)) throw new ActionError(`${p}.id: ^[a-z_]{1,32}$`);
-        if (ids.has(x.id)) throw new ActionError(`${p}.id: 요청 안에서 중복`);
+        if (ids.has(x.id)) throw new ActionError(`${p}.id: duplicate in this request`);
         ids.add(x.id);
         const options = list(x.options, `${p}.options`, 1, 4).map((op, j) => {
           const y = obj(op, `${p}.options[${j}]`);
@@ -56,7 +56,7 @@ export function parseAction(raw: unknown): Action {
           if (typeof y.is_default !== 'boolean') throw new ActionError(`${p}.options[${j}].is_default: true/false`);
           return { label: str(y.label, `${p}.options[${j}].label`, 60), is_default: y.is_default };
         });
-        if (options.filter((op) => op.is_default).length !== 1) throw new ActionError(`${p}.options: 기본값(is_default: true)은 정확히 하나`);
+        if (options.filter((op) => op.is_default).length !== 1) throw new ActionError(`${p}.options: exactly one default (is_default: true)`);
         if (typeof x.allow_free_text !== 'boolean') throw new ActionError(`${p}.allow_free_text: true/false`);
         return { id: x.id, text: str(x.text, `${p}.text`, 200), options, allow_free_text: x.allow_free_text };
       });
@@ -67,7 +67,7 @@ export function parseAction(raw: unknown): Action {
       return { action: 'probe', plan: str(o.plan, '.plan', 200), purpose: str(o.purpose, '.purpose', 100), sql: str(o.sql, '.sql', 8000) };
     case 'panel': {
       only(o, ['action', 'plan', 'panel'], '');
-      if (!o.panel || typeof o.panel !== 'object' || !('metric' in (o.panel as Obj))) throw new ActionError('.panel.metric: 필수(지표 사전 id 또는 null)');
+      if (!o.panel || typeof o.panel !== 'object' || !('metric' in (o.panel as Obj))) throw new ActionError('.panel.metric: required (metric dictionary id or null)');
       try {
         return { action: 'panel', plan: str(o.plan, '.plan', 300), panel: parsePanelSpec(stripNullRoles(o.panel)) };
       } catch (e) {
@@ -83,11 +83,11 @@ export function parseAction(raw: unknown): Action {
         alternatives: list(o.alternatives, '.alternatives', 0, 3).map((a, i) => str(a, `.alternatives[${i}]`, 100)),
       };
     default:
-      throw new ActionError(`action은 ask|probe|panel|refuse 중 하나 (받은 값: ${JSON.stringify(o.action)})`);
+      throw new ActionError(`action must be one of ask|probe|panel|refuse (got ${JSON.stringify(o.action)})`);
   }
 }
 
-/** null 역할 칸을 지운다 */
+/** Drops null role columns */
 function stripNullRoles(panel: unknown): unknown {
   if (!panel || typeof panel !== 'object') return panel;
   const p = panel as Obj;

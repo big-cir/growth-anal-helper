@@ -1,14 +1,22 @@
-// 시스템 프롬프트 조립: 엔진 지침, 지표 사전, 스냅샷 스키마, 워크스페이스 설명서, 시드 패널, 현재 상태.
+// Builds the system prompt: engine guide, metric dictionary, snapshot schema, workspace guide, seed panels, current state.
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import { displayToJson, type PanelSpec } from '../panels/spec.ts';
+import { language } from '../i18n.ts';
 
 export const CONTEXT_LIMIT = 60_000;
 export const ENGINE_GUIDE = readFileSync(new URL('./engine-guide.md', import.meta.url), 'utf8');
 
+export const LANGUAGE_NAMES = { en: 'English', ko: 'Korean' } as const;
+
+/** Engine guide with the configured output language filled in */
+export function engineGuide(): string {
+  return ENGINE_GUIDE.replaceAll('{{LANGUAGE}}', LANGUAGE_NAMES[language()]);
+}
+
 export class ContextError extends Error {}
 
-/** guide.md의 `표.칸` 설명(표 행 또는 목록) */
+/** `table.column` descriptions in guide.md (table rows or list items) */
 export function columnDescriptions(guide: string): Map<string, string> {
   const m = new Map<string, string>();
   for (const line of guide.split('\n')) {
@@ -20,7 +28,7 @@ export function columnDescriptions(guide: string): Map<string, string> {
   return m;
 }
 
-/** 패널용 표와 탐색 전용 표로 나눈 스키마. tables는 읽을 수 있는 실제 표 이름 전부 */
+/** Schema split into panel tables and probe-only tables. tables lists every readable table */
 export function snapshotSchema(agentPath: string, readablePrefixes: string[], panelPrefixes: string[], guide: string): { text: string; tables: string[] } {
   const desc = columnDescriptions(guide);
   const db = new DatabaseSync(agentPath, { readOnly: true });
@@ -30,7 +38,7 @@ export function snapshotSchema(agentPath: string, readablePrefixes: string[], pa
       .filter((n) => readablePrefixes.some((p) => n.startsWith(p)));
     const describe = (t: string) => {
       const n = (db.prepare(`SELECT count(*) n FROM "${t}"`).get() as { n: number }).n;
-      const out = [`### ${t} (${n}행)`];
+      const out = [`### ${t} (${n} rows)`];
       for (const c of db.prepare(`PRAGMA table_info("${t}")`).all() as { name: string; type: string }[]) {
         const d = desc.get(`${t}.${c.name}`);
         out.push(`- ${c.name}${c.type ? ` ${c.type}` : ''}${d ? ` — ${d}` : ''}`);
@@ -53,7 +61,7 @@ export type SeedPanel = { id: string; spec: PanelSpec };
 
 export type ContextInput = {
   schema: string;
-  /** 지표 사전 본문 */
+  /** Metric dictionary text */
   metrics: string;
   guide: string;
   seedPanels: SeedPanel[];
@@ -69,7 +77,7 @@ function seedText(panels: SeedPanel[], withSql: boolean[]): string {
   }).join('\n\n');
 }
 
-/** 상한을 넘으면 시드 패널 SQL, 그다음 시드 패널을 뒤에서부터 뺀다 */
+/** Over the limit: drop seed panel SQL, then seed panels from the end */
 export function buildContext(o: ContextInput): string {
   const scalarParams = Object.fromEntries(Object.entries(o.state.params).filter(([, v]) => !Array.isArray(v)));
   const state = [
@@ -80,7 +88,7 @@ export function buildContext(o: ContextInput): string {
     `- Available parameters: :as_of${Object.keys(scalarParams).map((k) => `, :${k}`).join('')}`,
   ].join('\n');
   const assemble = (panels: SeedPanel[], withSql: boolean[]) =>
-    [ENGINE_GUIDE.trim(), `# Metric dictionary\n\n${o.metrics}`, `# Snapshot schema (ID values are pseudonyms)\n\n${o.schema}`, `# Workspace guide\n\n${o.guide.trim()}`,
+    [engineGuide().trim(), `# Metric dictionary\n\n${o.metrics}`, `# Snapshot schema (ID values are pseudonyms)\n\n${o.schema}`, `# Workspace guide\n\n${o.guide.trim()}`,
       panels.length ? `# Example panels (SQL that applies the interpretation rules correctly)\n\n${seedText(panels, withSql)}` : '', state]
       .filter(Boolean).join('\n\n---\n\n');
 
@@ -95,6 +103,6 @@ export function buildContext(o: ContextInput): string {
     panels = panels.slice(0, -1);
     text = assemble(panels, withSql.slice(0, panels.length));
   }
-  if (text.length > CONTEXT_LIMIT) throw new ContextError(`컨텍스트가 ${CONTEXT_LIMIT}자를 넘음(${text.length}자): 설명서(guide.md)를 줄여 주세요`);
+  if (text.length > CONTEXT_LIMIT) throw new ContextError(`context is over ${CONTEXT_LIMIT} characters (${text.length}): shorten guide.md`);
   return text;
 }

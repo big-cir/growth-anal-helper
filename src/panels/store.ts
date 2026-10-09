@@ -1,4 +1,4 @@
-// 저장 패널 파일(panels/<id>.json) 읽기·쓰기.
+// Reads and writes saved panel files (panels/<id>.json).
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ResultColumn } from '../query/worker.ts';
@@ -12,7 +12,7 @@ export type JobStatus = 'idle' | 'queued' | 'running' | 'cancelling' | 'cancelle
 
 export type PanelVersions = ContextVersion & { pattern_contract_version: number; renderer_version: number };
 
-/** 계산 방식: 저장 시 미리보기, 새 스냅샷 자동, 규칙 변경 후 수동 */
+/** How it was computed: preview at save, automatic on a new snapshot, manual after a rule change */
 export type ResultMode = 'preview' | 'auto' | 'manual_rule';
 
 export type LastResult = {
@@ -24,7 +24,7 @@ export type LastResult = {
   rows: Row[];
   caveats: string[];
   headline: Headline;
-  /** 패널 SQL이 참조한 표. 이전 기록에는 없을 수 있음 */
+  /** Tables the panel SQL read. May be missing in older records */
   tables?: string[];
 };
 
@@ -43,9 +43,9 @@ export type SavedPanel = {
   status: PanelStatus;
   last_result: LastResult;
   last_error: { at: string; message: string } | null;
-  /** 저장한 사용자. 이전 파일에는 없음(admin만 관리) */
+  /** User who saved it. Missing in older files (admin-only) */
   created_by?: string;
-  /** 지표 사전 이전 형식(metric 없음). 다시 계산하지 않고 재생성만 */
+  /** Pre-dictionary format (no metric). Never recomputed, only regenerated */
   legacy?: boolean;
 };
 
@@ -60,7 +60,7 @@ export class PanelStore {
   }
 
   private file(id: string): string {
-    if (!ID_RE.test(id)) throw new Error(`패널 ID 형식 오류: ${id}`);
+    if (!ID_RE.test(id)) throw new Error(`invalid panel id: ${id}`);
     return join(this.dir, `${id}.json`);
   }
 
@@ -73,7 +73,7 @@ export class PanelStore {
     return { ...raw, spec: parsePanelSpec(raw.spec), ...(legacy ? { legacy: true } : {}) };
   }
 
-  /** 만든 순서대로 */
+  /** In creation order */
   list(): SavedPanel[] {
     return readdirSync(this.dir)
       .filter((f) => /^[a-z0-9]{12}\.json$/.test(f))
@@ -86,7 +86,7 @@ export class PanelStore {
     const target = this.file(p.id);
     const tmp = `${target}.tmp-${process.pid}`;
     const { legacy, ...rest } = p;
-    // 이전 형식이면 metric 키 없이 써서 표시를 유지한다
+    // Old format: write without the metric key to keep it marked
     const { metric, ...specRest } = p.spec;
     const spec = legacy ? { ...specRest, display: displayToJson(p.spec.display) } : { metric, ...specRest, display: displayToJson(p.spec.display) };
     writeFileSync(tmp, JSON.stringify({ ...rest, spec }, null, 1) + '\n');

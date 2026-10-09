@@ -1,4 +1,4 @@
-// 에이전트에게 보내는 턴 입력을 만든다. dataMode에 맞지 않는 내용은 보내지 않는다.
+// Builds the turn input sent to the agent. Nothing that the dataMode forbids is sent.
 import type { Role } from '../collect/spec.ts';
 import type { Violation } from '../panels/contract.ts';
 import type { PanelRunResult } from '../panels/run.ts';
@@ -32,27 +32,27 @@ export function render(mode: DataMode, pieces: Piece[]): string {
         out.push(`${p.label}:\n\`\`\`json\n${JSON.stringify(p.value, null, 1)}\n\`\`\``);
         break;
       case 'rows':
-        if (mode !== 'pseudonymized') throw new OutboundBlocked('schema_only 모드에서 결과 행을 보낼 수 없음');
-        if (p.target !== 'agent') throw new OutboundBlocked('가명 사본이 아닌 결과 행은 보낼 수 없음');
-        out.push(`결과(가명 ID):\n\`\`\`json\n${JSON.stringify({ columns: p.columns, rows: p.rows.map((r) => r.map((t) => t[1])), more: p.more, truncated_cells: p.truncatedCells })}\n\`\`\``);
+        if (mode !== 'pseudonymized') throw new OutboundBlocked('result rows cannot be sent in schema_only mode');
+        if (p.target !== 'agent') throw new OutboundBlocked('only rows from the pseudonymized copy can be sent');
+        out.push(`Result (pseudonymous IDs):\n\`\`\`json\n${JSON.stringify({ columns: p.columns, rows: p.rows.map((r) => r.map((t) => t[1])), more: p.more, truncated_cells: p.truncatedCells })}\n\`\`\``);
         break;
       case 'result':
-        if (mode !== 'pseudonymized') throw new OutboundBlocked('schema_only 모드에서 결과 값을 보낼 수 없음');
-        if (p.target !== 'agent') throw new OutboundBlocked('가명 사본이 아닌 결과는 보낼 수 없음');
-        out.push(`패널 결과(가명 ID):\n\`\`\`json\n${JSON.stringify(p.value)}\n\`\`\``);
+        if (mode !== 'pseudonymized') throw new OutboundBlocked('result values cannot be sent in schema_only mode');
+        if (p.target !== 'agent') throw new OutboundBlocked('only results from the pseudonymized copy can be sent');
+        out.push(`Panel result (pseudonymous IDs):\n\`\`\`json\n${JSON.stringify(p.value)}\n\`\`\``);
         break;
       case 'stats':
-        out.push(`결과 통계(값은 보내지 않음):\n\`\`\`json\n${JSON.stringify({ row_count: p.rowCount, more: p.more, columns: p.columns })}\n\`\`\``);
+        out.push(`Result statistics (values not sent):\n\`\`\`json\n${JSON.stringify({ row_count: p.rowCount, more: p.more, columns: p.columns })}\n\`\`\``);
         break;
       case 'violation':
-        out.push(`위반(${p.stage}):\n\`\`\`json\n${JSON.stringify(p.items)}\n\`\`\``);
+        out.push(`Violations (${p.stage}):\n\`\`\`json\n${JSON.stringify(p.items)}\n\`\`\``);
         break;
     }
   }
   return out.join('\n\n');
 }
 
-/** schema_only용 칸 통계 */
+/** Column statistics for schema_only */
 export function columnStats(columns: ResultColumn[], rows: Tagged[][], roles: Map<string, Role>): ColumnStats[] {
   return columns.map((c, i) => {
     const role = c.table && c.column ? roles.get(`${c.table}.${c.column}`) : undefined;
@@ -89,9 +89,9 @@ export class Outbound {
 
   request(userText: string, current: PanelSpec | null, recovery: string | null): string {
     const pieces: Piece[] = [];
-    if (recovery) pieces.push({ kind: 'text', text: `이전 대화 요약(새 세션으로 이어감):\n${recovery}` });
-    pieces.push({ kind: 'text', text: `사용자 요청: ${userText}` });
-    if (current) pieces.push({ kind: 'json', label: '현재 미리보기 패널 사양(수정 요청이면 이것을 바탕으로 고치세요)', value: specJson(current) });
+    if (recovery) pieces.push({ kind: 'text', text: `Summary of the earlier conversation (continuing in a new session):\n${recovery}` });
+    pieces.push({ kind: 'text', text: `User request: ${userText}` });
+    if (current) pieces.push({ kind: 'json', label: 'Current preview panel spec (if this is a change request, edit this one)', value: specJson(current) });
     return this.render(pieces);
   }
 
@@ -101,13 +101,13 @@ export class Outbound {
       if (a === undefined || a.trim() === '') return { id: q.id, answer: q.options.find((o) => o.is_default)!.label, defaulted: true };
       return { id: q.id, answer: a, defaulted: false };
     });
-    return this.render([{ kind: 'text', text: '질문에 대한 답입니다. 답하지 않은 질문은 기본값으로 정했습니다.' }, { kind: 'json', label: '답', value }]);
+    return this.render([{ kind: 'text', text: 'Answers to your questions. Unanswered questions were set to their defaults.' }, { kind: 'json', label: 'Answers', value }]);
   }
 
   probeResult(r: QueryResult, remainingProbes: number): string {
-    const tail: Piece = { kind: 'text', text: `남은 탐색 횟수: ${remainingProbes}회.` };
-    if (!r.ok) return this.render([{ kind: 'text', text: `탐색 쿼리 실패 (${r.kind}): ${r.message}` }, tail]);
-    const head: Piece = { kind: 'text', text: `탐색 쿼리 결과: ${r.rows.length}행${r.more ? ' (더 있음, 50행까지만)' : ''}, ${r.ms}ms.` };
+    const tail: Piece = { kind: 'text', text: `Probes left: ${remainingProbes}.` };
+    if (!r.ok) return this.render([{ kind: 'text', text: `Probe query failed (${r.kind}): ${r.message}` }, tail]);
+    const head: Piece = { kind: 'text', text: `Probe query result: ${r.rows.length} rows${r.more ? ' (more exist, first 50 only)' : ''}, ${r.ms}ms.` };
     if (this.mode === 'schema_only') {
       return this.render([head, { kind: 'stats', columns: columnStats(r.columns, r.rows, this.roles), rowCount: r.rows.length, more: r.more }, tail]);
     }
@@ -116,9 +116,9 @@ export class Outbound {
 
   panelFailure(r: Extract<PanelRunResult, { ok: false }>, remainingFixes: number): string {
     const stageName: Record<string, string> = {
-      lint: '정적 검사', exec: '실행', contract: '결과 계약', invariant: '불변식', id_column: 'ID 칸 출력', id_dependent: 'ID 값 의존', metric_tables: '지표 사전의 표 규칙', cancelled: '취소',
+      lint: 'static check', exec: 'execution', contract: 'result contract', invariant: 'invariants', id_column: 'ID column in output', id_dependent: 'depends on ID values', metric_tables: 'metric dictionary table rule', cancelled: 'cancelled',
     };
-    const head = `패널 검사 실패 — 단계: ${stageName[r.stage] ?? r.stage}. 남은 수정 횟수: ${remainingFixes}회.`;
+    const head = `Panel check failed — stage: ${stageName[r.stage] ?? r.stage}. Fixes left: ${remainingFixes}.`;
     if (this.mode === 'schema_only' && r.stage === 'invariant') {
       const items = (r.violations ?? []).slice(0, 20).map((v: Violation) => ({ rule: v.rule, index: v.index, column: v.column }));
       return this.render([{ kind: 'text', text: head }, { kind: 'violation', stage: r.stage, items }]);
@@ -126,39 +126,43 @@ export class Outbound {
     return this.render([{ kind: 'text', text: `${head}\n${r.message}` }]);
   }
 
+  zeroResult(): string {
+    return this.render([{ kind: 'text', text: 'Every number column in the panel result is 0 (or NULL). Check that the join and filter conditions really match. In particular, comparing a date string (YYYY-MM-DD) with a timestamp string (YYYY-MM-DD HH:MM:SS.ffffff) as-is matches no rows. Use a probe if needed, then send the fixed panel. If 0 is correct, send the same panel again and it will be accepted.' }]);
+  }
+
   offdictRejected(): string {
-    return this.render([{ kind: 'text', text: '사용자가 지표 사전에 없는 정의로 만든 패널을 받지 않았습니다. 지표 사전의 지표 중 하나(metric에 그 id)로 다시 만드세요. 해당하는 사전 지표가 없다고 판단되면 refuse로 이유와 가까운 사전 지표를 알려 주세요.' }]);
+    return this.render([{ kind: 'text', text: 'The user did not accept a panel built on a definition outside the metric dictionary. Rebuild it with one of the dictionary metrics (its id in metric). If no dictionary metric fits, refuse and give the reason and the closest dictionary metrics.' }]);
   }
 
   schemaMismatch(error: string): string {
-    return this.render([{ kind: 'text', text: `직전 응답이 행동 스키마에 맞지 않습니다: ${error}\n행동(ask | probe | panel | refuse) 하나를 스키마에 맞게 다시 내세요.` }]);
+    return this.render([{ kind: 'text', text: `Your last reply does not match the action schema: ${error}\nSend one action (ask | probe | panel | refuse) that matches the schema.` }]);
   }
 
   summarize(spec: PanelSpec, result: Record<string, unknown>): string {
     return this.render([
-      { kind: 'text', text: '아래 패널의 "이 패널이 말해 주는 것"을 써 주세요.' },
-      { kind: 'json', label: '패널 사양', value: specJson(spec) },
+      { kind: 'text', text: 'Write "what this panel tells you" for the panel below.' },
+      { kind: 'json', label: 'Panel spec', value: specJson(spec) },
       { kind: 'result', target: 'agent', value: result },
     ]);
   }
 
   summaryRetry(problems: string[]): string {
-    return this.render([{ kind: 'text', text: `직전 설명이 검사를 통과하지 못했습니다. 고쳐서 다시 내세요.\n${problems.map((p) => `- ${p}`).join('\n')}` }]);
+    return this.render([{ kind: 'text', text: `Your last description failed the check. Fix it and send it again.\n${problems.map((p) => `- ${p}`).join('\n')}` }]);
   }
 
-  /** 새 세션용 이전 대화 요약(8,000자 이내) */
+  /** Summary of the earlier conversation for a new session (8,000 characters or fewer) */
   recoverySummary(o: { inputs: string[]; lastAsk: { questions: AskQuestion[]; answers: Record<string, string | undefined> } | null; current: PanelSpec | null }): string {
     const MAX = 8000;
     let inputs = o.inputs.slice(-5).map((t) => (t.length > 500 ? `${t.slice(0, 500)}…` : t));
     let current = o.current;
     let lastAsk = o.lastAsk;
     const build = () => {
-      const pieces: Piece[] = [{ kind: 'json', label: '최근 사용자 입력', value: inputs }];
+      const pieces: Piece[] = [{ kind: 'json', label: 'Recent user inputs', value: inputs }];
       if (lastAsk) {
         const cut = (t: string) => (t.length > 300 ? `${t.slice(0, 300)}…` : t);
-        pieces.push({ kind: 'json', label: '최근 되묻기와 답', value: lastAsk.questions.map((q) => ({ question: q.text, answer: cut(lastAsk!.answers[q.id] ?? `${q.options.find((x) => x.is_default)!.label} (기본값)`) })) });
+        pieces.push({ kind: 'json', label: 'Latest questions and answers', value: lastAsk.questions.map((q) => ({ question: q.text, answer: cut(lastAsk!.answers[q.id] ?? `${q.options.find((x) => x.is_default)!.label} (default)`) })) });
       }
-      if (current) pieces.push({ kind: 'json', label: '현재 미리보기 패널 사양', value: specJson(current) });
+      if (current) pieces.push({ kind: 'json', label: 'Current preview panel spec', value: specJson(current) });
       return this.render(pieces);
     };
     let text = build();
@@ -166,10 +170,10 @@ export class Outbound {
       inputs = inputs.slice(1);
       text = build();
     }
-    // 그래도 넘으면 패널 SQL → 정의 → 패널 사양 순으로 줄인다
+    // Still too long: shorten panel SQL, then definition, then the spec
     if (text.length > MAX && current) {
       const over = text.length - MAX;
-      current = { ...current, sql: `${current.sql.slice(0, Math.max(0, current.sql.length - over - 40))}\n…(길어서 생략)` };
+      current = { ...current, sql: `${current.sql.slice(0, Math.max(0, current.sql.length - over - 40))}\n…(truncated)` };
       text = build();
     }
     if (text.length > MAX && current) {

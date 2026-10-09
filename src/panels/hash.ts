@@ -1,11 +1,11 @@
-// 해시와 버전.
+// Hashes and versions.
 import { createHash } from 'node:crypto';
 import { ALLOWED_FUNCTIONS } from '../query/authorizer.ts';
 import { LINT_RULES_VERSION } from '../query/sql-lint.ts';
 import { PATTERN_CONTRACT_VERSION } from './contract.ts';
 import { displayToJson, type PanelSpec } from './spec.ts';
 
-/** 화면 렌더러가 바뀌면 올린다 */
+/** Bump when the screen renderer changes */
 export const RENDERER_VERSION = 2;
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -14,7 +14,7 @@ export function normalizeSql(sql: string): string {
   return sql.split(/\r?\n/).map((l) => l.trimEnd()).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
-/** 같은 해시면 같은 패널 */
+/** Same hash, same panel */
 export function semanticHash(spec: PanelSpec, paramsHash: string): string {
   return sha(JSON.stringify([normalizeSql(spec.sql), paramsHash, displayToJson(spec.display), spec.definition, spec.answers, spec.metric]));
 }

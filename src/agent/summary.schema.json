@@ -1,7 +1,7 @@
 {
   "type": "object",
   "title": "growth-lab panel summary",
-  "description": "패널 결과를 풀어 쓴 설명. 숫자는 prose에 직접 쓰지 않고 {c1}처럼 claim id로만 쓴다",
+  "description": "Plain-language description of the panel result. Numbers never appear in prose directly, only as claim ids such as {c1}",
   "additionalProperties": false,
   "required": ["prose", "claims"],
   "properties": {

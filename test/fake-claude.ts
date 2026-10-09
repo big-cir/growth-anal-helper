@@ -1,11 +1,11 @@
-// 대본대로 stream-json을 내는 가짜 claude CLI.
-// FAKE_CLAUDE_SCRIPT = 대본 JSON(호출마다 다음 항목), FAKE_CLAUDE_DIR = 상태·기록 폴더.
+// Fake claude CLI that prints scripted stream-json.
+// FAKE_CLAUDE_SCRIPT = script JSON (next item per call), FAKE_CLAUDE_DIR = state and log folder.
 import { spawn } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 type Step = {
-  /** { step: … }으로 감싸서 낸다(rawStructured면 그대로) */
+  /** Wrapped in { step: … } (as-is with rawStructured) */
   structured?: unknown;
   rawStructured?: boolean;
   events?: Record<string, unknown>[];

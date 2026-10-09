@@ -1,4 +1,4 @@
-// 패널 실행: 원본과 가명 사본에서 차례로 실행하고 계약·불변식·결과 일치를 확인한다.
+// Runs a panel on the real copy and the pseudonymized copy, then checks the contract, invariants and that both results agree.
 import type { Role } from '../collect/spec.ts';
 import { runQuery, type SlotLease } from '../query/executor.ts';
 import type { ResultColumn, Tagged } from '../query/worker.ts';
@@ -11,10 +11,10 @@ export type PanelRunInput = {
   paths: { real: string; agent: string };
   asOf: string;
   params: Record<string, string | number | string[]>;
-  /** 패널은 panelReadablePrefixes의 표만 읽는다 */
+  /** Panels read only panelReadablePrefixes tables */
   policy: { panelReadablePrefixes: string[] };
   metrics: MetricDict;
-  /** 민감 거부할 칸·표(private 칸, 엔진 운영 표) */
+  /** Columns and tables to refuse (private columns, engine tables) */
   blocked: { columns: string[]; tables: string[] };
   heapLimitMb: number;
   roles: Map<string, Role>;
@@ -55,7 +55,7 @@ function compareRow(a: Tagged[], b: Tagged[]): number {
   return 0;
 }
 
-/** 행 순서를 무시하고 같은지 */
+/** Equal ignoring row order */
 export function sameResult(a: Tagged[][], b: Tagged[][]): boolean {
   if (a.length !== b.length) return false;
   const sa = [...a].sort(compareRow);
@@ -71,7 +71,7 @@ export async function runPanel(o: PanelRunInput): Promise<PanelRunResult> {
   if (!real.ok) {
     if (real.kind === 'cancelled') return { ok: false, stage: 'cancelled', message: real.message };
     if (real.kind === 'sensitive') return { ok: false, stage: 'sensitive', message: real.message };
-    const hint = /^읽을 수 없는 표/.test(real.message) ? ` (패널은 패널용 표 ${o.policy.panelReadablePrefixes.map((p) => `${p}*`).join(', ')}만 읽을 수 있음)` : '';
+    const hint = /^[^:]*(unreadable|not readable|cannot read|can't read)[^:]*:/i.test(real.message) ? ` (panels can only read panel tables ${o.policy.panelReadablePrefixes.map((p) => `${p}*`).join(', ')})` : '';
     return { ok: false, stage: real.kind === 'lint' ? 'lint' : 'exec', message: real.message + hint };
   }
   if (o.spec.metric !== null) {
@@ -80,7 +80,7 @@ export async function runPanel(o: PanelRunInput): Promise<PanelRunResult> {
   }
   const ids = directIdentifierColumns(real.columns, o.roles);
   if (ids.length) {
-    return { ok: false, stage: 'id_column', message: `ID 칸은 패널 결과에 넣을 수 없음: ${ids.join(', ')} (개수·비율 같은 집계로 바꾸세요)` };
+    return { ok: false, stage: 'id_column', message: `ID columns cannot be in a panel result: ${ids.join(', ')} (use aggregates such as counts or rates)` };
   }
   try {
     checkContract(o.spec, real.columns);
@@ -96,17 +96,17 @@ export async function runPanel(o: PanelRunInput): Promise<PanelRunResult> {
     return { ok: false, stage: 'exec', message: agent.message };
   }
 
-  if (agent.tables.join(',') !== real.tables.join(',')) return { ok: false, stage: 'exec', message: '원본과 가명 사본에서 참조한 표가 다름(스냅샷 사본의 스키마가 다름)' };
+  if (agent.tables.join(',') !== real.tables.join(',')) return { ok: false, stage: 'exec', message: 'the real and pseudonymized copies read different tables (their schemas differ)' };
   const agentRows = untagRows(agent.rows);
   const realRows = untagRows(real.rows);
   const v = checkInvariants(o.spec, agent.columns, agentRows);
-  if (v.length) return { ok: false, stage: 'invariant', message: `불변식 위반:\n${formatViolations(v)}`, violations: v };
+  if (v.length) return { ok: false, stage: 'invariant', message: `invariant violations:\n${formatViolations(v)}`, violations: v };
   if (checkInvariants(o.spec, real.columns, realRows).length) {
-    return { ok: false, stage: 'id_dependent', message: 'ID 값에 의존하는 패널: ID의 크기·범위·순서에 의존하지 마세요' };
+    return { ok: false, stage: 'id_dependent', message: 'panel depends on ID values: do not depend on the size, range or order of IDs' };
   }
 
   if (!sameResult(real.rows, agent.rows)) {
-    return { ok: false, stage: 'id_dependent', message: 'ID 값에 의존하는 패널: 원본과 가명 사본의 결과가 다름. ID의 크기·범위·순서에 의존하지 마세요' };
+    return { ok: false, stage: 'id_dependent', message: 'panel depends on ID values: the real and pseudonymized results differ. Do not depend on the size, range or order of IDs' };
   }
   return { ok: true, columns: real.columns, real: realRows, agent: agentRows, ms: Math.round(performance.now() - t0), tables: real.tables };
 }

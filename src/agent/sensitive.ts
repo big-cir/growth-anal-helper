@@ -1,10 +1,10 @@
-// 민감 주제 질문과 비밀처럼 생긴 값 찾기(보조 검사). 데이터 보호의 근거는 칸 등급과 authorizer이고, 이 검사는 시도를 일찍 막는다.
+// Finds sensitive-topic questions and secret-looking values (a secondary check). Data protection rests on column roles and the authorizer; this stops attempts early.
 
 const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
 const JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
 const JONG = 'ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ';
 
-/** 한글은 자모 낱자로 풀고(초성·종성 구분 없음), 영문은 소문자, 공백·기호는 지운다 */
+/** Hangul is split into jamo (initial and final not distinguished), Latin is lowercased, spaces and symbols are removed */
 export function normalizeText(text: string): string {
   let out = '';
   for (const ch of text.normalize('NFKD')) {
@@ -17,7 +17,7 @@ export function normalizeText(text: string): string {
   return out;
 }
 
-/** 분류 → 낱말들. 한국어·영어 */
+/** Category → words, Korean and English */
 const TOPICS: Record<string, string[]> = {
   credential: ['비밀번호', '패스워드', '암호', 'password', 'passwd', '토큰', 'token', '세션토큰', '세션id', 'sessionid', 'sessiontoken', '세션쿠키', '쿠키값', 'cookievalue', 'api키', 'apikey', '시크릿', 'secret', '인증서', 'certificate', '개인키', 'privatekey', '해시', 'hash', '솔트', 'salt', 'otp', '2단계인증', 'mfa', '로그인정보', 'credential', 'bearer'],
   account: ['계정정보', '관리자계정', '사용자계정', '권한정보', '접근권한', '권한목록', '역할목록', '관리자목록', 'accountinfo'],
@@ -27,14 +27,14 @@ const TOPICS: Record<string, string[]> = {
 };
 const NORMALIZED = Object.entries(TOPICS).map(([k, ws]) => [k, ws.map(normalizeText)] as const);
 
-/** 걸린 분류 또는 null */
+/** Matched category or null */
 export function sensitiveTopic(text: string): string | null {
   const n = normalizeText(text);
   for (const [k, ws] of NORMALIZED) for (const w of ws) if (n.includes(w)) return k;
   return null;
 }
 
-/** 비밀처럼 생긴 값: JWT, Bearer, 긴 base64/hex, PEM, 이메일, 사용자·비밀번호가 든 연결 문자열 */
+/** Secret-looking values: JWT, Bearer, long base64/hex, PEM, email, connection strings with user and password */
 const SHAPES: [string, RegExp][] = [
   ['jwt', /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/],
   ['bearer', /\bbearer\s+[A-Za-z0-9._~+/-]{16,}/i],
@@ -46,7 +46,7 @@ const SHAPES: [string, RegExp][] = [
 
 export function secretShape(text: string): string | null {
   for (const [k, re] of SHAPES) if (re.test(text)) return k;
-  // 긴 base64: 글자·숫자가 섞인 40자 이상(긴 snake_case 이름은 제외)
+  // Long base64: 40+ mixed letters and digits (long snake_case names excluded)
   for (const m of text.matchAll(/[A-Za-z0-9+/_-]{40,}={0,2}/g)) {
     const v = m[0];
     if (/\d/.test(v) && /[A-Z]/.test(v) && /[a-z]/.test(v)) return 'base64';
@@ -54,7 +54,7 @@ export function secretShape(text: string): string | null {
   return null;
 }
 
-/** 비밀 이름 규칙에 걸리는 "키: 값"·"키=값" */
+/** "key: value" or "key=value" whose key looks like a secret name */
 export function secretAssignment(text: string): boolean {
   return /\b(pass(word|wd)?|pwd|secret|token|api[_-]?key|credential|private[_-]?key)\s*[:=]\s*\S+/i.test(text);
 }

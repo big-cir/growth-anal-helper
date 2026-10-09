@@ -1,7 +1,7 @@
-// 새 스냅샷이 들어왔을 때 저장 패널을 어떻게 할지 정한다.
+// Decides what to do with saved panels when a new snapshot arrives.
 import type { PanelVersions, SavedPanel } from './store.ts';
 
-/** 바뀌면 자동 재계산하지 않고 재검토로 돌리는 버전 */
+/** Versions that send a panel to review instead of recomputing automatically when they change */
 export const RULE_KEYS = ['schema_version', 'policy_version', 'docs_version', 'prompt_version', 'pattern_contract_version'] as const;
 
 export type RecomputeDecision = 'none' | 'auto' | 'review';

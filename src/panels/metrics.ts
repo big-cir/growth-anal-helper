@@ -1,4 +1,4 @@
-// 지표 사전(metrics.json): 자주 묻는 지표마다 써야 할 표와 정의.
+// Metric dictionary (metrics.json): for each common metric, the tables and definition to use.
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,49 +18,49 @@ function fail(path: string, msg: string): never {
   throw new MetricsError(`metrics.json${path}: ${msg}`);
 }
 function str(v: unknown, path: string, max: number): string {
-  if (typeof v !== 'string' || v.trim() === '') fail(path, '비어 있지 않은 문자열');
-  if ([...v].length > max) fail(path, `${max}자 이하`);
+  if (typeof v !== 'string' || v.trim() === '') fail(path, 'must be a non-empty string');
+  if ([...v].length > max) fail(path, `at most ${max} characters`);
   return v;
 }
 function list(v: unknown, path: string, min: number, max: number): unknown[] {
-  if (!Array.isArray(v) || v.length < min || v.length > max) fail(path, `${min}~${max}개 배열`);
+  if (!Array.isArray(v) || v.length < min || v.length > max) fail(path, `must be an array of ${min}–${max} items`);
   return v;
 }
 function tableName(v: unknown, path: string, prefixes: string[]): string {
-  if (typeof v !== 'string' || !TABLE.test(v)) fail(path, '표 이름');
-  if (!prefixes.some((p) => v.startsWith(p))) fail(path, `패널용 표(${prefixes.join(', ')})여야 함: ${v}`);
+  if (typeof v !== 'string' || !TABLE.test(v)) fail(path, 'must be a table name');
+  if (!prefixes.some((p) => v.startsWith(p))) fail(path, `must be a panel table (${prefixes.join(', ')}): ${v}`);
   return v;
 }
 
 export function parseMetrics(text: string, panelPrefixes: string[]): MetricDict {
-  if (text.length > METRICS_LIMITS.fileChars) fail('', `${METRICS_LIMITS.fileChars}자 이하`);
+  if (text.length > METRICS_LIMITS.fileChars) fail('', `at most ${METRICS_LIMITS.fileChars} characters`);
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch (e) {
-    fail('', `JSON 오류: ${(e as Error).message}`);
+    fail('', `JSON error: ${(e as Error).message}`);
   }
-  if (!isObj(raw)) fail('', '객체여야 함');
-  for (const k of Object.keys(raw)) if (k !== 'dimension_tables' && k !== 'metrics') fail(`.${k}`, '알 수 없는 키');
+  if (!isObj(raw)) fail('', 'must be an object');
+  for (const k of Object.keys(raw)) if (k !== 'dimension_tables' && k !== 'metrics') fail(`.${k}`, 'unknown key');
   const dimension_tables = raw.dimension_tables === undefined ? [] : list(raw.dimension_tables, '.dimension_tables', 0, 8).map((t, i) => tableName(t, `.dimension_tables[${i}]`, panelPrefixes));
   const ids = new Set<string>();
   const metrics = list(raw.metrics, '.metrics', 0, METRICS_LIMITS.metrics).map((m, i): Metric => {
     const p = `.metrics[${i}]`;
-    if (!isObj(m)) fail(p, '객체여야 함');
-    for (const k of Object.keys(m)) if (!['id', 'name', 'asks', 'tables', 'definition', 'seed_panel'].includes(k)) fail(`${p}.${k}`, '알 수 없는 키');
+    if (!isObj(m)) fail(p, 'must be an object');
+    for (const k of Object.keys(m)) if (!['id', 'name', 'asks', 'tables', 'definition', 'seed_panel'].includes(k)) fail(`${p}.${k}`, 'unknown key');
     if (typeof m.id !== 'string' || !ID.test(m.id)) fail(`${p}.id`, '^[a-z][a-z0-9_]{0,47}$');
-    if (ids.has(m.id)) fail(`${p}.id`, `중복: ${m.id}`);
+    if (ids.has(m.id)) fail(`${p}.id`, `duplicate: ${m.id}`);
     ids.add(m.id);
     const L = METRICS_LIMITS;
     const tables = list(m.tables, `${p}.tables`, 1, L.tables).map((t, j) => tableName(t, `${p}.tables[${j}]`, panelPrefixes));
-    for (const t of tables) if (dimension_tables.includes(t)) fail(`${p}.tables`, `dimension_tables와 겹침: ${t}`);
+    for (const t of tables) if (dimension_tables.includes(t)) fail(`${p}.tables`, `also in dimension_tables: ${t}`);
     return {
       id: m.id,
       name: str(m.name, `${p}.name`, L.name),
       asks: list(m.asks, `${p}.asks`, 1, L.asks).map((a, j) => str(a, `${p}.asks[${j}]`, L.askText)),
       tables: [...new Set(tables)],
       definition: list(m.definition, `${p}.definition`, 1, L.definition).map((d, j) => {
-        if (!Array.isArray(d) || d.length !== 2) fail(`${p}.definition[${j}]`, '[항목, 내용] 쌍');
+        if (!Array.isArray(d) || d.length !== 2) fail(`${p}.definition[${j}]`, 'must be an [item, text] pair');
         return [str(d[0], `${p}.definition[${j}][0]`, 40), str(d[1], `${p}.definition[${j}][1]`, L.definitionText)] as [string, string];
       }),
       seed_panel: m.seed_panel === undefined || m.seed_panel === null ? null : str(m.seed_panel, `${p}.seed_panel`, 64),
@@ -69,7 +69,7 @@ export function parseMetrics(text: string, panelPrefixes: string[]): MetricDict 
   return { dimension_tables, metrics };
 }
 
-/** 파일이 없으면 빈 사전. 시드 패널의 metric과 사전의 seed_panel이 서로 맞는지 본다 */
+/** Empty dictionary if the file is missing. Checks that seed panel metrics and dictionary seed_panel entries agree */
 export function loadMetrics(wsDir: string, panelPrefixes: string[], seeds: { id: string; metric: string | null }[]): { dict: MetricDict; text: string } {
   const f = join(wsDir, 'metrics.json');
   if (!existsSync(f)) return { dict: { dimension_tables: [], metrics: [] }, text: '' };
@@ -78,23 +78,23 @@ export function loadMetrics(wsDir: string, panelPrefixes: string[], seeds: { id:
   for (const m of dict.metrics) {
     if (m.seed_panel === null) continue;
     const s = seeds.find((x) => x.id === m.seed_panel);
-    if (!s) fail(`(${m.id}).seed_panel`, `시드 패널이 없음: ${m.seed_panel}`);
-    if (s.metric !== m.id) fail(`(${m.id}).seed_panel`, `시드 패널 ${s.id}의 metric이 ${m.id}가 아님`);
+    if (!s) fail(`(${m.id}).seed_panel`, `no such seed panel: ${m.seed_panel}`);
+    if (s.metric !== m.id) fail(`(${m.id}).seed_panel`, `seed panel ${s.id} has a metric other than ${m.id}`);
   }
   for (const s of seeds) {
-    if (s.metric !== null && !dict.metrics.some((m) => m.id === s.metric)) fail('', `시드 패널 ${s.id}의 metric이 사전에 없음: ${s.metric}`);
+    if (s.metric !== null && !dict.metrics.some((m) => m.id === s.metric)) fail('', `seed panel ${s.id} has a metric not in the dictionary: ${s.metric}`);
   }
   return { dict, text };
 }
 
-/** 사전 지표 패널이 참조한 표 규칙. 어기면 이유 */
+/** Table rule for dictionary-metric panels. The reason if broken */
 export function metricTablesProblem(dict: MetricDict, metric: string, tables: string[]): string | null {
   const m = dict.metrics.find((x) => x.id === metric);
-  if (!m) return `지표 사전에 없는 metric: ${metric} (사전 id 중 하나를 쓰거나, 사전에 없는 정의면 null)`;
+  if (!m) return `metric not in the dictionary: ${metric} (use a dictionary id, or null for a definition outside the dictionary)`;
   const allowed = new Set([...m.tables, ...dict.dimension_tables]);
   const outside = tables.filter((t) => !allowed.has(t));
-  if (outside.length) return `지표 ${m.id}(${m.name})는 다음 표로만 만든다: ${[...allowed].join(', ')}. 벗어난 표: ${outside.join(', ')}`;
-  if (!m.tables.some((t) => tables.includes(t))) return `지표 ${m.id}(${m.name})의 표(${m.tables.join(', ')}) 중 하나 이상을 읽어야 함`;
+  if (outside.length) return `metric ${m.id} (${m.name}) may only use these tables: ${[...allowed].join(', ')}. Outside tables: ${outside.join(', ')}`;
+  if (!m.tables.some((t) => tables.includes(t))) return `metric ${m.id} (${m.name}) must read at least one of its tables (${m.tables.join(', ')})`;
   return null;
 }
 

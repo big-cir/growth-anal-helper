@@ -1,7 +1,7 @@
 {
   "type": "object",
   "title": "growth-lab agent action",
-  "description": "매 턴 행동 하나를 step에 담는다: ask(되묻기) | probe(탐색 SQL 1개) | panel(패널 사양) | refuse(못 하는 이유와 대안)",
+  "description": "One action per turn in step: ask (ask back) | probe (one exploration SQL) | panel (panel spec) | refuse (why not, and alternatives)",
   "additionalProperties": false,
   "required": [
     "step"
@@ -134,7 +134,7 @@
                     "string",
                     "null"
                   ],
-                  "description": "지표 사전 id. 사전에 해당하는 지표가 없으면 null",
+                  "description": "Metric dictionary id, or null if no dictionary metric fits",
                   "maxLength": 48
                 },
                 "title": {

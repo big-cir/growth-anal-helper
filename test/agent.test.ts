@@ -1,10 +1,11 @@
-// 에이전트: claude 실행, 행동 스키마, 턴 입력, 컨텍스트, 상태 머신.
+// Agent: claude runner, action schema, turn input, context, state machine.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { buildArgs, childEnv, ClaudeRunner, StreamParser, type CallResult } from '../src/agent/claude.ts';
+import { buildArgs, childEnv, ClaudeRunner, StreamParser } from '../src/agent/claude.ts';
+import type { CallResult } from '../src/agent/runner.ts';
 import { ACTION_SCHEMA_ARG, parseAction, ActionError } from '../src/agent/actions.ts';
 import { Outbound, OutboundBlocked, render, columnStats } from '../src/agent/outbound.ts';
 import { buildContext, CONTEXT_LIMIT, ContextError, columnDescriptions } from '../src/agent/context.ts';
@@ -19,7 +20,7 @@ const FAKE = join(import.meta.dirname, 'fake-claude.ts');
 function fakeClaude(script: unknown[]) {
   const dir = mkdtempSync(join(tmpdir(), 'gl-fc-'));
   const bin = join(dir, 'claude');
-  // 엔진은 자식에게 환경 변수를 거의 넘기지 않으므로 대본 위치는 실행 파일에 적는다
+  // The engine passes almost no env to the child, so the script path is baked into the executable
   writeFileSync(bin, `#!/bin/sh\nFAKE_CLAUDE_SCRIPT="${join(dir, 'script.json')}" FAKE_CLAUDE_DIR="${dir}" exec "${process.execPath}" "${FAKE}" "$@"\n`);
   chmodSync(bin, 0o755);
   writeFileSync(join(dir, 'script.json'), JSON.stringify(script));
@@ -29,7 +30,7 @@ function fakeClaude(script: unknown[]) {
   return { runner, argv, children, dir };
 }
 
-test('자식 환경 변수: 허용 목록과 ANTHROPIC_·CLAUDE_만 넘긴다', () => {
+test('child env: only the allow-list and ANTHROPIC_/CLAUDE_ are passed', () => {
   const env = childEnv({ PATH: '/bin', HOME: '/h', ANTHROPIC_API_KEY: 'k', CLAUDE_CONFIG_DIR: '/c', MYSQL_PWD: 'x', AWS_SECRET_ACCESS_KEY: 'y', DATABASE_URL: 'z', GROWTH_LAB_WORKSPACE: 'w' });
   assert.deepEqual(Object.keys(env).sort(), ['ANTHROPIC_API_KEY', 'CLAUDE_CONFIG_DIR', 'HOME', 'PATH']);
 });
@@ -39,7 +40,7 @@ const alive = (pid: number) => { try { process.kill(pid, 0); return true; } catc
 const errType = (r: CallResult) => (r.ok ? 'ok' : r.type);
 
 
-test('실행 인자: 격리 옵션, stream-json, 스키마, 예산, 모델·재개는 있을 때만', () => {
+test('arguments: isolation flags, stream-json, schema, budget; model and resume only when given', () => {
   const a = buildArgs({ ...callOpts, sessionId: 's1', model: 'm' });
   assert.deepEqual(a.slice(0, 8), ['-p', 'hi', '--safe-mode', '--strict-mcp-config', '--tools', '', '--output-format', 'stream-json']);
   assert.ok(a.includes('--verbose'));
@@ -48,26 +49,26 @@ test('실행 인자: 격리 옵션, stream-json, 스키마, 예산, 모델·재�
   assert.ok(!buildArgs(callOpts).includes('--resume'));
 });
 
-test('스트림 계약: init이 처음 한 번, result가 마지막 한 번, JSON 아닌 줄은 세기만', () => {
+test('stream contract: one init first, one result last, non-JSON lines only counted', () => {
   const p = new StreamParser();
   for (const l of ['not json', '{"type":"system","subtype":"init"}', '{"type":"assistant"}', '[1]', '{"type":"result"}']) p.line(l);
   assert.equal(p.violation, null);
   assert.equal(p.nonJson, 2);
   const bad = (lines: string[]) => { const q = new StreamParser(); for (const l of lines) q.line(l); return q.violation; };
-  assert.equal(bad(['{"type":"assistant"}']), 'init 전에 다른 이벤트');
-  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"system","subtype":"init"}']), 'init 중복');
-  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"result"}', '{"type":"result"}']), 'result 뒤에 다른 이벤트');
-  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"result"}', '{"type":"assistant"}']), 'result 뒤에 다른 이벤트');
+  assert.equal(bad(['{"type":"assistant"}']), 'event before init');
+  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"system","subtype":"init"}']), 'duplicate init');
+  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"result"}', '{"type":"result"}']), 'event after result');
+  assert.equal(bad(['{"type":"system","subtype":"init"}', '{"type":"result"}', '{"type":"assistant"}']), 'event after result');
 });
 
-test('claude 실행: 잘게 나뉜 출력도 성공, 세션·비용·structured_output', async () => {
+test('claude run: chunked output succeeds with session, cost and structured_output', async () => {
   const f = fakeClaude([{ structured: { action: 'refuse', reason: 'r', alternatives: [] }, sessionId: 'abc', cost: 0.07, chunk: 7, delayMs: 1 }]);
   const r = await f.runner.call(callOpts);
   assert.ok(r.ok);
   if (r.ok) assert.deepEqual([r.sessionId, r.costUsd, (r.structured as { step: { action: string } }).step.action], ['abc', 0.07, 'refuse']);
 });
 
-test('claude 실행: 잘린 출력·init/result 중복·result 뒤 출력·종료 코드 불일치·빈 출력은 process 오류', async () => {
+test('claude run: truncated output, duplicate init/result, output after result, exit code mismatch and empty output are process errors', async () => {
   const init = { type: 'system', subtype: 'init', session_id: 's', tools: [], mcp_servers: [] };
   const result = { type: 'result', subtype: 'success', is_error: false, session_id: 's', total_cost_usd: 0.01, structured_output: {} };
   const cases: unknown[] = [
@@ -82,14 +83,14 @@ test('claude 실행: 잘린 출력·init/result 중복·result 뒤 출력·종�
   for (const c of cases) assert.equal(errType(await fakeClaude([c]).runner.call(callOpts)), 'process', JSON.stringify(c));
 });
 
-test('claude 실행: 결과 오류 분류 — 비용 상한, 제한·과부하, 재개 실패, 그 밖', async () => {
+test('claude run: result error classes — budget, rate limit, resume failure, other', async () => {
   assert.equal(errType(await fakeClaude([{ isError: true, subtype: 'error_max_budget_usd' }]).runner.call(callOpts)), 'budget');
   assert.equal(errType(await fakeClaude([{ isError: true, resultText: 'API Error: 529 Overloaded' }]).runner.call(callOpts)), 'rate_limit');
   assert.equal(errType(await fakeClaude([{ raw: [], stderr: 'No conversation found with session ID: x', exitCode: 1 }]).runner.call({ ...callOpts, sessionId: 'x' })), 'resume');
   assert.equal(errType(await fakeClaude([{ isError: true, subtype: 'error_during_execution' }]).runner.call(callOpts)), 'error');
 });
 
-test('격리 점검: 출력 전용 StructuredOutput 외의 도구나 MCP가 있으면 프로세스를 죽이고 isolation', async () => {
+test('isolation check: any tool other than StructuredOutput, or any MCP, kills the process with isolation', async () => {
   assert.ok((await fakeClaude([{ structured: {}, tools: ['StructuredOutput'] }]).runner.call(callOpts)).ok);
   assert.equal(errType(await fakeClaude([{ structured: {}, tools: ['Bash'] }]).runner.call(callOpts)), 'isolation');
   assert.equal(errType(await fakeClaude([{ structured: {}, tools: ['StructuredOutput', 'Read'] }]).runner.call(callOpts)), 'isolation');
@@ -98,12 +99,12 @@ test('격리 점검: 출력 전용 StructuredOutput 외의 도구나 MCP가 있�
   assert.equal(errType(await fakeClaude([{ events: [noField] }]).runner.call(callOpts)), 'isolation');
 });
 
-test('시간 초과·취소: 자식 프로세스까지 종료, 취소 중 도착한 result는 버림', async () => {
+test('timeout and cancel: child processes are killed, a result arriving during cancel is dropped', async () => {
   const f = fakeClaude([{ structured: {}, hang: true, spawnChild: true }]);
   const r = await f.runner.call({ ...callOpts, timeoutMs: 400 });
   assert.equal(errType(r), 'timeout');
   await new Promise((res) => setTimeout(res, 100));
-  for (const pid of f.children()) assert.equal(alive(pid), false, `자식 ${pid}가 살아 있음`);
+  for (const pid of f.children()) assert.equal(alive(pid), false, `child ${pid} is still alive`);
 
   const g = fakeClaude([{ structured: { action: 'refuse', reason: 'r', alternatives: [] }, hang: true, spawnChild: true }]);
   const ac = new AbortController();
@@ -115,25 +116,25 @@ test('시간 초과·취소: 자식 프로세스까지 종료, 취소 중 도착
   for (const pid of g.children()) assert.equal(alive(pid), false);
 });
 
-test('claude 실행: 다바이트 글자가 바이트 조각 경계에서 끊겨도 정상 파싱', async () => {
+test('claude run: multibyte characters split across chunks parse correctly', async () => {
   const f = fakeClaude([{ structured: { action: 'refuse', reason: '가입 주별 연결률은 그릴 수 없어요 🙏', alternatives: ['한글 대안'] }, chunkBytes: 5, delayMs: 1 }]);
   const r = await f.runner.call(callOpts);
   assert.ok(r.ok, JSON.stringify(r));
   if (r.ok) assert.equal((r.structured as { step: { reason: string } }).step.reason, '가입 주별 연결률은 그릴 수 없어요 🙏');
 });
 
-test('프로세스 정리: SIGTERM을 무시하는 자손도 결과 전에 죽인다(정상 종료·시간 초과 모두)', async () => {
+test('process cleanup: descendants ignoring SIGTERM are killed before the result (normal exit and timeout)', async () => {
   const ok = fakeClaude([{ structured: { action: 'refuse', reason: 'r', alternatives: [] }, spawnChild: true, childIgnoresTerm: true, chunk: 50, delayMs: 30 }]);
   const t0 = Date.now();
   assert.ok((await ok.runner.call(callOpts)).ok);
-  assert.ok(Date.now() - t0 >= 2000, 'SIGKILL 단계까지 갔어야 함');
-  for (const pid of ok.children()) assert.equal(alive(pid), false, `정상 종료 뒤 자손 ${pid}가 살아 있음`);
+  assert.ok(Date.now() - t0 >= 2000, 'should have reached SIGKILL');
+  for (const pid of ok.children()) assert.equal(alive(pid), false, `descendant ${pid} alive after normal exit`);
   const slow = fakeClaude([{ structured: {}, hang: true, spawnChild: true, childIgnoresTerm: true }]);
   assert.equal(errType(await slow.runner.call({ ...callOpts, timeoutMs: 300 })), 'timeout');
-  for (const pid of slow.children()) assert.equal(alive(pid), false, `시간 초과 뒤 자손 ${pid}가 살아 있음`);
+  for (const pid of slow.children()) assert.equal(alive(pid), false, `descendant ${pid} alive after timeout`);
 });
 
-test('세션 ID: init과 result가 다르면 process, 재개 요청과 다른 세션이면 resume (오류 결과여도 먼저 검증)', async () => {
+test('session id: init/result mismatch is process, a different session than requested is resume (checked even on error results)', async () => {
   assert.equal(errType(await fakeClaude([{ structured: {}, sessionId: 'a', resultSessionId: 'b' }]).runner.call(callOpts)), 'process');
   const mismatchedError = await fakeClaude([{ isError: true, resultText: 'overloaded', sessionId: 'a', resultSessionId: 'b' }]).runner.call(callOpts);
   assert.deepEqual([errType(mismatchedError), mismatchedError.ok ? '' : mismatchedError.sessionId], ['process', null]);
@@ -150,11 +151,11 @@ const panelRaw = {
   metric: 'demo_metric',
   title: 't', question: 'q', sql: 'SELECT 1 AS numerator, 2 AS denominator',
   display: { type: 'number', x: null, numerator: 'numerator', denominator: 'denominator', series: null, headline: null },
-  definition: [['모집단', 'x']], caveats: [], answers: [],
+  definition: [['Population', 'x']], caveats: [], answers: [],
 };
 
-test('행동: 네 가지 모두 파싱, null 역할 칸 허용', () => {
-  assert.equal(pa({ action: 'ask', questions: [{ id: 'win', text: '기간?', options: [{ label: '7일', is_default: true }, { label: '14일', is_default: false }], allow_free_text: true }] }).action, 'ask');
+test('actions: all four parse, null role columns allowed', () => {
+  assert.equal(pa({ action: 'ask', questions: [{ id: 'win', text: 'Period?', options: [{ label: '7 days', is_default: true }, { label: '14 days', is_default: false }], allow_free_text: true }] }).action, 'ask');
   assert.equal(pa({ action: 'probe', plan: 'p', purpose: 'u', sql: 'SELECT 1' }).action, 'probe');
   const p = pa({ action: 'panel', plan: 'p', panel: panelRaw });
   assert.ok(p.action === 'panel' && p.panel.display.columns.numerator === 'numerator');
@@ -164,7 +165,7 @@ test('행동: 네 가지 모두 파싱, null 역할 칸 허용', () => {
   assert.throws(() => parseAction({ action: 'refuse', reason: 'r', alternatives: [] }), ActionError);
 });
 
-test('행동: 위반은 ActionError (기본값 하나, id 중복, 알 수 없는 키, 패널 사양 오류)', () => {
+test('actions: violations are ActionError (one default, duplicate id, unknown key, panel spec error)', () => {
   const q = (o: Record<string, unknown>) => ({ action: 'ask', questions: [{ id: 'a', text: 't', options: [{ label: 'x', is_default: true }], allow_free_text: false, ...o }] });
   for (const bad of [
     null, {}, { action: 'run' },
@@ -189,25 +190,25 @@ const probeOk: QueryResult = {
 const panelClean = { ...panelRaw, display: { type: 'number', numerator: 'numerator', denominator: 'denominator' } };
 const spec1: PanelSpec = parsePanelSpec(panelClean);
 const invFail: Extract<PanelRunResult, { ok: false }> = {
-  ok: false, stage: 'invariant', message: '불변식 위반:\n- x=SECRET: numerator(11) > denominator(10)',
+  ok: false, stage: 'invariant', message: 'invariant violations:\n- x=SECRET: numerator(11) > denominator(10)',
   violations: [{ row: 'x=SECRET', problem: 'numerator(11) > denominator(10)', index: 3, rule: 'numerator_le_denominator', column: 'numerator' }],
 };
 
-test('전송(pseudonymized): 탐색 결과 행(가명)과 남은 횟수, 패널 실패 메시지, 답변 기본값', () => {
+test('outbound (pseudonymized): probe rows (pseudonymous) and remaining count, panel failure message, default answers', () => {
   const o = new Outbound('pseudonymized', roles);
   const t = o.probeResult(probeOk, 2);
   assert.match(t, /1000000123/);
-  assert.match(t, /남은 탐색 횟수: 2회/);
+  assert.match(t, /Probes left: 2/);
   assert.match(o.panelFailure(invFail, 1), /x=SECRET/);
-  const a = o.answers([{ id: 'w', text: '기간', options: [{ label: '7일', is_default: true }], allow_free_text: true }], {});
-  assert.match(a, /"answer": "7일"/);
+  const a = o.answers([{ id: 'w', text: 'Period', options: [{ label: '7 days', is_default: true }], allow_free_text: true }], {});
+  assert.match(a, /"answer": "7 days"/);
   assert.match(a, /"defaulted": true/);
 });
 
-test('전송(schema_only): 어떤 경로에서도 행 값이 나가지 않는다', () => {
+test('outbound (schema_only): no row values leave on any path', () => {
   const o = new Outbound('schema_only', roles);
   const outputs = [
-    o.request('최근 가입자 보여줘', spec1, null),
+    o.request('Show recent signups', spec1, null),
     o.probeResult(probeOk, 1),
     o.panelFailure(invFail, 1),
     o.recoverySummary({ inputs: ['a'], lastAsk: null, current: spec1 }),
@@ -221,7 +222,7 @@ test('전송(schema_only): 어떤 경로에서도 행 값이 나가지 않는다
   assert.throws(() => render('schema_only', [{ kind: 'rows', target: 'agent', columns: ['a'], rows: [[['i', 1]]], more: false, truncatedCells: 0 }]), OutboundBlocked);
 });
 
-test('schema_only 통계: identifier 칸은 최솟값·최댓값 없이 NULL 수만, 계산 칸은 최솟값·최댓값', () => {
+test('schema_only stats: identifier columns only have a NULL count, computed columns have min and max', () => {
   const s = columnStats(probeOk.ok ? probeOk.columns : [], probeOk.ok ? probeOk.rows : [], roles);
   assert.deepEqual(s, [
     { name: 'id', nulls: 0, min: null, max: null, identifier: true },
@@ -230,7 +231,7 @@ test('schema_only 통계: identifier 칸은 최솟값·최댓값 없이 NULL 수
   ]);
 });
 
-test('세션 복구 요약: 최근 입력 5개(각 500자), 8,000자 상한(오래된 입력부터 뺌)', () => {
+test('recovery summary: last 5 inputs (500 chars each), 8,000-char cap (oldest dropped first)', () => {
   const o = new Outbound('pseudonymized', roles);
   const s = o.recoverySummary({ inputs: ['1', '2', '3', '4', '5', '6'], lastAsk: null, current: null });
   assert.doesNotMatch(s, /"1"/);
@@ -238,26 +239,26 @@ test('세션 복구 요약: 최근 입력 5개(각 500자), 8,000자 상한(오�
   const bigSpec = parsePanelSpec({ ...panelClean, sql: `SELECT 1 /* ${'s'.repeat(5_500)} */` });
   const long = o.recoverySummary({ inputs: Array.from({ length: 5 }, (_, i) => `${i}`.repeat(3000)), lastAsk: null, current: bigSpec });
   assert.ok(long.length <= 8000, String(long.length));
-  assert.ok(!long.includes('0'.repeat(500)), '가장 오래된 입력이 빠져야 함');
-  assert.ok(long.includes('4'.repeat(500)), '가장 최근 입력은 남아야 함');
+  assert.ok(!long.includes('0'.repeat(500)), 'the oldest input should be dropped');
+  assert.ok(long.includes('4'.repeat(500)), 'the newest input should remain');
   const hugeSpec = parsePanelSpec({ ...panelClean, sql: `SELECT 1 /* ${'s'.repeat(11_900)} */` });
   const shrunk = o.recoverySummary({ inputs: ['x'], lastAsk: null, current: hugeSpec });
   assert.ok(shrunk.length <= 8000, String(shrunk.length));
-  const block = /현재 미리보기 패널 사양:\n```json\n([\s\S]*?)\n```/.exec(shrunk);
-  assert.ok(block, '패널 사양 블록이 있어야 함');
+  const block = /Current preview panel spec:\n```json\n([\s\S]*?)\n```/.exec(shrunk);
+  assert.ok(block, 'should have a panel spec block');
   const parsed = JSON.parse(block![1]);
-  assert.match(parsed.sql, /…\(길어서 생략\)$/);
-  const qs = Array.from({ length: 4 }, (_, i) => ({ id: `q${i}`, text: '질문'.repeat(90), options: [{ label: '기본', is_default: true }], allow_free_text: true }));
-  const answers = Object.fromEntries(qs.map((q) => [q.id, '답'.repeat(5000)]));
+  assert.match(parsed.sql, /…\(truncated\)$/);
+  const qs = Array.from({ length: 4 }, (_, i) => ({ id: `q${i}`, text: 'question'.repeat(45), options: [{ label: 'default', is_default: true }], allow_free_text: true }));
+  const answers = Object.fromEntries(qs.map((q) => [q.id, 'answer'.repeat(1000)]));
   const withAsk = o.recoverySummary({ inputs: Array.from({ length: 5 }, () => 'y'.repeat(3000)), lastAsk: { questions: qs, answers }, current: hugeSpec });
   assert.ok(withAsk.length <= 8000, String(withAsk.length));
   for (const m of withAsk.matchAll(/```json\n([\s\S]*?)\n```/g)) JSON.parse(m[1]);
 });
 
 
-test('컨텍스트: 칸 설명 찾기, 60,000자 넘으면 시드 SQL → 시드 패널 순으로 뒤에서부터 뺀다', () => {
-  const d = columnDescriptions('| `d_x.a` | 첫째 |\n- `d_x.b`: 둘째\n그 밖의 줄');
-  assert.deepEqual([...d], [['d_x.a', '첫째'], ['d_x.b', '둘째']]);
+test('context: column descriptions found; over 60,000 chars drops seed SQL, then seed panels, from the end', () => {
+  const d = columnDescriptions('| `d_x.a` | first |\n- `d_x.b`: second\nanother line');
+  assert.deepEqual([...d], [['d_x.a', 'first'], ['d_x.b', 'second']]);
   const seed = (id: string, sqlLen: number) => ({ id, spec: parsePanelSpec({ ...panelClean, title: id, sql: `SELECT 1 /* ${'x'.repeat(sqlLen)} */` }) });
   const state = { asOf: '2024-01-01 00:00:00.000000', today: '2024-01-02', calendarStart: null, params: { a: 'b', arr: ['x'] } };
   const small = buildContext({ schema: 's', metrics: 'm', guide: 'g', seedPanels: [seed('p1', 10)], state });
@@ -301,20 +302,20 @@ function harness(script: unknown[], over: Partial<LoopDeps> = {}, panelResults: 
   return { req: new AgentRequest('req1', deps), events, probes, panels, disabled: () => disabled, argv: f.argv };
 }
 
-const start = { text: '가입 주별 연결률 보여줘', current: null, resumeSessionId: null, recovery: null };
+const start = { text: 'Show the connection rate by signup week', current: null, resumeSessionId: null, recovery: null };
 const types = (h: Harness) => h.events.map((e) => e.type).filter((t) => t !== 'step');
-const ask = { action: 'ask', questions: [{ id: 'win', text: '기간?', options: [{ label: '7일', is_default: true }, { label: '14일', is_default: false }], allow_free_text: false }] };
-const probe = { action: 'probe', plan: '인원 확인', purpose: '코호트 인원', sql: 'SELECT count(*) FROM d_x' };
-const panel = { action: 'panel', plan: '셌음', panel: panelRaw };
+const ask = { action: 'ask', questions: [{ id: 'win', text: 'Period?', options: [{ label: '7 days', is_default: true }, { label: '14 days', is_default: false }], allow_free_text: false }] };
+const probe = { action: 'probe', plan: 'check counts', purpose: 'cohort size', sql: 'SELECT count(*) FROM d_x' };
+const panel = { action: 'panel', plan: 'counted', panel: panelRaw };
 
-test('루프: ask → 답 → probe → panel 실패 → 수정 → 성공', async () => {
+test('loop: ask → answer → probe → panel fails → fix → success', async () => {
   const h = harness([{ structured: ask }, { structured: probe }, { structured: panel }, { structured: panel }],
-    {}, [{ ok: false, stage: 'invariant', message: '불변식 위반', violations: [] }]);
+    {}, [{ ok: false, stage: 'invariant', message: 'invariant violations', violations: [] }]);
   await h.req.run(start);
   assert.equal(h.req.state, 'waiting_user');
   const qTurn = h.events.find((e) => e.type === 'question')!.turnNo;
-  assert.equal(h.req.answer(qTurn + 1, { win: '14일' }), null);
-  await h.req.answer(qTurn, { win: '14일' });
+  assert.equal(h.req.answer(qTurn + 1, { win: '14 days' }), null);
+  await h.req.answer(qTurn, { win: '14 days' });
   assert.equal(h.req.state, 'done');
   assert.deepEqual(types(h), ['request_started', 'session', 'question', 'answers', 'plan', 'plan', 'plan', 'preview', 'done']);
   assert.deepEqual(h.req.counts, { turns: 4, probes: 1, fixes: 1 });
@@ -323,11 +324,27 @@ test('루프: ask → 답 → probe → panel 실패 → 수정 → 성공', asy
   const argv = h.argv();
   assert.ok(!argv[0].includes('--resume'));
   for (const a of argv.slice(1)) assert.equal(a[a.indexOf('--resume') + 1], 'sess-1');
-  assert.match(argv[2][1], /탐색 쿼리 결과: 2행/);
+  assert.match(argv[2][1], /Probe query result: 2 rows/);
 });
 
-test('루프: 사전 밖 패널은 승인을 기다리고, 승인하면 미리보기, 거절하면 사전 지표로 다시 만들게 한다', async () => {
-  const off = { action: 'panel', plan: '셌음', panel: { ...panelRaw, metric: null } };
+test('loop: an all-zero panel is sent back once to check, and accepted if sent again', async () => {
+  const zero: PanelRunResult = { ok: true, columns: [{ name: 'numerator', table: null, column: null }, { name: 'denominator', table: null, column: null }], real: [[0, 0], [0, null]], agent: [[0, 0], [0, null]], ms: 1, tables: ['d_x'] };
+  const h = harness([{ structured: panel }, { structured: panel }], {}, [zero, zero]);
+  await h.req.run(start);
+  assert.equal(h.req.state, 'done');
+  assert.deepEqual(types(h), ['request_started', 'session', 'plan', 'plan', 'preview', 'done']);
+  assert.equal(h.panels.length, 2);
+  assert.match(h.argv()[1][1], /Every number column in the panel result is 0/);
+  assert.equal(h.req.counts.fixes, 0, 'the warning does not count as a fix');
+  const { allZero } = await import('../src/agent/loop.ts');
+  assert.equal(allZero([['2026-07-13', 0, 0]]), true);
+  assert.equal(allZero([['2026-07-13', 0, 3]]), false);
+  assert.equal(allZero([['a', 'b']]), false, 'not all-zero without number columns');
+  assert.equal(allZero([]), false);
+});
+
+test('loop: off-dictionary panels wait for approval; approve shows the preview, reject asks for a dictionary metric', async () => {
+  const off = { action: 'panel', plan: 'counted', panel: { ...panelRaw, metric: null } };
   const a = harness([{ structured: off }]);
   await a.req.run(start);
   assert.equal(a.req.state, 'waiting_user');
@@ -337,7 +354,7 @@ test('루프: 사전 밖 패널은 승인을 기다리고, 승인하면 미리�
   await a.req.approveOffdict(ev.turnNo, true);
   assert.equal(a.req.state, 'done');
   assert.deepEqual(types(a).slice(-4), ['offdict', 'offdict_answer', 'preview', 'done']);
-  assert.equal(a.req.approveOffdict(ev.turnNo, true), null, '두 번 승인할 수 없음');
+  assert.equal(a.req.approveOffdict(ev.turnNo, true), null, 'cannot approve twice');
 
   const b = harness([{ structured: off }, { structured: panel }]);
   await b.req.run(start);
@@ -345,7 +362,7 @@ test('루프: 사전 밖 패널은 승인을 기다리고, 승인하면 미리�
   await b.req.approveOffdict(t, false);
   assert.equal(b.req.state, 'done');
   assert.deepEqual(types(b).slice(-5), ['offdict', 'offdict_answer', 'plan', 'preview', 'done']);
-  assert.match(b.argv()[1][1], /사전에 없는 정의로 만든 패널을 받지 않았습니다/);
+  assert.match(b.argv()[1][1], /did not accept a panel built on a definition outside the metric dictionary/);
   assert.equal(b.req.counts.fixes, 0);
 
   const c = harness([{ structured: off }]);
@@ -354,12 +371,12 @@ test('루프: 사전 밖 패널은 승인을 기다리고, 승인하면 미리�
   assert.equal(c.req.state, 'cancelled');
 });
 
-test('행동: panel에 metric이 없으면 스키마 불일치', () => {
+test('actions: a panel without metric is a schema mismatch', () => {
   const { metric: _m, ...noMetric } = panelRaw;
-  assert.throws(() => pa({ action: 'panel', plan: 'p', panel: noMetric }), /metric: 필수/);
+  assert.throws(() => pa({ action: 'panel', plan: 'p', panel: noMetric }), /metric: required/);
 });
 
-test('루프: 예산 — 호출 상한은 min(호출 상한, 요청 상한 − 누적), 남은 예산이 0.02 미만이면 호출하지 않음', async () => {
+test('loop: budget — call cap is min(call cap, request cap − spent); no call when under 0.02 is left', async () => {
   const h = harness([{ structured: probe, cost: 0.6 }, { structured: probe, cost: 0.385 }, { structured: panel }]);
   await h.req.run(start);
   assert.equal(h.req.state, 'failed');
@@ -368,7 +385,7 @@ test('루프: 예산 — 호출 상한은 min(호출 상한, 요청 상한 − �
   assert.equal(h.events.at(-1)!.type === 'failed' && (h.events.at(-1) as { reason: string }).reason, 'request_budget');
 });
 
-test('루프: 상한 — 턴, 탐색, 수정', async () => {
+test('loop: limits — turns, probes, fixes', async () => {
   const turns = harness([{ structured: probe }], { limits: { maxTurns: 3, maxProbes: 10, maxFixes: 2, callBudgetUsd: 0.5, requestBudgetUsd: 10 } });
   await turns.req.run(start);
   assert.equal((turns.events.at(-1) as { reason?: string }).reason, 'turn_limit');
@@ -386,7 +403,7 @@ test('루프: 상한 — 턴, 탐색, 수정', async () => {
   assert.equal(fixes.req.counts.fixes, 2);
 });
 
-test('루프: 수정 횟수는 실제 다음 호출을 시작할 때 센다(턴 한도로 막히면 세지 않음)', async () => {
+test('loop: a fix is counted when the next call actually starts (not when blocked by the turn limit)', async () => {
   const bad: PanelRunResult = { ok: false, stage: 'exec', message: 'no such column' };
   const h = harness([{ structured: panel }], { limits: { maxTurns: 1, maxProbes: 4, maxFixes: 2, callBudgetUsd: 0.5, requestBudgetUsd: 1 } }, [bad]);
   await h.req.run(start);
@@ -394,7 +411,7 @@ test('루프: 수정 횟수는 실제 다음 호출을 시작할 때 센다(턴 
   assert.equal(h.req.counts.fixes, 0);
 });
 
-test('루프: 재시도할 수 있는 결과 오류가 준 세션 ID로 재시도를 이어간다', async () => {
+test('loop: a retryable result error continues with the session id it returned', async () => {
   const h = harness([{ isError: true, resultText: 'overloaded', sessionId: 's-first' }, { structured: panel, sessionId: 's-first' }]);
   await h.req.run(start);
   assert.equal(h.req.state, 'done');
@@ -402,18 +419,18 @@ test('루프: 재시도할 수 있는 결과 오류가 준 세션 ID로 재시�
   assert.equal(second[second.indexOf('--resume') + 1], 's-first');
 });
 
-test('루프: 스키마 불일치는 오류 문구를 붙여 같은 세션으로 1회 재요청, 두 번이면 failed', async () => {
+test('loop: a schema mismatch is retried once in the same session with the error, failed the second time', async () => {
   const once = harness([{ structured: { action: 'nope' } }, { structured: panel }]);
   await once.req.run(start);
   assert.equal(once.req.state, 'done');
-  assert.match(once.argv()[1][1], /행동 스키마에 맞지 않습니다/);
+  assert.match(once.argv()[1][1], /does not match the action schema/);
   assert.equal(once.argv()[1][once.argv()[1].indexOf('--resume') + 1], 'sess-1');
   const twice = harness([{ structured: { action: 'nope' } }, { structured: { action: 'nope' } }]);
   await twice.req.run(start);
   assert.equal((twice.events.at(-1) as { reason?: string }).reason, 'schema');
 });
 
-test('루프: 재시도 — 프로세스 오류 1회, 제한·과부하는 대기 후 2회, 비용 상한은 재시도 없이 failed', async () => {
+test('loop: retries — process error once, rate limit twice after waiting, budget fails without retry', async () => {
   const proc = harness([{ raw: [] }, { structured: panel }]);
   await proc.req.run(start);
   assert.equal(proc.req.state, 'done');
@@ -433,33 +450,33 @@ test('루프: 재시도 — 프로세스 오류 1회, 제한·과부하는 대�
   assert.equal(budget.req.counts.turns, 1);
 });
 
-test('루프: 격리 실패면 에이전트 기능을 끄고 failed', async () => {
+test('loop: isolation failure turns off the agent and fails', async () => {
   const h = harness([{ structured: panel, tools: ['Bash'] }]);
   await h.req.run(start);
   assert.equal((h.events.at(-1) as { reason?: string }).reason, 'isolation');
   assert.ok(h.disabled());
 });
 
-test('루프: 컨텍스트가 같으면 재개, 다르면 새 세션 + 이전 대화 요약, 재개 실패도 요약으로 복구', async () => {
+test('loop: same context resumes; a different one starts a new session with a summary; resume failure also recovers with the summary', async () => {
   const resume = harness([{ structured: panel, sessionId: 'old' }]);
-  await resume.req.run({ ...start, resumeSessionId: 'old', recovery: '요약' });
+  await resume.req.run({ ...start, resumeSessionId: 'old', recovery: 'summary' });
   assert.equal(resume.req.state, 'done');
   assert.equal(resume.argv()[0][resume.argv()[0].indexOf('--resume') + 1], 'old');
-  assert.doesNotMatch(resume.argv()[0][1], /이전 대화 요약/);
+  assert.doesNotMatch(resume.argv()[0][1], /Summary of the earlier conversation/);
 
   const fresh = harness([{ structured: panel }]);
-  await fresh.req.run({ ...start, resumeSessionId: null, recovery: '요약 내용' });
+  await fresh.req.run({ ...start, resumeSessionId: null, recovery: 'summary text' });
   assert.ok(!fresh.argv()[0].includes('--resume'));
-  assert.match(fresh.argv()[0][1], /이전 대화 요약\(새 세션으로 이어감\):\n요약 내용/);
+  assert.match(fresh.argv()[0][1], /Summary of the earlier conversation \(continuing in a new session\):\nsummary text/);
 
   const broken = harness([{ raw: [], stderr: 'No conversation found with session ID: old', exitCode: 1 }, { structured: panel }]);
-  await broken.req.run({ ...start, resumeSessionId: 'old', recovery: '요약 내용' });
+  await broken.req.run({ ...start, resumeSessionId: 'old', recovery: 'summary text' });
   assert.equal(broken.req.state, 'done');
   assert.ok(!broken.argv()[1].includes('--resume'));
-  assert.match(broken.argv()[1][1], /요약 내용/);
+  assert.match(broken.argv()[1][1], /summary text/);
 });
 
-test('루프: 취소 — 호출 중·탐색 중·답 대기 중, 프로세스 종료 확인 뒤 cancelled', async () => {
+test('loop: cancel — while calling, probing or waiting for answers; cancelled after the process is confirmed gone', async () => {
   const calling = harness([{ structured: panel, hang: true, spawnChild: true }]);
   const p = calling.req.run(start);
   await new Promise((r) => setTimeout(r, 300));
@@ -472,7 +489,7 @@ test('루프: 취소 — 호출 중·탐색 중·답 대기 중, 프로세스 �
   let release: () => void = () => {};
   const querying = harness([{ structured: probe }], {
     probe: (_sql, signal) => new Promise((res) => {
-      release = () => res({ ok: false, kind: 'cancelled', message: '취소됨' });
+      release = () => res({ ok: false, kind: 'cancelled', message: 'cancelled' });
       if (signal.aborted) release();
       else signal.addEventListener('abort', () => release());
     }),
@@ -480,7 +497,7 @@ test('루프: 취소 — 호출 중·탐색 중·답 대기 중, 프로세스 �
   const q = querying.req.run(start);
   await new Promise((r) => setTimeout(r, 400));
   assert.equal(querying.req.state, 'querying');
-  assert.ok(querying.events.some((e) => e.type === 'step' && e.kind === 'querying' && /초\)/.test(e.text)));
+  assert.ok(querying.events.some((e) => e.type === 'step' && e.kind === 'querying' && /s\)$/.test(e.text)));
   await querying.req.cancel();
   await q;
   assert.equal(querying.req.state, 'cancelled');
@@ -492,7 +509,7 @@ test('루프: 취소 — 호출 중·탐색 중·답 대기 중, 프로세스 �
   assert.equal(waiting.req.answer(1, {}), null);
 });
 
-test('루프: 행동을 받은 순간 취소되면 탐색·패널을 시작하지 않는다', async () => {
+test('loop: cancelled right as an action arrives, no probe or panel starts', async () => {
   for (const action of [probe, panel]) {
     let reqRef: AgentRequest | null = null;
     const f = fakeClaude([{ structured: action }]);
@@ -511,7 +528,7 @@ test('루프: 행동을 받은 순간 취소되면 탐색·패널을 시작하�
   }
 });
 
-test('루프: schema_only에서 전송 경로에 행이 섞이면 outbound_blocked로 끝난다', async () => {
+test('loop: in schema_only, rows on an outbound path end with outbound_blocked', async () => {
   const blocked = new Outbound('schema_only', roles);
   blocked.probeResult = () => render('schema_only', [{ kind: 'rows', target: 'agent', columns: ['a'], rows: [], more: false, truncatedCells: 0 }]);
   const h = harness([{ structured: probe }], { outbound: blocked });

@@ -1,10 +1,10 @@
 // Screen renderer output escaping.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderPanel, headlineHtml } from '../web/charts.js';
+import { renderPanel, headlineHtml } from '../../web/charts.js';
 
 const EVIL = '<img src=x onerror=alert(1)>';
-const cols = (...names: string[]) => names.map((name) => ({ name, table: null, column: null }));
+const cols = (...names) => names.map((name) => ({ name, table: null, column: null }));
 
 test('all patterns escape result strings, column names and labels', () => {
   const views = [
@@ -22,7 +22,7 @@ test('all patterns escape result strings, column names and labels', () => {
     if (out.controls) for (const o of out.controls.options) assert.equal(typeof o, 'string');
   }
   assert.ok(!headlineHtml({ value: 0.5, numerator: 1, denominator: 2, lowN: true, label: EVIL }).includes('<img'));
-  assert.ok(!headlineHtml({ value: EVIL as unknown as number, numerator: null, denominator: null, lowN: false, label: '' }).includes('<img'));
+  assert.ok(!headlineHtml({ value: EVIL, numerator: null, denominator: null, lowN: false, label: '' }).includes('<img'));
 });
 
 test('n<30 cells are dimmed and get no heatmap color', () => {
@@ -33,17 +33,17 @@ test('n<30 cells are dimmed and get no heatmap color', () => {
 });
 
 test('table pattern: lines for a time first column, bars for categories, values escaped', async () => {
-  const { tableChart } = await import('../web/charts.js');
+  const { tableChart } = await import('../../web/charts.js');
   const time = { display: { type: 'table' }, columns: cols('week', 'avg_members', EVIL), rows: [['2024-05-13', 3.5, 1], ['2024-05-06', 3.1, 2]] };
-  const line = tableChart(time, 't')!;
+  const line = tableChart(time, 't');
   assert.match(line, /polyline class="ln s1"/);
   assert.ok(!line.includes(EVIL));
   const cat = { display: { type: 'table' }, columns: cols('board', 'n'), rows: [[EVIL, 3], ['b', 5]] };
-  const bar = tableChart(cat, 't')!;
+  const bar = tableChart(cat, 't');
   assert.match(bar, /rect class="f1"/);
   assert.ok(!bar.includes(EVIL));
   assert.equal(tableChart({ display: { type: 'table' }, columns: cols('a', 'b'), rows: [['x', 'y'], ['z', 'w']] }, 't'), null, 'table only without numeric columns');
-  const mixed = tableChart({ display: { type: 'table' }, columns: cols('week', 'avg', 'boards'), rows: [['2024-05-06', 3.1, 120], ['2024-05-13', 3.5, 130]] }, 't')!;
+  const mixed = tableChart({ display: { type: 'table' }, columns: cols('week', 'avg', 'boards'), rows: [['2024-05-06', 3.1, 120], ['2024-05-13', 3.5, 130]] }, 't');
   assert.equal((mixed.match(/polyline/g) ?? []).length, 1, 'columns more than 10x off are not drawn');
   assert.match(mixed, /in the table only/);
   assert.equal(tableChart({ display: { type: 'table' }, columns: cols('a', 'n'), rows: [['x', 1]] }, 't'), null, 'table only for a single row');

@@ -12,11 +12,13 @@ hooks=$(git rev-parse --git-path hooks)
 mkdir -p "$hooks"
 cat > "$hooks/pre-commit" <<'HOOK'
 #!/bin/sh
-exec node src/cli.ts public-check --require-denylist
+root=$(git rev-parse --show-toplevel)
+exec "$root/scripts/go" run ./cmd/growth-lab public-check --require-denylist
 HOOK
 cat > "$hooks/pre-push" <<'HOOK'
 #!/bin/sh
-exec node src/cli.ts public-check --history --require-denylist
+root=$(git rev-parse --show-toplevel)
+exec "$root/scripts/go" run ./cmd/growth-lab public-check --history --require-denylist
 HOOK
 chmod +x "$hooks/pre-commit" "$hooks/pre-push"
 echo "Hooks installed: $hooks/pre-commit, $hooks/pre-push"

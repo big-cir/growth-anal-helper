@@ -1,0 +1,14 @@
+#!/bin/sh
+# Runs a Go command with the SQLite features and limits required by the engine.
+# Usage: scripts/go build|test|vet|run [args...]
+set -e
+cd "$(dirname "$0")/.."
+export CGO_ENABLED=1
+export CGO_CFLAGS="-O2 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=2 -DSQLITE_ENABLE_GEOPOLY -DSQLITE_ENABLE_MEMORY_MANAGEMENT -DSQLITE_ENABLE_SESSION -DSQLITE_MAX_VARIABLE_NUMBER=250000 -DSQLITE_USE_URI=1 -Wno-macro-redefined"
+TAGS="sqlite_column_metadata sqlite_unlock_notify sqlite_preupdate_hook sqlite_math_functions sqlite_percentile sqlite_stat4 sqlite_dbstat sqlite_fts5 sqlite_app_armor"
+cmd="$1"
+shift
+if [ "$cmd" = build ] && [ $# -eq 0 ]; then
+  set -- -o bin/growth-lab ./cmd/growth-lab
+fi
+exec go "$cmd" -tags "$TAGS" "$@"

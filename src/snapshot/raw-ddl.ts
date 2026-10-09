@@ -1,4 +1,4 @@
-// 명세에서 r_* DDL을 만든다.
+// Builds r_* DDL from the spec.
 import type { Kind, TableSpec } from '../collect/spec.ts';
 
 const SQL_TYPE: Record<Kind, string> = { int: 'INTEGER', ts: 'TEXT', text: 'TEXT', bool: 'INTEGER' };

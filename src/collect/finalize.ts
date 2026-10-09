@@ -1,4 +1,4 @@
-// 스냅샷 확정: 기준 시각 정리 → 검증 → 해시 → 파생 → 가명 사본 → 교체.
+// Snapshot finalize: apply cutoff → validate → hash → derive → pseudonymized copy → swap in.
 import { DatabaseSync } from 'node:sqlite';
 import { createHash } from 'node:crypto';
 import { closeSync, existsSync, openSync, readFileSync, renameSync, rmSync, writeSync } from 'node:fs';
@@ -9,6 +9,7 @@ import { pseudonymize } from '../snapshot/pseudonymize.ts';
 import { execDerivedSql } from '../snapshot/derived-authorizer.ts';
 import { fsyncPath, snapshotFiles, writeCurrent } from '../snapshot/store.ts';
 import { addDays, normalizeTs, weekStart } from '../time.ts';
+import { secretShape } from '../agent/sensitive.ts';
 
 export class FinalizeError extends Error {}
 
@@ -17,6 +18,8 @@ export type BuildInputs = {
   derivedSql: string;
   derivedRoles: Map<string, Role>;
   params: Record<string, string | number | string[]>;
+  /** With GA4: config hash, column roles of the GA4 tables, planned GA4 table names */
+  ga4?: { specHash: string; roles: Map<string, Role>; tables: string[] } | null;
 };
 
 export type FinalizeResult = { snapshotId: string; reused: boolean; files: ReturnType<typeof snapshotFiles> };
@@ -27,7 +30,7 @@ export function allRoles(specs: TableSpec[], derivedRoles: Map<string, Role>): M
   const m = new Map<string, Role>();
   for (const t of specs) for (const c of t.columns) m.set(`${t.target}.${c.as}`, c.role);
   for (const [k, v] of derivedRoles) {
-    if (!k.startsWith('d_')) throw new FinalizeError(`derived-columns.json: d_* 칸만 선언할 수 있음: ${k}`);
+    if (!k.startsWith('d_')) throw new FinalizeError(`derived-columns.json: only d_* columns can be declared: ${k}`);
     m.set(k, v);
   }
   return m;
@@ -44,19 +47,19 @@ export function paramsHash(params: BuildInputs['params']): string {
 }
 
 export function loadDerivedRoles(file: string): Map<string, Role> {
-  if (!existsSync(file)) throw new FinalizeError(`역할 선언 파일이 없음: ${file}`);
+  if (!existsSync(file)) throw new FinalizeError(`role declaration file not found: ${file}`);
   const raw = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
   const m = new Map<string, Role>();
   for (const [k, v] of Object.entries(raw)) {
-    if (!/^d_[A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*$/.test(k)) throw new FinalizeError(`derived-columns.json: 잘못된 칸 이름 ${k}`);
+    if (!/^d_[A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*$/.test(k)) throw new FinalizeError(`derived-columns.json: invalid column name ${k}`);
     if (v === 'ordinary' || v === 'private') m.set(k, v);
     else if (v && typeof v === 'object' && typeof (v as { identifier?: unknown }).identifier === 'string' && Object.keys(v).length === 1) m.set(k, { identifier: (v as { identifier: string }).identifier });
-    else throw new FinalizeError(`derived-columns.json: ${k}의 역할은 "ordinary" | "private" | { "identifier": "<도메인>" }`);
+    else throw new FinalizeError(`derived-columns.json: the role of ${k} must be "ordinary" | "private" | { "identifier": "<domain>" }`);
   }
   return m;
 }
 
-/** 기준 시각 뒤 행 삭제, nullAfterCutoff 칸은 NULL로 */
+/** Deletes rows after the cutoff; nullAfterCutoff columns become NULL */
 export function applyCutoff(db: DatabaseSync, specs: TableSpec[], cutoff: string): void {
   for (const t of specs) {
     const dropped = Number(db.prepare(`DELETE FROM ${t.target} WHERE ${t.cutoffColumn} > ?`).run(cutoff).changes);
@@ -71,13 +74,20 @@ export function applyCutoff(db: DatabaseSync, specs: TableSpec[], cutoff: string
 function validate(db: DatabaseSync, specs: TableSpec[]): void {
   for (const t of specs) {
     const cols = (db.prepare(`PRAGMA table_info(${t.target})`).all() as { name: string }[]).map((r) => r.name);
-    if (cols.join(',') !== t.columns.map((c) => c.as).join(',')) throw new FinalizeError(`${t.target}: 칸 목록이 명세와 다름`);
+    if (cols.join(',') !== t.columns.map((c) => c.as).join(',')) throw new FinalizeError(`${t.target}: columns differ from the spec`);
     const n = (db.prepare(`SELECT count(*) n FROM ${t.target}`).get() as { n: number }).n;
-    if (n === 0) throw new FinalizeError(`${t.target}: 행이 없음`);
+    if (n === 0) throw new FinalizeError(`${t.target}: no rows`);
+    // Fail if a public text column holds a secret-looking value (the value is not logged)
+    for (const c of t.columns.filter((x) => x.kind === 'text' && x.role !== 'private')) {
+      for (const r of db.prepare(`SELECT ${c.as} AS v FROM ${t.target} WHERE ${c.as} IS NOT NULL`).iterate() as Iterable<{ v: unknown }>) {
+        const kind = typeof r.v === 'string' ? secretShape(r.v) : null;
+        if (kind) throw new FinalizeError(`${t.target}.${c.as}: has a secret-looking value (${kind}), not collected. Declare it private or check the source`);
+      }
+    }
   }
 }
 
-export function rawHash(db: DatabaseSync, specs: TableSpec[]): string {
+export function rawHash(db: DatabaseSync, specs: TableSpec[], ga4Tables: string[] = []): string {
   const parts: string[] = [];
   for (const t of [...specs].sort((a, b) => (a.target < b.target ? -1 : 1))) {
     const h = createHash('sha256').update(`${t.target}\n`);
@@ -86,10 +96,22 @@ export function rawHash(db: DatabaseSync, specs: TableSpec[]): string {
     for (const row of stmt.iterate() as Iterable<unknown[]>) h.update(JSON.stringify(row) + '\n');
     parts.push(h.digest('hex'));
   }
+  // GA4 tables: the actual set must match the plan; schema (columns, types, NULL, keys) and content go into the hash
+  const actual = (db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'r\\_ga4\\_%' ESCAPE '\\' AND name <> 'r_ga4_collect_log' ORDER BY name").all() as { name: string }[]).map((r) => r.name);
+  const planned = [...ga4Tables].sort();
+  if (JSON.stringify(actual) !== JSON.stringify(planned)) throw new FinalizeError(`GA4 tables differ from the plan (actual ${actual.join(', ') || 'none'} / planned ${planned.join(', ') || 'none'})`);
+  for (const t of planned) {
+    const info = db.prepare(`PRAGMA table_info(${t})`).all() as { name: string; type: string; notnull: number; pk: number }[];
+    const h = createHash('sha256').update(`${t}\n${JSON.stringify(info.map((c) => [c.name, c.type, c.notnull, c.pk]))}\n`);
+    const stmt = db.prepare(`SELECT * FROM ${t} ORDER BY ${info.map((c) => c.name).join(', ')}`);
+    stmt.setReturnArrays(true);
+    for (const row of stmt.iterate() as Iterable<unknown[]>) h.update(JSON.stringify(row) + '\n');
+    parts.push(h.digest('hex'));
+  }
   return sha(parts.join('\n'));
 }
 
-/** calendar_start 주부터 기준 시각까지 주 목록 */
+/** Weeks from the calendar_start week up to the cutoff */
 export function buildCalendar(db: DatabaseSync, params: BuildInputs['params'], asOf: string): void {
   db.exec('CREATE TABLE d_calendar_week (week_start TEXT PRIMARY KEY, week_end TEXT NOT NULL)');
   const start = params.calendar_start;
@@ -100,23 +122,25 @@ export function buildCalendar(db: DatabaseSync, params: BuildInputs['params'], a
 
 export function build(db: DatabaseSync, inp: BuildInputs, meta: { cutoff: string; startedAt: string; finishedAt: string }) {
   const roles = allRoles(inp.specs, inp.derivedRoles);
+  for (const [k, v] of inp.ga4?.roles ?? []) roles.set(k, v);
+  const ga4Hash = inp.ga4?.specHash ?? '';
   const hashes = {
-    raw_hash: rawHash(db, inp.specs),
+    raw_hash: rawHash(db, inp.specs, inp.ga4?.tables ?? []),
     derived_hash: sha(inp.derivedSql),
     roles_hash: rolesHash(roles),
     params_hash: paramsHash(inp.params),
     spec_hash: specHash(inp.specs),
   };
   db.exec('DELETE FROM snapshot_meta; DELETE FROM snapshot_params');
-  db.prepare(`INSERT INTO snapshot_meta (source_cutoff_at, collection_started_at, collection_finished_at, raw_hash, derived_hash, roles_hash, params_hash, spec_hash)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(meta.cutoff, meta.startedAt, meta.finishedAt, hashes.raw_hash, hashes.derived_hash, hashes.roles_hash, hashes.params_hash, hashes.spec_hash);
+  db.prepare(`INSERT INTO snapshot_meta (source_cutoff_at, collection_started_at, collection_finished_at, raw_hash, derived_hash, roles_hash, params_hash, spec_hash, ga4_spec_hash)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(meta.cutoff, meta.startedAt, meta.finishedAt, hashes.raw_hash, hashes.derived_hash, hashes.roles_hash, hashes.params_hash, hashes.spec_hash, ga4Hash);
   const insParam = db.prepare('INSERT INTO snapshot_params VALUES (?, ?)');
   for (const [k, v] of Object.entries(inp.params)) for (const x of Array.isArray(v) ? v : [v]) insParam.run(k, String(x));
 
   try {
     execDerivedSql(db, inp.derivedSql, roles);
   } catch (e) {
-    throw new FinalizeError(`derived.sql 실행 실패: ${(e as Error).message}`);
+    throw new FinalizeError(`derived.sql failed: ${(e as Error).message}`);
   }
   buildCalendar(db, inp.params, meta.cutoff);
 
@@ -125,13 +149,13 @@ export function build(db: DatabaseSync, inp: BuildInputs, meta: { cutoff: string
       if (typeof c.role === 'object' && c.as !== t.key[0]) db.exec(`CREATE INDEX IF NOT EXISTS ix_${t.target}_${c.as} ON ${t.target}(${c.as})`);
     }
   }
-  const snapshotId = `${meta.cutoff.slice(0, 10).replace(/-/g, '')}-${meta.cutoff.slice(11, 19).replace(/:/g, '')}-${hashes.raw_hash.slice(0, 8)}-${hashes.derived_hash.slice(0, 8)}-${hashes.roles_hash.slice(0, 8)}-${hashes.params_hash.slice(0, 8)}`;
+  const snapshotId = `${meta.cutoff.slice(0, 10).replace(/-/g, '')}-${meta.cutoff.slice(11, 19).replace(/:/g, '')}-${hashes.raw_hash.slice(0, 8)}-${hashes.derived_hash.slice(0, 8)}-${hashes.roles_hash.slice(0, 8)}-${(ga4Hash ? sha(`${hashes.params_hash}\n${ga4Hash}`) : hashes.params_hash).slice(0, 8)}`;
   db.prepare('UPDATE snapshot_meta SET snapshot_id = ?').run(snapshotId);
   return { snapshotId, hashes, roles };
 }
 
-/** snapshots/ 잠금. 남은 잠금은 자동으로 지우지 않고 안내한다 */
-export function withSnapshotLock<T>(dir: string, fn: () => T): T {
+/** Takes the snapshots/ lock and returns its release function. A leftover lock is reported, not removed */
+export function acquireSnapshotLock(dir: string): () => void {
   const lock = join(dir, '.lock');
   let fd: number | null = null;
   for (let attempt = 0; fd === null; attempt++) {
@@ -155,25 +179,33 @@ export function withSnapshotLock<T>(dir: string, fn: () => T): T {
           alive = false;
         }
       }
-      if (alive) throw new FinalizeError(`다른 수집·파생이 진행 중(pid ${owner}). 끝난 뒤 다시 실행하세요`);
-      throw new FinalizeError(`낡은 잠금이 남아 있음(pid ${text.trim() || '?'}은 없음). 다른 실행이 없는지 확인한 뒤 ${lock}을 지우고 다시 실행하세요`);
+      if (alive) throw new FinalizeError(`another collect or derive is running (pid ${owner}). Run again after it finishes`);
+      throw new FinalizeError(`stale lock left behind (pid ${text.trim() || '?'} is gone). Make sure nothing else is running, delete ${lock} and run again`);
     }
   }
   try {
     writeSync(fd, String(process.pid));
+  } finally {
     closeSync(fd);
+  }
+  return () => rmSync(lock, { force: true });
+}
+
+export function withSnapshotLock<T>(dir: string, fn: () => T): T {
+  const release = acquireSnapshotLock(dir);
+  try {
     return fn();
   } finally {
-    rmSync(lock, { force: true });
+    release();
   }
 }
 
-type MetaHashes = Record<'raw_hash' | 'derived_hash' | 'roles_hash' | 'params_hash' | 'spec_hash', string>;
+type MetaHashes = Record<'raw_hash' | 'derived_hash' | 'roles_hash' | 'params_hash' | 'spec_hash' | 'ga4_spec_hash', string>;
 
 function readMetaHashes(path: string): MetaHashes | null {
   try {
     const db = new DatabaseSync(path, { readOnly: true });
-    const m = db.prepare('SELECT raw_hash, derived_hash, roles_hash, params_hash, spec_hash FROM snapshot_meta').get() as MetaHashes | undefined;
+    const m = db.prepare('SELECT raw_hash, derived_hash, roles_hash, params_hash, spec_hash, ga4_spec_hash FROM snapshot_meta').get() as MetaHashes | undefined;
     db.close();
     return m ?? null;
   } catch {
@@ -181,13 +213,15 @@ function readMetaHashes(path: string): MetaHashes | null {
   }
 }
 
-/** 실패하면 임시 파일을 지우고 current.json은 그대로 둔다. failAt은 테스트용 */
+/** On failure, deletes the temporary files and leaves current.json as is. failAt is for tests */
 export function finalize(o: {
   tmpPath: string;
   snapshotsDir: string;
   inputs: BuildInputs;
   meta: { cutoff: string; startedAt: string; finishedAt: string };
   applyCutoffFirst: boolean;
+  /** True if the caller already holds the snapshot lock (not taken again) */
+  lockHeld?: boolean;
   failAt?: 'cutoff' | 'build' | 'pseudonymize' | 'rename' | 'rename-1' | 'rename-2';
 }): FinalizeResult {
   const tmpAgent = `${o.tmpPath}.agent`;
@@ -205,20 +239,21 @@ export function finalize(o: {
     try {
       db.exec('PRAGMA journal_mode = DELETE');
       if (o.applyCutoffFirst) {
-        if (o.failAt === 'cutoff') throw new FinalizeError('강제 실패(cutoff)');
+        if (o.failAt === 'cutoff') throw new FinalizeError('forced failure (cutoff)');
         applyCutoff(db, o.inputs.specs, o.meta.cutoff);
         validate(db, o.inputs.specs);
       }
-      if (o.failAt === 'build') throw new FinalizeError('강제 실패(build)');
+      if (o.failAt === 'build') throw new FinalizeError('forced failure (build)');
       ({ snapshotId, roles } = build(db, o.inputs, o.meta));
     } finally {
       db.close();
     }
 
-    if (o.failAt === 'pseudonymize') throw new FinalizeError('강제 실패(pseudonymize)');
+    if (o.failAt === 'pseudonymize') throw new FinalizeError('forced failure (pseudonymize)');
     pseudonymize({ srcPath: o.tmpPath, agentPath: tmpAgent, mapPath: tmpMap, roles });
     for (const p of [o.tmpPath, tmpAgent, tmpMap]) fsyncPath(p);
 
+    if (o.lockHeld) return place(o, snapshotId, tmpAgent, tmpMap, cleanup);
     return withSnapshotLock(o.snapshotsDir, () => place(o, snapshotId, tmpAgent, tmpMap, cleanup));
   } catch (e) {
     cleanup();
@@ -226,7 +261,7 @@ export function finalize(o: {
   }
 }
 
-/** 같은 세트가 있으면 재사용, 없으면 세 파일을 옮기고 포인터를 바꾼다 */
+/** Reuses an identical set; otherwise moves the three files in and updates the pointer */
 function place(o: Parameters<typeof finalize>[0], snapshotId: string, tmpAgent: string, tmpMap: string, cleanup: () => void): FinalizeResult {
   const files = snapshotFiles(o.snapshotsDir, snapshotId);
   const existing = [files.real, files.agent, files.map].filter((p) => existsSync(p));
@@ -238,16 +273,16 @@ function place(o: Parameters<typeof finalize>[0], snapshotId: string, tmpAgent: 
       writeCurrent(o.snapshotsDir, snapshotId);
       return { snapshotId, reused: true, files };
     }
-    throw new FinalizeError(`같은 snapshot_id(${snapshotId})의 파일이 이미 있지만 일부가 없거나 내용이 다름. 사람이 확인해야 함`);
+    throw new FinalizeError(`files for snapshot_id ${snapshotId} already exist but some are missing or differ. Needs a manual check`);
   }
-  if (o.failAt === 'rename') throw new FinalizeError('강제 실패(rename)');
-  // 중간에 실패하면 옮긴 파일을 지운다
+  if (o.failAt === 'rename') throw new FinalizeError('forced failure (rename)');
+  // On a partial failure, delete the files already moved
   const moved: string[] = [];
   try {
     for (const [from, to] of [[tmpMap, files.map], [tmpAgent, files.agent], [o.tmpPath, files.real]] as const) {
       renameSync(from, to);
       moved.push(to);
-      if (o.failAt === `rename-${moved.length}`) throw new FinalizeError(`강제 실패(rename-${moved.length})`);
+      if (o.failAt === `rename-${moved.length}`) throw new FinalizeError(`forced failure (rename-${moved.length})`);
     }
     fsyncPath(o.snapshotsDir);
   } catch (e) {

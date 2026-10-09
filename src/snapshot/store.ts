@@ -1,4 +1,4 @@
-// 스냅샷 파일 위치와 current 포인터.
+// Snapshot file locations and the current pointer.
 import { closeSync, existsSync, fsyncSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 

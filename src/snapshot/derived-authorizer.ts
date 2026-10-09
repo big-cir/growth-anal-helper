@@ -1,4 +1,4 @@
-// derived.sql 실행 권한: d_* 표만 만들고 쓸 수 있고(뷰는 안 됨), 나머지 표는 읽기만.
+// derived.sql permissions: may create and write d_* tables only (no views); other tables are read-only.
 import { constants as C, type DatabaseSync } from 'node:sqlite';
 import type { Role } from '../collect/spec.ts';
 
@@ -33,7 +33,7 @@ export function derivedSqlAuthorizer(code: number, a1: string | null, a2: string
   }
 }
 
-/** 문자열·식별자·주석 밖의 ;로 문장을 나눈다 */
+/** Splits statements on ; outside strings, identifiers and comments */
 export function splitStatements(sql: string): string[] {
   const out: string[] = [];
   let start = 0;
@@ -64,7 +64,7 @@ export function splitStatements(sql: string): string[] {
 
 export class DerivedTaintError extends Error {}
 
-/** 문장이 쓰는 d_ 표(CREATE TABLE·INSERT INTO·UPDATE·REPLACE INTO의 대상) */
+/** d_ table written by a statement (target of CREATE TABLE, INSERT INTO, UPDATE, REPLACE INTO) */
 function targetTable(stmt: string): string | null {
   const body = stmt.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, ' ');
   const m = /^\s*(?:CREATE\s+(?:TEMP\w*\s+)?TABLE(?:\s+IF\s+NOT\s+EXISTS)?|INSERT\s+(?:OR\s+\w+\s+)?INTO|REPLACE\s+INTO|UPDATE(?:\s+OR\s+\w+)?)\s+["`\[]?(d_[A-Za-z0-9_]*)/i.exec(body);
@@ -72,8 +72,8 @@ function targetTable(stmt: string): string | null {
 }
 
 /**
- * 파생 SQL을 문장마다 실행하며 각 대상 표가 읽은 private 칸을 기록한다.
- * private 칸을 하나라도 읽은 표는 모든 칸이 private로 선언돼 있어야 한다(예외 없음).
+ * Runs derived SQL statement by statement, recording the private columns each target table reads.
+ * A table that reads any private column must declare all its columns private (no exceptions).
  */
 export function execDerivedSql(db: DatabaseSync, sql: string, roles?: Map<string, Role>): void {
   let readsPrivate: string[] = [];
@@ -102,7 +102,7 @@ export function execDerivedSql(db: DatabaseSync, sql: string, roles?: Map<string
   for (const [t, from] of tainted) {
     const cols = (db.prepare(`PRAGMA table_info("${t}")`).all() as { name: string }[]).map((c) => c.name);
     const pub = cols.filter((c) => roles.get(`${t}.${c}`) !== 'private');
-    if (pub.length) problems.push(`${t}은(는) private 칸(${[...from].join(', ')})을 읽어 만들었으므로 모든 칸이 private여야 함: ${pub.map((c) => `${t}.${c}`).join(', ')}`);
+    if (pub.length) problems.push(`${t} reads private columns (${[...from].join(', ')}), so all its columns must be private: ${pub.map((c) => `${t}.${c}`).join(', ')}`);
   }
   if (problems.length) throw new DerivedTaintError(problems.join(' / '));
 }

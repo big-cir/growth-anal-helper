@@ -1,8 +1,9 @@
-// 데이터 품질 검사: 수집 명세로 만드는 엔진 내장 검사와 워크스페이스 quality/*.sql.
+// Data quality checks: built-in checks generated from the collection spec, plus workspace quality/*.sql.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { TableSpec } from '../collect/spec.ts';
 import { normalizeTs } from '../time.ts';
+import { tr } from '../i18n.ts';
 
 export type QualityDisplay = 'table' | 'line';
 export type QualityCheck = { id: string; title: string; display: QualityDisplay; sql: string; builtin: boolean };
@@ -12,7 +13,7 @@ export class QualityError extends Error {}
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;
 
 function tsParam(v: unknown, name: string): string {
-  if (typeof v !== 'string') throw new QualityError(`params.${name}: 시각 문자열이어야 함`);
+  if (typeof v !== 'string') throw new QualityError(`params.${name}: must be a timestamp string`);
   try {
     return normalizeTs(v);
   } catch (e) {
@@ -20,13 +21,13 @@ function tsParam(v: unknown, name: string): string {
   }
 }
 
-/** params.quality_gap_ranges: ["시작~끝", …] */
+/** params.quality_gap_ranges: ["start~end", …] */
 function gapRanges(v: unknown): [string, string][] {
   if (v === undefined) return [];
-  if (!Array.isArray(v)) throw new QualityError('params.quality_gap_ranges: "시작~끝" 문자열 배열');
+  if (!Array.isArray(v)) throw new QualityError('params.quality_gap_ranges: must be an array of "start~end" strings');
   return v.map((s, i) => {
     const parts = typeof s === 'string' ? s.split('~').map((x) => x.trim()) : [];
-    if (parts.length !== 2) throw new QualityError(`params.quality_gap_ranges[${i}]: "시작~끝" 형식`);
+    if (parts.length !== 2) throw new QualityError(`params.quality_gap_ranges[${i}]: must be "start~end"`);
     return [tsParam(parts[0], `quality_gap_ranges[${i}]`), tsParam(parts[1], `quality_gap_ranges[${i}]`)];
   });
 }
@@ -57,10 +58,14 @@ export function builtinChecks(specs: TableSpec[], params: Record<string, unknown
   }));
   const dates = dateRows.length ? dateRows.join('\nUNION ALL\n') : "SELECT NULL AS table_name WHERE 0";
 
+  const ga4 = params.__ga4 === true
+    ? [{ id: 'q_ga4_collect', title: tr('GA4 import results', 'GA4 가져오기 결과'), display: 'table' as const, sql: 'SELECT report, rows, row_count, dropped_small, suppressed_cells, dropped_collision, dropped_unobserved, dropped_unmapped, subject_to_thresholding, data_loss_from_other_row, sampled, truncated, schema_restricted, empty_reason, data_through, calls FROM r_ga4_collect_log ORDER BY report', builtin: true }]
+    : [];
   return [
-    { id: 'q_collect', title: '테이블별 수집 결과', display: 'table', sql: collect, builtin: true },
-    { id: 'q_cutoff_drops', title: '기준 시각 정리로 버리거나 비운 값', display: 'table', sql: cutoff, builtin: true },
-    { id: 'q_dates', title: '날짜 칸 점검', display: 'table', sql: dates, builtin: true },
+    ...ga4,
+    { id: 'q_collect', title: tr('Collection results by table', '테이블별 수집 결과'), display: 'table', sql: collect, builtin: true },
+    { id: 'q_cutoff_drops', title: tr('Values dropped or blanked at the cutoff', '기준 시각 정리로 버리거나 비운 값'), display: 'table', sql: cutoff, builtin: true },
+    { id: 'q_dates', title: tr('Date column checks', '날짜 칸 점검'), display: 'table', sql: dates, builtin: true },
   ];
 }
 
@@ -72,12 +77,12 @@ export function workspaceChecks(wsDir: string): QualityCheck[] {
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter((f) => f.endsWith('.sql')).sort().map((f) => {
     const id = f.slice(0, -4);
-    if (!ID.test(id)) throw new QualityError(`quality/${f}: 파일 이름은 ^[a-z][a-z0-9_]*$`);
+    if (!ID.test(id)) throw new QualityError(`quality/${f}: file names must match ^[a-z][a-z0-9_]*$`);
     const metaFile = join(dir, `${id}.json`);
-    if (!existsSync(metaFile)) throw new QualityError(`quality/${id}.json이 없음`);
+    if (!existsSync(metaFile)) throw new QualityError(`quality/${id}.json not found`);
     const meta = JSON.parse(readFileSync(metaFile, 'utf8')) as Record<string, unknown>;
-    if (typeof meta.title !== 'string' || meta.title.trim() === '') throw new QualityError(`quality/${id}.json: title 필요`);
-    if (meta.display !== 'table' && meta.display !== 'line') throw new QualityError(`quality/${id}.json: display는 table|line`);
+    if (typeof meta.title !== 'string' || meta.title.trim() === '') throw new QualityError(`quality/${id}.json: title is required`);
+    if (meta.display !== 'table' && meta.display !== 'line') throw new QualityError(`quality/${id}.json: display must be table|line`);
     return { id, title: meta.title, display: meta.display, sql: readFileSync(join(dir, f), 'utf8'), builtin: false };
   });
 }

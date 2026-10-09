@@ -1,4 +1,4 @@
-// 가명 사본(에이전트용): identifier 칸을 도메인별 무작위 값으로 1:1 치환하고, private 칸과 엔진 운영 표는 뺀 새 DB.
+// Pseudonymized copy for the agent: a new DB where identifier columns are mapped 1:1 to random values per domain, without private columns or engine bookkeeping tables.
 import { DatabaseSync } from 'node:sqlite';
 import { randomInt } from 'node:crypto';
 import type { Role } from '../collect/spec.ts';
@@ -8,16 +8,17 @@ export class PseudonymizeError extends Error {}
 export const PSEUDO_MIN = 1_000_000_000;
 export const PSEUDO_MAX = 2 ** 47;
 
-/** 엔진이 만드는 표와 칸(모두 ordinary) */
+/** Tables and columns created by the engine (all ordinary) */
 export const ENGINE_COLUMNS: Record<string, string[]> = {
-  snapshot_meta: ['snapshot_id', 'source_cutoff_at', 'collection_started_at', 'collection_finished_at', 'raw_hash', 'derived_hash', 'roles_hash', 'params_hash', 'spec_hash'],
+  snapshot_meta: ['snapshot_id', 'source_cutoff_at', 'collection_started_at', 'collection_finished_at', 'raw_hash', 'derived_hash', 'roles_hash', 'params_hash', 'spec_hash', 'ga4_spec_hash'],
   snapshot_params: ['key', 'value'],
   r_collect_log: ['table_name', 'rows', 'ms', 'collected_at', 'dropped_after_cutoff', 'nulled_after_cutoff'],
   d_calendar_week: ['week_start', 'week_end'],
+  r_ga4_collect_log: ['report', 'table_name', 'rows', 'row_count', 'dropped_small', 'dropped_unobserved', 'dropped_unmapped', 'dropped_collision', 'suppressed_cells', 'subject_to_thresholding', 'data_loss_from_other_row', 'sampled', 'sampling_summary', 'truncated', 'schema_restricted', 'empty_reason', 'time_zone', 'data_through', 'calls', 'quota_day_remaining', 'quota_hour_remaining', 'collected_at'],
 };
 export const ENGINE_TABLES = new Set(Object.keys(ENGINE_COLUMNS));
-/** 에이전트 사본에 넣지 않는 엔진 운영 표 */
-export const AGENT_EXCLUDED_TABLES = new Set(['snapshot_meta', 'snapshot_params', 'r_collect_log']);
+/** Engine bookkeeping tables left out of the agent copy */
+export const AGENT_EXCLUDED_TABLES = new Set(['snapshot_meta', 'snapshot_params', 'r_collect_log', 'r_ga4_collect_log']);
 
 type IdCol = { table: string; column: string; domain: string };
 
@@ -33,16 +34,16 @@ function columnsOf(db: DatabaseSync, table: string): string[] {
   return (db.prepare(`PRAGMA table_info(${q(table)})`).all() as { name: string }[]).map((r) => r.name);
 }
 
-/** 모든 r_*·d_* 칸과 역할 선언을 대조하고 identifier 칸 목록을 돌려준다 */
+/** Matches every r_* and d_* column with its declared role and returns the identifier columns */
 export function checkRoles(db: DatabaseSync, roles: Map<string, Role>): IdCol[] {
   const actual = new Set<string>();
   const missing: string[] = [];
   const ids: IdCol[] = [];
   const unknown = userTables(db).filter((t) => !ENGINE_TABLES.has(t) && !t.startsWith('r_') && !t.startsWith('d_'));
-  if (unknown.length) throw new PseudonymizeError(`r_*·d_*·엔진 표가 아닌 테이블은 둘 수 없음(가명화 대상을 알 수 없음): ${unknown.join(', ')}`);
+  if (unknown.length) throw new PseudonymizeError(`only r_*, d_* and engine tables are allowed (cannot tell how to pseudonymize): ${unknown.join(', ')}`);
   for (const t of userTables(db)) {
     if (ENGINE_TABLES.has(t)) {
-      if (columnsOf(db, t).join(',') !== ENGINE_COLUMNS[t].join(',')) throw new PseudonymizeError(`엔진 표 ${t}의 칸 구성이 바뀜(파생 SQL은 엔진 표를 바꿀 수 없음)`);
+      if (columnsOf(db, t).join(',') !== ENGINE_COLUMNS[t].join(',')) throw new PseudonymizeError(`columns of engine table ${t} changed (derived SQL cannot change engine tables)`);
       continue;
     }
     for (const c of columnsOf(db, t)) {
@@ -56,7 +57,7 @@ export function checkRoles(db: DatabaseSync, roles: Map<string, Role>): IdCol[] 
   const extra = [...roles.keys()].filter((k) => !actual.has(k));
   if (missing.length || extra.length) {
     throw new PseudonymizeError(
-      [missing.length ? `역할 선언이 없는 칸: ${missing.join(', ')}` : '', extra.length ? `없는 칸을 가리키는 선언: ${extra.join(', ')}` : '']
+      [missing.length ? `columns without a declared role: ${missing.join(', ')}` : '', extra.length ? `declarations for missing columns: ${extra.join(', ')}` : '']
         .filter(Boolean).join(' / '),
     );
   }
@@ -84,11 +85,11 @@ export function pseudonymize(o: { srcPath: string; agentPath: string; mapPath: s
       values.set(c.domain, set);
       const stmt = src.prepare(`SELECT DISTINCT ${q(c.column)} AS v FROM ${q(c.table)} WHERE ${q(c.column)} IS NOT NULL`);
       for (const r of stmt.iterate() as Iterable<{ v: unknown }>) {
-        if (typeof r.v !== 'number' || !Number.isSafeInteger(r.v)) throw new PseudonymizeError(`${c.table}.${c.column}: 정수가 아닌 ID 값`);
+        if (typeof r.v !== 'number' || !Number.isSafeInteger(r.v)) throw new PseudonymizeError(`${c.table}.${c.column}: non-integer ID value`);
         set.add(r.v);
       }
     }
-    // 가명 값: 모든 도메인을 통틀어 서로 다르고 원본 값과도 겹치지 않는 큰 무작위 정수
+    // Pseudonyms: large random integers, unique across all domains and never equal to a real value
     const allReal = new Set<number>();
     for (const set of values.values()) for (const v of set) allReal.add(v);
     const used = new Set<number>();
@@ -118,7 +119,7 @@ export function pseudonymize(o: { srcPath: string; agentPath: string; mapPath: s
     const dst = new DatabaseSync(o.agentPath);
     try {
       dst.exec('PRAGMA journal_mode = DELETE');
-      // 공개 칸만 남긴 표 구조
+      // Table structure with public columns only
       const isPublic = (t: string, c: string) => ENGINE_TABLES.has(t) || o.roles.get(`${t}.${c}`) !== 'private';
       const kept = new Map<string, { name: string; type: string }[]>();
       for (const t of userTables(src)) {
@@ -151,7 +152,7 @@ export function pseudonymize(o: { srcPath: string; agentPath: string; mapPath: s
             const m = mapAt[i];
             if (m === null || v === null) return v;
             const p = m.get(v as number);
-            if (p === undefined) throw new PseudonymizeError(`${t}.${cols[i]}: 순열에 없는 값 (선언된 도메인이 틀림)`);
+            if (p === undefined) throw new PseudonymizeError(`${t}.${cols[i]}: value not in the mapping (wrong declared domain)`);
             return p;
           });
           ins.run(...(out as never[]));
@@ -177,11 +178,11 @@ function verify(src: DatabaseSync, dst: DatabaseSync, ids: IdCol[], tables: Reco
   const one = (db: DatabaseSync, sql: string) => JSON.stringify(db.prepare(sql).all());
   for (const [t, n] of Object.entries(tables)) {
     const c = (dst.prepare(`SELECT count(*) n FROM ${q(t)}`).get() as { n: number }).n;
-    if (c !== n) throw new PseudonymizeError(`검증 실패: ${t} 행 수 ${c} ≠ ${n}`);
+    if (c !== n) throw new PseudonymizeError(`check failed: ${t} row count ${c} ≠ ${n}`);
   }
   for (const c of ids) {
     const sql = `SELECT c, count(*) k FROM (SELECT count(*) c FROM ${q(c.table)} WHERE ${q(c.column)} IS NOT NULL GROUP BY ${q(c.column)}) GROUP BY c ORDER BY c`;
-    if (one(src, sql) !== one(dst, sql)) throw new PseudonymizeError(`검증 실패: ${c.table}.${c.column} 빈도 분포`);
+    if (one(src, sql) !== one(dst, sql)) throw new PseudonymizeError(`check failed: ${c.table}.${c.column} frequency distribution`);
   }
   for (let i = 0; i < ids.length; i++) {
     for (let j = i + 1; j < ids.length; j++) {
@@ -189,7 +190,7 @@ function verify(src: DatabaseSync, dst: DatabaseSync, ids: IdCol[], tables: Reco
       const b = ids[j];
       if (a.domain !== b.domain) continue;
       const sql = `SELECT count(*) n FROM (SELECT DISTINCT ${q(a.column)} v FROM ${q(a.table)}) x JOIN (SELECT DISTINCT ${q(b.column)} v FROM ${q(b.table)}) y ON x.v = y.v`;
-      if (one(src, sql) !== one(dst, sql)) throw new PseudonymizeError(`검증 실패: ${a.table}.${a.column} ↔ ${b.table}.${b.column} 조인`);
+      if (one(src, sql) !== one(dst, sql)) throw new PseudonymizeError(`check failed: ${a.table}.${a.column} ↔ ${b.table}.${b.column} join`);
     }
   }
 }

@@ -1,4 +1,4 @@
-// 데모 워크스페이스로 고정 시각 스냅샷을 만든다.
+// Builds a fixed-time snapshot from the demo workspace.
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -26,13 +26,15 @@ class FixedNow extends SqliteSource {
 
 export type DemoSnapshot = { ws: Workspace; real: string; agent: string; asOf: string; roles: Map<string, Role> };
 
-/** mutate: 수집 전에 워크스페이스 파일을 고친다 */
+/** mutate: edits workspace files before collecting */
 export async function buildDemoSnapshot(o: { mutate?: (dir: string) => void } = {}): Promise<DemoSnapshot> {
   const dir = mkdtempSync(join(tmpdir(), 'gl-demo-'));
   for (const f of ['workspace.json', 'tables.json', 'derived.sql', 'derived-columns.json', 'metrics.json', 'guide.md', 'seed-panels']) cpSync(join(DEMO_DIR, f), join(dir, f), { recursive: true });
   o.mutate?.(dir);
   seedDemo(join(dir, '.out', 'source.sqlite'), { anchor: DEMO_ANCHOR });
   const ws = loadWorkspace(dir);
+  // Server tests also check sign-in and roles
+  ws.config.server.auth = true;
   const inputs = loadBuildInputs(ws);
   const snaps = join(ws.config.outDir, 'snapshots');
   mkdirSync(snaps, { recursive: true });

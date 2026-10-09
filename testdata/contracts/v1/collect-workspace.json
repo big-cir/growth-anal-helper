@@ -1,0 +1,3273 @@
+{
+ "workspaces": [
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "language": "ko",
+    "params": {
+     "reopen_date": "2025-07-10 00:00:00.000000",
+     "n": 3,
+     "calendar_start": "2024-01-01",
+     "gaps": [
+      "2023-02-01~2025-07-09 23:59:59.999999"
+     ],
+     "z": 1.5
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "ko",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {
+      "reopen_date": "2025-07-10 00:00:00.000000",
+      "n": 3,
+      "calendar_start": "2024-01-01",
+      "gaps": [
+       "2023-02-01~2025-07-09 23:59:59.999999"
+      ],
+      "z": 1.5
+     },
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://127.0.0.1:3307",
+     "user": "root",
+     "password": "pw",
+     "database": "db"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "mysql",
+      "host": "127.0.0.1",
+      "port": 3307,
+      "user": "root",
+      "password": "pw",
+      "database": "db"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "postgres://db.example.com",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "postgres",
+      "host": "db.example.com",
+      "port": 5432,
+      "user": "u",
+      "password": "",
+      "database": "d"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "postgresql://[::1]:6543",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "postgres",
+      "host": "::1",
+      "port": 6543,
+      "user": "u",
+      "password": "",
+      "database": "d"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://LocalHost:",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "mysql",
+      "host": "LocalHost",
+      "port": 3306,
+      "user": "u",
+      "password": "",
+      "database": "d"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://~/data/x.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/hh/u/data/x.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite:///abs/x.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/abs/x.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "model": "opus",
+     "maxTurns": 3,
+     "maxProbes": 0,
+     "maxFixes": 0,
+     "callTimeoutMs": 1000,
+     "concurrency": 1,
+     "callBudgetUsd": 0.1,
+     "requestBudgetUsd": 2,
+     "dataMode": "schema_only",
+     "bin": "/x/claude"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "/x/claude",
+      "model": "opus",
+      "callBudgetUsd": 0.1,
+      "requestBudgetUsd": 2,
+      "maxTurns": 3,
+      "maxProbes": 0,
+      "maxFixes": 0,
+      "callTimeoutMs": 1000,
+      "concurrency": 1,
+      "dataMode": "schema_only",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "anthropic",
+     "model": "claude-sonnet-5-5",
+     "apiKey": "k",
+     "maxOutputTokens": 1024,
+     "pricing": {
+      "inputPerMTok": 3,
+      "outputPerMTok": 15
+     }
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "anthropic",
+      "bin": "claude",
+      "model": "claude-sonnet-5-5",
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "k",
+      "baseUrl": null,
+      "pricing": {
+       "inputPerMTok": 3,
+       "outputPerMTok": 15
+      },
+      "maxOutputTokens": 1024
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "baseUrl": "http://localhost:11434/v1"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "openai",
+      "bin": "claude",
+      "model": "m",
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": "http://localhost:11434/v1",
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "run": {
+     "heapLimitMb": 64
+    },
+    "server": {
+     "port": 8080,
+     "auth": true,
+     "publicOrigin": "https://Example.COM:443/",
+     "proxyHops": 2,
+     "auditRetentionDays": 7
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 64
+     },
+     "server": {
+      "port": 8080,
+      "auth": true,
+      "publicOrigin": "https://example.com",
+      "proxyHops": 2,
+      "auditRetentionDays": 7
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "https://example.com:8443"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": true,
+      "publicOrigin": "https://example.com:8443",
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "https://例え.jp"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": true,
+      "publicOrigin": "https://xn--r8jz45g.jp",
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "out"
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo/out",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "./a/../b"
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo/b",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ],
+     "panelReadablePrefixes": [
+      "d_x",
+      "r_"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_x",
+       "r_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "123",
+     "time_zone": "Asia/Seoul",
+     "key_file": "~/keys/k.json"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": {
+      "propertyId": "123",
+      "timeZone": "Asia/Seoul",
+      "keyFile": "/hh/u/keys/k.json"
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "123",
+     "time_zone": "asia/seoul",
+     "key_file": "k.json"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": {
+      "propertyId": "123",
+      "timeZone": "asia/seoul",
+      "keyFile": "/ws/demo/k.json"
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "123",
+     "time_zone": "+09:00",
+     "key_file": "/k.json"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": {
+      "propertyId": "123",
+      "timeZone": "+09:00",
+      "keyFile": "/k.json"
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "123",
+     "time_zone": "US/Pacific",
+     "key_file": "k"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": {
+      "propertyId": "123",
+      "timeZone": "US/Pacific",
+      "keyFile": "/ws/demo/k"
+     }
+    }
+   }
+  },
+  {
+   "input": null,
+   "out": {
+    "ok": false,
+    "error": "workspace.json (root): must be an object"
+   }
+  },
+  {
+   "input": [],
+   "out": {
+    "ok": false,
+    "error": "workspace.json (root): must be an object"
+   }
+  },
+  {
+   "input": "x",
+   "out": {
+    "ok": false,
+    "error": "workspace.json (root): must be an object"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "extra": 1
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .extra: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .name: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": 3,
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .name: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .name: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "language": "jp"
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .language: \"en\" or \"ko\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": "x",
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource: must be an object"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "oracle://x"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: must start with mysql://, postgres:// or sqlite://"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://x",
+     "user": "u"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.user: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h:99999",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: invalid host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://a b",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: invalid host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h/db",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: host[:port] only (user and database go in their own keys)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h?x",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: host[:port] only (user and database go in their own keys)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h#x",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: host[:port] only (user and database go in their own keys)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h:abc",
+     "user": "u",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.host: invalid host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h",
+     "database": "d"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.user: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h",
+     "user": "u",
+     "database": "d",
+     "password": 1
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.password: must be a string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "mysql://h",
+     "user": "u",
+     "database": "d",
+     "port": 1
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .datasource.port: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": []
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.readablePrefixes: must not be empty"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r-"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.readablePrefixes: not an identifier prefix: \"r-\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "SQLite_x"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.readablePrefixes: sqlite_ internal tables are not allowed"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": "r_"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.readablePrefixes: must be an array of strings"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_"
+     ],
+     "x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.x: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_"
+     ],
+     "panelReadablePrefixes": [
+      "d_"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.panelReadablePrefixes: cannot be wider than readablePrefixes: \"d_\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_"
+     ],
+     "panelReadablePrefixes": []
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.panelReadablePrefixes: must not be empty"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_"
+     ],
+     "panelReadablePrefixes": [
+      "r"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .policy.panelReadablePrefixes: cannot be wider than readablePrefixes: \"r\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "as_of": "2024-01-01"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.as_of: reserved by the engine"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "1x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.1x: key must be an identifier"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": "hello"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t: only numbers, timestamps or \"timestamp~timestamp\" (no free text)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": "2024-01-01~2024-02-01~2024-03-01"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t: only numbers, timestamps or \"timestamp~timestamp\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": [
+      "2024-01-01",
+      "x"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t[1]: only numbers, timestamps or \"timestamp~timestamp\" (no free text)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": true
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t: must be an array of strings"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": null
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t: must be an array of strings"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": {
+      "a": 1
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.t: must be an array of strings"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": []
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params: must be an object"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "params": {
+     "t": " 2024-01-01 ~ 2024-02-01 "
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {
+      "t": " 2024-01-01 ~ 2024-02-01 "
+     },
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "nope": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.nope: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.provider: \"claude-code\", \"anthropic\", \"openai\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "maxTurns": 0
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.maxTurns: must be >= 1"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "maxTurns": 1.5
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.maxTurns: must be an integer"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "maxProbes": -1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.maxProbes: must be >= 0"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "callBudgetUsd": 0
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.callBudgetUsd: must be > 0"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "callBudgetUsd": "1"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.callBudgetUsd: must be a number"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "model": ""
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.model: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "model": null
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "name": "demo",
+     "language": "en",
+     "datasource": {
+      "kind": "sqlite",
+      "path": "/ws/demo/data/source.sqlite"
+     },
+     "policy": {
+      "readablePrefixes": [
+       "r_",
+       "d_"
+      ],
+      "panelReadablePrefixes": [
+       "d_"
+      ]
+     },
+     "params": {},
+     "agent": {
+      "provider": "claude-code",
+      "bin": "claude",
+      "model": null,
+      "callBudgetUsd": 0.5,
+      "requestBudgetUsd": 1,
+      "maxTurns": 8,
+      "maxProbes": 4,
+      "maxFixes": 2,
+      "callTimeoutMs": 90000,
+      "concurrency": 2,
+      "dataMode": "pseudonymized",
+      "apiKey": "",
+      "baseUrl": null,
+      "pricing": null,
+      "maxOutputTokens": 8192
+     },
+     "run": {
+      "heapLimitMb": 2048
+     },
+     "server": {
+      "port": 4170,
+      "auth": false,
+      "publicOrigin": null,
+      "proxyHops": 1,
+      "auditRetentionDays": 90
+     },
+     "outDir": "/ws/demo",
+     "ga4": null
+    }
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "bin": ""
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.bin: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "apiKey": "k"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.apiKey: only for API providers (anthropic, openai)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "anthropic",
+     "model": "m"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.apiKey: anthropic requires an API key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.model: a model name is required for API providers"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "baseUrl": "ftp://x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.baseUrl: http(s) URLs only"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "baseUrl": "not a url"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.baseUrl: invalid URL"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "pricing": {
+      "inputPerMTok": 1
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.pricing.outputPerMTok: must be a number"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "pricing": {
+      "inputPerMTok": 1,
+      "outputPerMTok": 2,
+      "x": 3
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.pricing.x: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "maxOutputTokens": 100
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.maxOutputTokens: must be >= 256"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "dataMode": "raw"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.dataMode: \"pseudonymized\" or \"schema_only\""
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "agent": {
+     "provider": "openai",
+     "model": "m",
+     "apiKey": 5
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.apiKey: must be a string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "run": {
+     "heapLimitMb": 32
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .run.heapLimitMb: must be >= 64"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "run": {
+     "x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .run.x: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "port": 0
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.port: must be >= 1"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": "yes"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.auth: true or false"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "proxyHops": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.proxyHops: only with publicOrigin"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "publicOrigin": "https://a.com"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.auth: must be true with publicOrigin"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "http://a.com"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.publicOrigin: only https://host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "https://a.com/x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.publicOrigin: only https://host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "https://u@a.com"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.publicOrigin: only https://host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "https://a.com?x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.publicOrigin: only https://host[:port]"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "auth": true,
+     "publicOrigin": "nope"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.publicOrigin: invalid URL"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "server": {
+     "x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .server.x: unknown key"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "/abs"
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a path relative to the workspace"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "~/x"
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a path relative to the workspace"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": ".."
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a subfolder of the workspace"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "."
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a subfolder of the workspace"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": "../x"
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a subfolder of the workspace"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "outDir": ""
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .outDir: must be a non-empty string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": "x"
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: must be an object"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "x",
+     "time_zone": "UTC",
+     "key_file": "k"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: property_id must be a numeric string"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "1",
+     "time_zone": "Mars/Base",
+     "key_file": "k"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: time_zone must be an IANA time zone (e.g. America/Los_Angeles)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "1",
+     "time_zone": "KST",
+     "key_file": "k"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: time_zone must be an IANA time zone (e.g. America/Los_Angeles)"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "1",
+     "time_zone": "UTC",
+     "key_file": ""
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: key_file must be the path of the service account key file"
+   }
+  },
+  {
+   "input": {
+    "name": "demo",
+    "datasource": {
+     "host": "sqlite://data/source.sqlite"
+    },
+    "policy": {
+     "readablePrefixes": [
+      "r_",
+      "d_"
+     ]
+    },
+    "ga4": {
+     "property_id": "1",
+     "time_zone": "UTC",
+     "key_file": "k",
+     "x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "workspace.json .ga4: unknown key x"
+   }
+  }
+ ],
+ "raw": [
+  {
+   "text": "{\"zz\":1,\"7\":2,\"name\":\"x\",\"datasource\":{\"host\":\"sqlite://s\"},\"policy\":{\"readablePrefixes\":[\"r_\"]}}",
+   "out": {
+    "ok": false,
+    "error": "workspace.json .7: unknown key"
+   }
+  },
+  {
+   "text": "{\"name\":\"x\",\"datasource\":{\"host\":\"sqlite://s\"},\"policy\":{\"readablePrefixes\":[\"r_\",\"d_\"]},\"params\":{\"b\":\"2024-01-01\",\"a\":1,\"5\":2}}",
+   "out": {
+    "ok": false,
+    "error": "workspace.json .params.5: key must be an identifier"
+   }
+  },
+  {
+   "text": "{\"name\":\"x\",\"datasource\":{\"host\":\"sqlite://s\"},\"policy\":{\"readablePrefixes\":[\"r_\",\"d_\"]},\"agent\":{\"zz\":1,\"3\":2}}",
+   "out": {
+    "ok": false,
+    "error": "workspace.json .agent.3: unknown key"
+   }
+  }
+ ],
+ "expand": [
+  {
+   "input": "~/a",
+   "out": "/hh/u/a"
+  },
+  {
+   "input": "~",
+   "out": "~"
+  },
+  {
+   "input": "x",
+   "out": "x"
+  },
+  {
+   "input": "k=~/a",
+   "out": "k=/hh/u/a"
+  },
+  {
+   "input": "a=~/b=~/c",
+   "out": "a=/hh/u/b=~/c"
+  },
+  {
+   "input": "~x",
+   "out": "~x"
+  },
+  {
+   "input": "",
+   "out": ""
+  }
+ ]
+}

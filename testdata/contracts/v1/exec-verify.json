@@ -1,0 +1,528 @@
+{
+ "files": [
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2253454c4543542031204153206e222c22736e617073686f745f73716c223a2253454c4543542031204153206e227d5d7d",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "id": "a",
+      "title": "A",
+      "source_sql": "SELECT 1 AS n",
+      "snapshot_sql": "SELECT 1 AS n"
+     }
+    ]
+   }
+  },
+  {
+   "hex": "6e6f74206a736f6e",
+   "out": {
+    "ok": false,
+    "error": "verify.json: invalid JSON"
+   }
+  },
+  {
+   "hex": "7b7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks must be an array of 1-20 items"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks must be an array of 1-20 items"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks must be an array of 1-20 items"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b6e756c6c5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks[0] must be an object"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b5b5d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks[0] must be an object"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279222c226578747261223a317d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks[0] has unknown key extra"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2241222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks[0].id must be a unique lowercase identifier"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d2c7b226964223a2261222c227469746c65223a2242222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: checks[1].id must be a unique lowercase identifier"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a22222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.title must be 1-80 characters"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a22eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080eab080222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.title must be 1-80 characters"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a22f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880f09f9880222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.title must be 1-80 characters"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a222020222c22736e617073686f745f73716c223a2279227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.source_sql is empty"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278227d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.snapshot_sql is empty"
+   }
+  },
+  {
+   "hex": "7b22636865636b73223a5b7b226964223a2261222c227469746c65223a2241222c22736f757263655f73716c223a2278222c22736e617073686f745f73716c223a357d5d7d",
+   "out": {
+    "ok": false,
+    "error": "verify.json: a.snapshot_sql is empty"
+   }
+  }
+ ],
+ "weeks": [
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": null,
+   "out": {
+    "ok": true,
+    "value": {
+     "start": "2024-04-29 00:00:00.000000",
+     "end": "2024-05-06 00:00:00.000000"
+    }
+   }
+  },
+  {
+   "asOf": "2024-06-03 00:00:00.000000",
+   "week": null,
+   "out": {
+    "ok": true,
+    "value": {
+     "start": "2024-04-29 00:00:00.000000",
+     "end": "2024-05-06 00:00:00.000000"
+    }
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-04-01",
+   "out": {
+    "ok": true,
+    "value": {
+     "start": "2024-04-01 00:00:00.000000",
+     "end": "2024-04-08 00:00:00.000000"
+    }
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-05-27",
+   "out": {
+    "ok": true,
+    "value": {
+     "start": "2024-05-27 00:00:00.000000",
+     "end": "2024-06-03 00:00:00.000000"
+    }
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-05-20",
+   "out": {
+    "ok": true,
+    "value": {
+     "start": "2024-05-20 00:00:00.000000",
+     "end": "2024-05-27 00:00:00.000000"
+    }
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-04-02",
+   "out": {
+    "ok": false,
+    "error": "--week must be a Monday"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-02-30",
+   "out": {
+    "ok": false,
+    "error": "--week must be a real date YYYY-MM-DD"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-13-01",
+   "out": {
+    "ok": false,
+    "error": "Invalid time value"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-00-10",
+   "out": {
+    "ok": false,
+    "error": "Invalid time value"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-1-01",
+   "out": {
+    "ok": false,
+    "error": "--week must be a real date YYYY-MM-DD"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "0999-01-04",
+   "out": {
+    "ok": false,
+    "error": "unsupported year (must be 1000 or later): \"0999-01-04 00:00:00.000000\""
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-04-31",
+   "out": {
+    "ok": false,
+    "error": "--week must be a real date YYYY-MM-DD"
+   }
+  },
+  {
+   "asOf": "2024-06-03 12:00:00.000000",
+   "week": "2024-01-32",
+   "out": {
+    "ok": false,
+    "error": "Invalid time value"
+   }
+  }
+ ],
+ "values": [
+  {
+   "a": null,
+   "b": null,
+   "same": true
+  },
+  {
+   "a": null,
+   "b": "1",
+   "same": false
+  },
+  {
+   "a": "1",
+   "b": "1",
+   "same": true
+  },
+  {
+   "a": "1",
+   "b": "1.0",
+   "same": true
+  },
+  {
+   "a": "1.50",
+   "b": "1.5",
+   "same": true
+  },
+  {
+   "a": "10",
+   "b": "1e1",
+   "same": true
+  },
+  {
+   "a": "-0",
+   "b": "0",
+   "same": true
+  },
+  {
+   "a": "0.0",
+   "b": "0",
+   "same": true
+  },
+  {
+   "a": "+5",
+   "b": "5",
+   "same": true
+  },
+  {
+   "a": " 5 ",
+   "b": "5",
+   "same": true
+  },
+  {
+   "a": "1e-2",
+   "b": "0.01",
+   "same": true
+  },
+  {
+   "a": "1E+2",
+   "b": "100",
+   "same": true
+  },
+  {
+   "a": "abc",
+   "b": "abc",
+   "same": true
+  },
+  {
+   "a": "abc",
+   "b": "ABC",
+   "same": false
+  },
+  {
+   "a": "00012",
+   "b": "12",
+   "same": true
+  },
+  {
+   "a": "1.",
+   "b": "1",
+   "same": false
+  },
+  {
+   "a": ".5",
+   "b": "0.5",
+   "same": false
+  },
+  {
+   "a": "12345678901234567890123",
+   "b": "1.2345678901234567890123e22",
+   "same": true
+  },
+  {
+   "a": "5",
+   "b": "x",
+   "same": false
+  },
+  {
+   "a": "",
+   "b": "",
+   "same": true
+  },
+  {
+   "a": "",
+   "b": "0",
+   "same": false
+  }
+ ],
+ "bind": [
+  {
+   "hex": "53454c45435420636f756e74282a29204153206e2046524f4d206d656d62657220574845524520637265617465645f6174203e3d203a7765656b5f737461727420414e4420637265617465645f6174203c203a7765656b5f656e64",
+   "out": {
+    "ok": true,
+    "sql": "SELECT count(*) AS n FROM member WHERE created_at >= '2024-04-29 00:00:00.000000' AND created_at < '2024-05-06 00:00:00.000000'"
+   }
+  },
+  {
+   "hex": "53454c454354203a61735f6f6620415320613b",
+   "out": {
+    "ok": true,
+    "sql": "SELECT '2024-06-03 12:00:00.000000' AS a"
+   }
+  },
+  {
+   "hex": "53454c454354203a61735f6f662041532061203b2020",
+   "out": {
+    "ok": true,
+    "sql": "SELECT '2024-06-03 12:00:00.000000' AS a "
+   }
+  },
+  {
+   "hex": "53454c4543542031202d2d2078",
+   "out": {
+    "ok": false,
+    "message": "comments are not allowed"
+   }
+  },
+  {
+   "hex": "53454c454354203120232078",
+   "out": {
+    "ok": false,
+    "message": "comments are not allowed"
+   }
+  },
+  {
+   "hex": "53454c454354202f2a212031202a2f2031",
+   "out": {
+    "ok": false,
+    "message": "comments are not allowed"
+   }
+  },
+  {
+   "hex": "53454c4543542027615c6227",
+   "out": {
+    "ok": false,
+    "message": "backslashes are not allowed"
+   }
+  },
+  {
+   "hex": "53454c454354205b785d2046524f4d2074",
+   "out": {
+    "ok": false,
+    "message": "brackets are not allowed"
+   }
+  },
+  {
+   "hex": "53454c454354202424782424",
+   "out": {
+    "ok": false,
+    "message": "$ is not allowed"
+   }
+  },
+  {
+   "hex": "5550444154452074205345542061203d2031",
+   "out": {
+    "ok": false,
+    "message": "must start with SELECT or WITH"
+   }
+  },
+  {
+   "hex": "574954482078204153202853454c4543542031292044454c4554452046524f4d2074",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: DELETE"
+   }
+  },
+  {
+   "hex": "53454c454354203120494e544f204f555446494c4520276627",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: INTO"
+   }
+  },
+  {
+   "hex": "53454c45435420736c656570283129",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: sleep"
+   }
+  },
+  {
+   "hex": "53454c454354202a2046524f4d207420464f52205348415245",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: FOR SHARE"
+   }
+  },
+  {
+   "hex": "53454c454354202a2046524f4d207420666f72207368617265",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: FOR share"
+   }
+  },
+  {
+   "hex": "53454c4543542022757064617465222046524f4d2074",
+   "out": {
+    "ok": true,
+    "sql": "SELECT \"update\" FROM t"
+   }
+  },
+  {
+   "hex": "53454c454354206064656c657465602046524f4d2074",
+   "out": {
+    "ok": true,
+    "sql": "SELECT `delete` FROM t"
+   }
+  },
+  {
+   "hex": "53454c4543542027757064617465272041532078",
+   "out": {
+    "ok": true,
+    "sql": "SELECT 'update' AS x"
+   }
+  },
+  {
+   "hex": "53454c454354203a6f74686572",
+   "out": {
+    "ok": false,
+    "message": "parameter not allowed: :other (allowed: :as_of, :week_start, :week_end)"
+   }
+  },
+  {
+   "hex": "53454c45435420313b2053454c4543542032",
+   "out": {
+    "ok": false,
+    "message": "one statement only (`;` only at the end)"
+   }
+  },
+  {
+   "hex": "53454c454354203f",
+   "out": {
+    "ok": false,
+    "message": "parameters must be :name (?)"
+   }
+  },
+  {
+   "hex": "53454c45435420276974272773272c203a7765656b5f7374617274",
+   "out": {
+    "ok": true,
+    "sql": "SELECT 'it''s', '2024-04-29 00:00:00.000000'"
+   }
+  },
+  {
+   "hex": "53454c45435420312046524f4d20742057484552452061203d20227822227922",
+   "out": {
+    "ok": true,
+    "sql": "SELECT 1 FROM t WHERE a = \"x\"\"y\""
+   }
+  },
+  {
+   "hex": "53454c454354206765745f6c6f636b283129",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: get_lock"
+   }
+  },
+  {
+   "hex": "53454c454354203120464f5220555044415445",
+   "out": {
+    "ok": false,
+    "message": "word not allowed in source cross-check SQL: UPDATE"
+   }
+  }
+ ]
+}

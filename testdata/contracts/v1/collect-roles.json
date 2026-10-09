@@ -1,0 +1,173 @@
+{
+ "derived": [
+  {
+   "input": {
+    "d_user.id": {
+     "identifier": "user"
+    },
+    "d_user.n": "ordinary",
+    "d_user.secret_note": "private"
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "d_user.id": {
+      "identifier": "user"
+     },
+     "d_user.n": "ordinary",
+     "d_user.secret_note": "private"
+    }
+   },
+   "roles": {
+    "ok": true,
+    "value": {
+     "all": {
+      "r_member.id": {
+       "identifier": "user"
+      },
+      "r_member.created_at": "ordinary",
+      "d_user.id": {
+       "identifier": "user"
+      },
+      "d_user.n": "ordinary",
+      "d_user.secret_note": "private"
+     },
+     "hash": "ecd314b59ea321415e4b49f8a0da9299af018e6f8f5a1e4012bc7d0a80a24668"
+    }
+   }
+  },
+  {
+   "input": {},
+   "out": {
+    "ok": true,
+    "value": {}
+   },
+   "roles": {
+    "ok": true,
+    "value": {
+     "all": {
+      "r_member.id": {
+       "identifier": "user"
+      },
+      "r_member.created_at": "ordinary"
+     },
+     "hash": "03e8378a15ece6c1c8a609c62dedb05652c6b3fd510adb89033ff76fd04265fb"
+    }
+   }
+  },
+  {
+   "input": {
+    "r_x.a": "ordinary"
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: invalid column name r_x.a"
+   },
+   "roles": null
+  },
+  {
+   "input": {
+    "d_.a": "ordinary"
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "d_.a": "ordinary"
+    }
+   },
+   "roles": {
+    "ok": true,
+    "value": {
+     "all": {
+      "r_member.id": {
+       "identifier": "user"
+      },
+      "r_member.created_at": "ordinary",
+      "d_.a": "ordinary"
+     },
+     "hash": "cacf756c8d7d48bc8fce25f497cd95c54d9faf5e2d286dbc966540b2f6c28e13"
+    }
+   }
+  },
+  {
+   "input": {
+    "d_x.1a": "ordinary"
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: invalid column name d_x.1a"
+   },
+   "roles": null
+  },
+  {
+   "input": {
+    "d_x.a": "public"
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: the role of d_x.a must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" }"
+   },
+   "roles": null
+  },
+  {
+   "input": {
+    "d_x.a": {
+     "identifier": "u",
+     "x": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: the role of d_x.a must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" }"
+   },
+   "roles": null
+  },
+  {
+   "input": {
+    "d_x.a": {
+     "identifier": 5
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: the role of d_x.a must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" }"
+   },
+   "roles": null
+  },
+  {
+   "input": {
+    "d_x.a": null
+   },
+   "out": {
+    "ok": false,
+    "error": "derived-columns.json: the role of d_x.a must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" }"
+   },
+   "roles": null
+  }
+ ],
+ "params": [
+  {
+   "input": {},
+   "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+   "input": {
+    "b": 1,
+    "a": "2024-01-01",
+    "c": [
+     "x",
+     "y"
+    ]
+   },
+   "hash": "bb786141af5af69dd9858308670b97661e2115b79b879c88c0e4e89081147742"
+  },
+  {
+   "input": {
+    "z": 1.5,
+    "y": 0,
+    "x": 1e+21
+   },
+   "hash": "cbc670de4f0d9149ea81e6fb4bf4d898e48d1d6c8d6e31680c0f4fd4136d1f09"
+  }
+ ]
+}

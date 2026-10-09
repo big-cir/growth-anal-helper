@@ -1,0 +1,2289 @@
+{
+ "specs": [
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "9a1f8d906795db56a902ad5f7b9a73e0f3163abe970a815d14e3f6353d0f42c6",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at FROM member ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at FROM member ORDER BY id"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "deleted_at",
+       "as": "deleted_at",
+       "kind": "ts",
+       "role": "ordinary",
+       "nullAfterCutoff": true
+      },
+      {
+       "expr": "country",
+       "as": "country",
+       "kind": "text",
+       "maxLength": 8,
+       "role": "ordinary"
+      },
+      {
+       "expr": "deleted_at IS NOT NULL",
+       "as": "is_deleted",
+       "kind": "bool",
+       "role": "ordinary"
+      },
+      {
+       "expr": "  name  ",
+       "as": "nm",
+       "kind": "text",
+       "role": "private"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "deleted_at",
+        "as": "deleted_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": true
+       },
+       {
+        "expr": "country",
+        "as": "country",
+        "kind": "text",
+        "role": "ordinary",
+        "maxLength": 8,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "deleted_at IS NOT NULL",
+        "as": "is_deleted",
+        "kind": "bool",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "name",
+        "as": "nm",
+        "kind": "text",
+        "role": "private",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "aac34e8107d5dc29512828ffad2ff4324348ceed9a4065095fed728838ef6e0b",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, deleted_at TEXT, country TEXT, is_deleted INTEGER, nm TEXT, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at, deleted_at AS deleted_at, country AS country, deleted_at IS NOT NULL AS is_deleted, name AS nm FROM member ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at, to_char(deleted_at, 'YYYY-MM-DD HH24:MI:SS.US') AS deleted_at, country AS country, CAST(deleted_at IS NOT NULL AS int) AS is_deleted, name AS nm FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at, deleted_at AS deleted_at, country AS country, deleted_at IS NOT NULL AS is_deleted, name AS nm FROM member ORDER BY id"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    },
+    {
+     "source": "book",
+     "target": "r_book",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "book"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "owner_id",
+       "as": "owner_id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     },
+     {
+      "source": "book",
+      "target": "r_book",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "book"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "owner_id",
+        "as": "owner_id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "37743181143a2172e7f5b4f1e37cd3ea7e9a592f919972681fa3f5fa791feca4",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, PRIMARY KEY (id))",
+    "CREATE TABLE r_book (id INTEGER NOT NULL, created_at TEXT, owner_id INTEGER, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at FROM member ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at, owner_id AS owner_id FROM book ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at, owner_id AS owner_id FROM book ORDER BY id",
+    "SELECT id AS id, created_at AS created_at, owner_id AS owner_id FROM book ORDER BY id"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id",
+      "n"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "int",
+       "role": "ordinary"
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id",
+       "n"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "n",
+        "as": "n",
+        "kind": "int",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "1792aa0e85181b6893b7323933450131a68b5e8f01de4c50f5ad5fddc20c02be",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, n INTEGER NOT NULL, created_at TEXT, PRIMARY KEY (id, n))"
+   ],
+   "select": [
+    "SELECT id AS id, n AS n, created_at AS created_at FROM member ORDER BY id, n",
+    "SELECT id AS id, n AS n, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at FROM member ORDER BY id, n",
+    "SELECT id AS id, n AS n, created_at AS created_at FROM member ORDER BY id, n"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "x IS NULL",
+       "as": "x_null",
+       "kind": "bool",
+       "role": "ordinary"
+      },
+      {
+       "expr": "y \t is   not\nnull",
+       "as": "y_set",
+       "kind": "bool",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "x IS NULL",
+        "as": "x_null",
+        "kind": "bool",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "y is not null",
+        "as": "y_set",
+        "kind": "bool",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "bed77487936a7f331c4b72b5bba32ed7c87088076b812378f9e9b0d691f2fd52",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, x_null INTEGER, y_set INTEGER, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at, x IS NULL AS x_null, y is not null AS y_set FROM member ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at, CAST(x IS NULL AS int) AS x_null, CAST(y is not null AS int) AS y_set FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at, x IS NULL AS x_null, y is not null AS y_set FROM member ORDER BY id"
+   ]
+  },
+  {
+   "input": null,
+   "out": {
+    "ok": false,
+    "error": "tables.json (root): must be an array of table specs"
+   }
+  },
+  {
+   "input": [],
+   "out": {
+    "ok": false,
+    "error": "tables.json (root): must be an array of table specs"
+   }
+  },
+  {
+   "input": {},
+   "out": {
+    "ok": false,
+    "error": "tables.json (root): must be an array of table specs"
+   }
+  },
+  {
+   "input": [
+    null
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0]: must be an object"
+   }
+  },
+  {
+   "input": [
+    []
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0]: must be an object"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ],
+     "extra": 1
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].extra: unknown key"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "1bad",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].source: must be an identifier (^[A-Za-z_][A-Za-z0-9_]*$)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].target: must start with r_"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_ga4_x",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].target: r_ga4_ is reserved for GA4 tables"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    },
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [1].target: duplicate: r_member"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": []
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns: must be a non-empty array"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": "x"
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns: must be a non-empty array"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      null
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2]: must be an object"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       },
+       "extra": 1
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].extra: unknown key"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "a b",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].expr: only an identifier or `<identifier> IS [NOT] NULL`"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id; DROP",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].expr: only an identifier or `<identifier> IS [NOT] NULL`"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": 7,
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].expr: only an identifier or `<identifier> IS [NOT] NULL`"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[1].as: duplicate: id"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "float",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].kind: one of int|ts|text|bool"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "x IS NULL",
+       "as": "x",
+       "kind": "int",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].kind: IS [NOT] NULL expressions must be bool"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": "secret"
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].role: role must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" } (required)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user",
+        "x": 1
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].role: role must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" } (required)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "1x"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[0].role: role must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" } (required)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "nm",
+       "as": "nm",
+       "kind": "text",
+       "role": {
+        "identifier": "u"
+       }
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].role: identifier is only allowed for kind = \"int\""
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[1].role: role must be \"ordinary\" | \"private\" | { \"identifier\": \"<domain>\" } (required)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "email",
+       "as": "email",
+       "kind": "text",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].role: looks sensitive (email), so it can only be collected as \"private\""
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "x",
+       "as": "userPassword",
+       "kind": "text",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].role: looks sensitive (password), so it can only be collected as \"private\""
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "session_tokens",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "session_tokens",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "b86dce8b5d04deee1cab01d2afc65c55678dd72c1cf5bc75e1c2d8320c1a02cb",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at FROM session_tokens ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at FROM session_tokens ORDER BY id",
+    "SELECT id AS id, created_at AS created_at FROM session_tokens ORDER BY id"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "email",
+       "as": "email",
+       "kind": "text",
+       "role": "private"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "source": "member",
+      "target": "r_member",
+      "key": [
+       "id"
+      ],
+      "cutoffColumn": "created_at",
+      "columns": [
+       {
+        "expr": "id",
+        "as": "id",
+        "kind": "int",
+        "role": {
+         "identifier": "user"
+        },
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "created_at",
+        "as": "created_at",
+        "kind": "ts",
+        "role": "ordinary",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       },
+       {
+        "expr": "email",
+        "as": "email",
+        "kind": "text",
+        "role": "private",
+        "maxLength": 64,
+        "nullAfterCutoff": false
+       }
+      ]
+     }
+    ]
+   },
+   "hash": "0c13affbdf7eb5a96c6f9949820de2a1a427c76a6c2eecb6d294a6199f3c2450",
+   "ddl": [
+    "CREATE TABLE r_member (id INTEGER NOT NULL, created_at TEXT, email TEXT, PRIMARY KEY (id))"
+   ],
+   "select": [
+    "SELECT id AS id, created_at AS created_at, email AS email FROM member ORDER BY id",
+    "SELECT id AS id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at, email AS email FROM member ORDER BY id",
+    "SELECT id AS id, created_at AS created_at, email AS email FROM member ORDER BY id"
+   ]
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "int",
+       "role": "ordinary",
+       "maxLength": 5
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: only for text"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "text",
+       "role": "ordinary",
+       "maxLength": 0
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: integer 1-4096"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "text",
+       "role": "ordinary",
+       "maxLength": 4097
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: integer 1-4096"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "text",
+       "role": "ordinary",
+       "maxLength": 1.5
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: integer 1-4096"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "text",
+       "role": "ordinary",
+       "maxLength": "5"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: integer 1-4096"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "text",
+       "role": "ordinary",
+       "maxLength": null
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].maxLength: integer 1-4096"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary",
+       "nullAfterCutoff": "yes"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[1].nullAfterCutoff: true/false"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      },
+      {
+       "expr": "n",
+       "as": "n",
+       "kind": "int",
+       "role": "ordinary",
+       "nullAfterCutoff": true
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].columns[2].nullAfterCutoff: only for ts"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key: must be a non-empty array"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": "id",
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key: must be a non-empty array"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "nope"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key[0]: not among columns[].as: nope"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "created_at"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key[0]: keys must be int"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id",
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key: duplicate"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      1
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].key[0]: must be an identifier (^[A-Za-z_][A-Za-z0-9_]*$)"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "nope",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].cutoffColumn: not among columns[].as: nope"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "id",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].cutoffColumn: must be ts"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "cutoffColumn": "created_at",
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary",
+       "nullAfterCutoff": true
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].cutoffColumn: cannot be combined with nullAfterCutoff"
+   }
+  },
+  {
+   "input": [
+    {
+     "source": "member",
+     "target": "r_member",
+     "key": [
+      "id"
+     ],
+     "columns": [
+      {
+       "expr": "id",
+       "as": "id",
+       "kind": "int",
+       "role": {
+        "identifier": "user"
+       }
+      },
+      {
+       "expr": "created_at",
+       "as": "created_at",
+       "kind": "ts",
+       "role": "ordinary"
+      }
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "tables.json [0].cutoffColumn: must be an identifier (^[A-Za-z_][A-Za-z0-9_]*$)"
+   }
+  }
+ ],
+ "sensitive": [
+  {
+   "name": "id",
+   "out": null
+  },
+  {
+   "name": "email",
+   "out": "email"
+  },
+  {
+   "name": "Email",
+   "out": "email"
+  },
+  {
+   "name": "user_email",
+   "out": "email"
+  },
+  {
+   "name": "emailAddress",
+   "out": "emailaddr"
+  },
+  {
+   "name": "email_address",
+   "out": "emailaddr"
+  },
+  {
+   "name": "phone",
+   "out": "phone"
+  },
+  {
+   "name": "phoneNumber",
+   "out": "phonenumber"
+  },
+  {
+   "name": "mobile_no",
+   "out": "mobile"
+  },
+  {
+   "name": "ip",
+   "out": "ip"
+  },
+  {
+   "name": "ip_addr",
+   "out": "ipaddr"
+  },
+  {
+   "name": "ipAddress",
+   "out": "ipaddr"
+  },
+  {
+   "name": "zip",
+   "out": null
+  },
+  {
+   "name": "session_count",
+   "out": null
+  },
+  {
+   "name": "sessionId",
+   "out": "session"
+  },
+  {
+   "name": "session_id",
+   "out": "session"
+  },
+  {
+   "name": "session_token",
+   "out": "token"
+  },
+  {
+   "name": "push_token",
+   "out": "token"
+  },
+  {
+   "name": "push_count",
+   "out": null
+  },
+  {
+   "name": "password",
+   "out": "password"
+  },
+  {
+   "name": "pwd",
+   "out": "pwd"
+  },
+  {
+   "name": "pass",
+   "out": "pass"
+  },
+  {
+   "name": "passport",
+   "out": null
+  },
+  {
+   "name": "compass",
+   "out": null
+  },
+  {
+   "name": "token",
+   "out": "token"
+  },
+  {
+   "name": "tokens",
+   "out": null
+  },
+  {
+   "name": "token_count",
+   "out": "token"
+  },
+  {
+   "name": "hash",
+   "out": "hash"
+  },
+  {
+   "name": "hash_id",
+   "out": "hash"
+  },
+  {
+   "name": "salt",
+   "out": "salt"
+  },
+  {
+   "name": "cookie",
+   "out": "cookie"
+  },
+  {
+   "name": "oauth_provider",
+   "out": "oauth"
+  },
+  {
+   "name": "apiKey",
+   "out": "apikey"
+  },
+  {
+   "name": "api_key",
+   "out": "apikey"
+  },
+  {
+   "name": "privateKey",
+   "out": "privatekey"
+  },
+  {
+   "name": "device_id",
+   "out": "deviceid"
+  },
+  {
+   "name": "deviceID",
+   "out": "deviceid"
+  },
+  {
+   "name": "refreshToken",
+   "out": "refreshtoken"
+  },
+  {
+   "name": "credentials",
+   "out": "credential"
+  },
+  {
+   "name": "secretary",
+   "out": "secret"
+  },
+  {
+   "name": "address",
+   "out": "address"
+  },
+  {
+   "name": "addressBook",
+   "out": "address"
+  },
+  {
+   "name": "created_at",
+   "out": null
+  },
+  {
+   "name": "HTTPServer",
+   "out": null
+  },
+  {
+   "name": "userIPAddr",
+   "out": "ipaddr"
+  },
+  {
+   "name": "x",
+   "out": null
+  },
+  {
+   "name": "",
+   "out": null
+  },
+  {
+   "name": "__",
+   "out": null
+  },
+  {
+   "name": "ÉMAIL",
+   "out": null
+  },
+  {
+   "name": "e-mail",
+   "out": null
+  },
+  {
+   "name": "mfaEnabled",
+   "out": "mfa"
+  },
+  {
+   "name": "totp",
+   "out": "totp"
+  }
+ ]
+}

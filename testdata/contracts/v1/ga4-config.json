@@ -1,0 +1,1659 @@
+{
+ "reports": [
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview",
+     "weekly_users",
+     "monthly_users",
+     "daily_events",
+     "daily_channel",
+     "daily_platform",
+     "daily_new_returning",
+     "weekly_cohort"
+    ],
+    "events": {
+     "POST_WRITE": "post_write",
+     "REPLY_WRITE": "reply_write"
+    },
+    "min_users": 10
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [
+       "daily_overview",
+       "weekly_users",
+       "monthly_users",
+       "daily_events",
+       "daily_channel",
+       "daily_platform",
+       "daily_new_returning",
+       "weekly_cohort"
+      ],
+      "events": {
+       "POST_WRITE": "post_write",
+       "REPLY_WRITE": "reply_write"
+      },
+      "minUsers": 10,
+      "custom": []
+     },
+     "specHash": "22df701a9ce2ab1955f474d98edb411a44b5d6cd5d59803db4bb9cb65b464838"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [
+       "daily_overview"
+      ],
+      "events": {},
+      "minUsers": 10,
+      "custom": []
+     },
+     "specHash": "63765d475547ecd34009a41ab2e14132f43e6dc502635150037cf7c809a4b96c"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_events"
+    ],
+    "events": {
+     "A_EVT": "x",
+     "B_EVT": "x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: event key x is used twice (one-to-one only)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "page_paths"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown report page_paths (daily_overview, weekly_users, monthly_users, daily_events, daily_channel, daily_platform, daily_new_returning, weekly_cohort)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     7
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown report 7 (daily_overview, weekly_users, monthly_users, daily_events, daily_channel, daily_platform, daily_new_returning, weekly_cohort)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     null
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown report null (daily_overview, weekly_users, monthly_users, daily_events, daily_channel, daily_platform, daily_new_returning, weekly_cohort)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_events"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: daily_events needs an events map",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview",
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: duplicate reports",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": "daily_overview"
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: reports must be an array",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-02-30",
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: start must be a real date YYYY-MM-DD",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-13-01",
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-01-00",
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-3-01",
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: start must be a real date YYYY-MM-DD",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": 20240301,
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: start must be a real date YYYY-MM-DD",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "reports": [
+     "daily_overview"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: start must be a real date YYYY-MM-DD",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "extra": 1
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown key extra",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "2": "x",
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "zz": 1
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown key 2",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": 0
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: min_users must be an integer 1-1000",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": 1000
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [
+       "daily_overview"
+      ],
+      "events": {},
+      "minUsers": 1000,
+      "custom": []
+     },
+     "specHash": "ea1baac4b228f8a150e6d0ead344a4519fb36f24acb36ccc87a5038b04bed4eb"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": 1001
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: min_users must be an integer 1-1000",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": 2.5
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: min_users must be an integer 1-1000",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": "10"
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: min_users must be an integer 1-1000",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "min_users": null
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: min_users must be an integer 1-1000",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "events": []
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: events must be { \"GA4 event name\": \"key\" }",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "events": {
+     "bad name": "x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: invalid event name bad name",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "events": {
+     "GOOD": "Upper"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: event keys must be lowercase identifiers (GOOD)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_overview"
+    ],
+    "events": {
+     "1": "one",
+     "Z_EVT": "z",
+     "A_EVT": "a"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: invalid event name 1",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [
+     "daily_events"
+    ],
+    "events": {
+     "Z_EVT": "z",
+     "A_EVT": "a",
+     "M_EVT": "m"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [
+       "daily_events"
+      ],
+      "events": {
+       "Z_EVT": "z",
+       "A_EVT": "a",
+       "M_EVT": "m"
+      },
+      "minUsers": 10,
+      "custom": []
+     },
+     "specHash": "b9876fe15fe7de0c243b7aba6b2b0ab376ed71923fba4bb401452254aad83871"
+    }
+   }
+  },
+  {
+   "input": "raw:{\"start\":\"2024-03-01\",\"reports\":[\"daily_overview\"],\"events\":{\"bad name\":\"x\",\"7\":\"y\"}}",
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: invalid event name 7",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:{\"zz\":1,\"3\":\"x\",\"start\":\"2024-03-01\",\"reports\":[\"daily_overview\"]}",
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: unknown key 3",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:{\"start\":\"2024-03-01\",\"reports\":[],\"custom\":[{\"filter\":\"x\",\"9\":1,\"id\":\"a\",\"range\":\"daily\",\"dimensions\":[],\"metrics\":[\"activeUsers\"]}]}",
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: unknown key 9",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:{\"start\":\"2024-03-01\",\"reports\":[\"daily_events\"],\"events\":{\"Z_EVT\":\"z\",\"A_EVT\":\"a\"}}",
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [
+       "daily_events"
+      ],
+      "events": {
+       "Z_EVT": "z",
+       "A_EVT": "a"
+      },
+      "minUsers": 10,
+      "custom": []
+     },
+     "specHash": "fc18ba8c3ecbcea92fbb4a49a95123fb71f29d1ceccabc159db479d5204f7849"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": []
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: reports or custom must have at least one report",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "daily_country",
+      "range": "daily",
+      "dimensions": [
+       "countryId"
+      ],
+      "metrics": [
+       "activeUsers",
+       "newUsers"
+      ]
+     },
+     {
+      "id": "weekly_os",
+      "range": "weekly",
+      "dimensions": [
+       "operatingSystem",
+       "deviceCategory"
+      ],
+      "metrics": [
+       "activeUsers",
+       "sessions",
+       "engagementRate"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [],
+      "events": {
+       "POST_WRITE": "post_write"
+      },
+      "minUsers": 10,
+      "custom": [
+       {
+        "id": "daily_country",
+        "range": "daily",
+        "dimensions": [
+         "countryId"
+        ],
+        "metrics": [
+         "activeUsers",
+         "newUsers"
+        ]
+       },
+       {
+        "id": "weekly_os",
+        "range": "weekly",
+        "dimensions": [
+         "operatingSystem",
+         "deviceCategory"
+        ],
+        "metrics": [
+         "activeUsers",
+         "sessions",
+         "engagementRate"
+        ]
+       }
+      ]
+     },
+     "specHash": "2d4c995b6c242f2518d718a470d07096498c35cdf9e386c552d3f9d326cb1531"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "daily_country",
+      "range": "daily",
+      "dimensions": [
+       "countryId"
+      ],
+      "metrics": [
+       "activeUsers",
+       "newUsers"
+      ]
+     },
+     {
+      "id": "weekly_os",
+      "range": "weekly",
+      "dimensions": [
+       "operatingSystem",
+       "deviceCategory"
+      ],
+      "metrics": [
+       "activeUsers",
+       "sessions",
+       "engagementRate"
+      ]
+     },
+     {
+      "id": "monthly_x",
+      "range": "monthly",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers",
+       "averageSessionDuration",
+       "userEngagementDuration"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [],
+      "events": {
+       "POST_WRITE": "post_write"
+      },
+      "minUsers": 10,
+      "custom": [
+       {
+        "id": "daily_country",
+        "range": "daily",
+        "dimensions": [
+         "countryId"
+        ],
+        "metrics": [
+         "activeUsers",
+         "newUsers"
+        ]
+       },
+       {
+        "id": "weekly_os",
+        "range": "weekly",
+        "dimensions": [
+         "operatingSystem",
+         "deviceCategory"
+        ],
+        "metrics": [
+         "activeUsers",
+         "sessions",
+         "engagementRate"
+        ]
+       },
+       {
+        "id": "monthly_x",
+        "range": "monthly",
+        "dimensions": [],
+        "metrics": [
+         "activeUsers",
+         "averageSessionDuration",
+         "userEngagementDuration"
+        ]
+       }
+      ]
+     },
+     "specHash": "56932a8064b4472a3330b8091e1cd6833f3ea3e88f6e4099523b9c555312e6eb"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "appVersion"
+      ],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions: not allowed: appVersion",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "pagePath"
+      ],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions: not allowed: pagePath",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "countryId",
+       "hour"
+      ],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: only one fine dimension per report (countryId, hour)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "countryId"
+      ],
+      "metrics": [
+       "activeUsers",
+       "sessions"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: the fine dimension countryId allows user-count metrics only (sessions)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "platform",
+       "deviceCategory",
+       "operatingSystem"
+      ],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions must be an array of 0-2 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "platform",
+       "platform"
+      ],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions: duplicate",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "platform"
+      ],
+      "metrics": [
+       "newUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: breakdown dimensions need activeUsers or totalUsers",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "eventName"
+      ],
+      "metrics": [
+       "activeUsers",
+       "eventCount"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: eventName needs totalUsers",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "eventName"
+      ],
+      "metrics": [
+       "totalUsers",
+       "sessions"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: metrics not allowed with eventName: sessions",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [
+       "eventName"
+      ],
+      "metrics": [
+       "totalUsers",
+       "eventCount",
+       "newUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [],
+      "events": {
+       "POST_WRITE": "post_write"
+      },
+      "minUsers": 10,
+      "custom": [
+       {
+        "id": "a",
+        "range": "daily",
+        "dimensions": [
+         "eventName"
+        ],
+        "metrics": [
+         "totalUsers",
+         "eventCount",
+         "newUsers"
+        ]
+       }
+      ]
+     },
+     "specHash": "c330ac36f0fb8f59f7e7f865243f53c755c2ff9e9511c7bf638c99f879eb22b3"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "cohortActiveUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].metrics: not allowed: cohortActiveUsers",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "daily_overview",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].id daily_overview clashes with another report",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "cohort",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].range must be daily | weekly | monthly",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "A b",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].id must be a lowercase identifier (31 characters or fewer)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ],
+      "filter": "x"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: unknown key filter",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": []
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].metrics must be an array of 1-8 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers",
+       "newUsers",
+       "totalUsers",
+       "sessions",
+       "engagedSessions",
+       "eventCount",
+       "screenPageViews",
+       "engagementRate",
+       "userEngagementDuration"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].metrics must be an array of 1-8 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers",
+       3
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].metrics must be an array of 1-8 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": "platform",
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions must be an array of 0-2 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].id must be a lowercase identifier (31 characters or fewer)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "range": "daily",
+      "dimensions": [
+       "dayOfWeek",
+       "languageCode"
+      ],
+      "metrics": [
+       "totalUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "reports": {
+      "start": "2024-03-01",
+      "reports": [],
+      "events": {
+       "POST_WRITE": "post_write"
+      },
+      "minUsers": 10,
+      "custom": [
+       {
+        "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "range": "daily",
+        "dimensions": [
+         "dayOfWeek",
+         "languageCode"
+        ],
+        "metrics": [
+         "totalUsers"
+        ]
+       }
+      ]
+     },
+     "specHash": "a7289cce66119ce8897f9927b5159546ca4dced23435e5015169d6a477afd24d"
+    }
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     "x"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0] must be an object",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": "x"
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom must be an array of at most 10",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "c0",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c1",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c2",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c3",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c4",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c5",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c6",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c7",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c8",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c9",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "c10",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom must be an array of at most 10",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "activeUsers"
+      ]
+     },
+     {
+      "id": "a",
+      "range": "daily",
+      "dimensions": [],
+      "metrics": [
+       "newUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[1].id a clashes with another report",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "custom": [
+     {
+      "id": "e",
+      "range": "daily",
+      "dimensions": [
+       "eventName"
+      ],
+      "metrics": [
+       "totalUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0]: eventName needs an events map",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": {
+    "start": "2024-03-01",
+    "reports": [],
+    "events": {
+     "POST_WRITE": "post_write"
+    },
+    "custom": [
+     {
+      "id": "a",
+      "range": "daily",
+      "metrics": [
+       "activeUsers"
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: custom[0].dimensions must be an array of 0-2 strings",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:not json",
+   "out": {
+    "ok": false,
+    "error": "cannot read ga4-reports.json",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:[1,2]",
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: must be an object",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "input": "raw:null",
+   "out": {
+    "ok": false,
+    "error": "ga4-reports.json: must be an object",
+    "type": "Ga4ConfigError"
+   }
+  }
+ ],
+ "keys": [
+  {
+   "name": "ok",
+   "out": {
+    "ok": true,
+    "value": "reader@example.iam.gserviceaccount.com"
+   }
+  },
+  {
+   "name": "ok pkcs1",
+   "out": {
+    "ok": true,
+    "value": "reader@example.iam.gserviceaccount.com"
+   }
+  },
+  {
+   "name": "mode 0644",
+   "out": {
+    "ok": false,
+    "error": "service account key file permissions must be 0600",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "mode 0400",
+   "out": {
+    "ok": false,
+    "error": "service account key file permissions must be 0600",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "symlink",
+   "out": {
+    "ok": false,
+    "error": "cannot open service account key file (symlinks are not allowed)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "missing",
+   "out": {
+    "ok": false,
+    "error": "service account key file not found",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "directory",
+   "out": {
+    "ok": false,
+    "error": "service account key file is not a regular file",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "too large",
+   "out": {
+    "ok": false,
+    "error": "service account key file is too large (max 65536 bytes)",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "not json",
+   "out": {
+    "ok": false,
+    "error": "invalid service account key file",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "json array",
+   "out": {
+    "ok": false,
+    "error": "service account key file is missing required values",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "wrong type",
+   "out": {
+    "ok": false,
+    "error": "service account key file is missing required values",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "email with space",
+   "out": {
+    "ok": false,
+    "error": "service account key file is missing required values",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "email two @",
+   "out": {
+    "ok": false,
+    "error": "service account key file is missing required values",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "key not string",
+   "out": {
+    "ok": false,
+    "error": "service account key file is missing required values",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "key garbage",
+   "out": {
+    "ok": false,
+    "error": "cannot read the service account private key",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "public key",
+   "out": {
+    "ok": false,
+    "error": "cannot read the service account private key",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "ec sec1",
+   "out": {
+    "ok": false,
+    "error": "service account private key is not RSA",
+    "type": "Ga4ConfigError"
+   }
+  },
+  {
+   "name": "ec pkcs8",
+   "out": {
+    "ok": false,
+    "error": "service account private key is not RSA",
+    "type": "Ga4ConfigError"
+   }
+  }
+ ]
+}

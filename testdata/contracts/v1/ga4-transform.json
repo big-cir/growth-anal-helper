@@ -1,0 +1,2162 @@
+{
+ "cases": [
+  {
+   "name": "raw duplicate",
+   "def": "daily_channel",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "Direct"
+     ],
+     "metrics": [
+      "20",
+      "20",
+      "20"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "Direct"
+     ],
+     "metrics": [
+      "30",
+      "30",
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "more than one row with the same raw key (r_ga4_daily_channel)",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "normalized collision built-in",
+   "def": "daily_channel",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "free a"
+     ],
+     "metrics": [
+      "20",
+      "20",
+      "20"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "free b"
+     ],
+     "metrics": [
+      "30",
+      "30",
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "more than one row with the same key (r_ga4_daily_channel)",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "negative",
+   "def": "daily_channel",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "Direct"
+     ],
+     "metrics": [
+      "-1",
+      "20",
+      "20"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "newUsers: value out of range",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "rate over 1",
+   "def": "custom:monthly_x",
+   "raw": [
+    {
+     "dims": [
+      "202405"
+     ],
+     "metrics": [
+      "20",
+      "1.5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "202405",
+       "2024-05-01",
+       "2024-05-31",
+       20,
+       1.5
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "channel mix",
+   "def": "daily_channel",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "Organic Search"
+     ],
+     "metrics": [
+      "40",
+      "60",
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "Some Free Text <script>"
+     ],
+     "metrics": [
+      "20",
+      "25",
+      "10"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "(other)"
+     ],
+     "metrics": [
+      "15",
+      "15",
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "Direct"
+     ],
+     "metrics": [
+      "4",
+      "4",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-10",
+       "Organic Search",
+       40,
+       60,
+       30
+      ],
+      [
+       "2024-06-10",
+       "_unknown",
+       20,
+       25,
+       10
+      ],
+      [
+       "2024-06-10",
+       "_ga4_other",
+       15,
+       15,
+       null
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 1
+     }
+    }
+   }
+  },
+  {
+   "name": "custom collision dropped",
+   "def": "custom:daily_country",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "KR"
+     ],
+     "metrics": [
+      "50",
+      "8"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "ZZZ"
+     ],
+     "metrics": [
+      "30",
+      "10"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "xx"
+     ],
+     "metrics": [
+      "20",
+      "10"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "(other)"
+     ],
+     "metrics": [
+      "25",
+      "11"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "JP"
+     ],
+     "metrics": [
+      "5",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-10",
+       "KR",
+       50,
+       null
+      ],
+      [
+       "2024-06-10",
+       "_ga4_other",
+       25,
+       11
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 2,
+      "suppressedCells": 1
+     }
+    }
+   }
+  },
+  {
+   "name": "events",
+   "def": "daily_events",
+   "events": {
+    "POST_WRITE": "post_write",
+    "REPLY_WRITE": "reply_write"
+   },
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "POST_WRITE"
+     ],
+     "metrics": [
+      "80",
+      "40"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "REPLY_WRITE"
+     ],
+     "metrics": [
+      "9",
+      "3"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "UNLISTED"
+     ],
+     "metrics": [
+      "70",
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-10",
+       "post_write",
+       80,
+       40
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 1,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "weeks",
+   "def": "weekly_users",
+   "raw": [
+    {
+     "dims": [
+      "202423"
+     ],
+     "metrics": [
+      "400",
+      "90"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202001"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202053"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "002301"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "999953"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "202423",
+       "2024-06-03",
+       "2024-06-09",
+       400,
+       90
+      ],
+      [
+       "202001",
+       "2019-12-30",
+       "2020-01-05",
+       1,
+       1
+      ],
+      [
+       "202053",
+       "2020-12-28",
+       "2021-01-03",
+       1,
+       1
+      ],
+      [
+       "002301",
+       "1923-01-01",
+       "1923-01-07",
+       1,
+       1
+      ],
+      [
+       "999953",
+       "+010000-01",
+       "+010000-01",
+       1,
+       1
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "week 54",
+   "def": "weekly_users",
+   "raw": [
+    {
+     "dims": [
+      "202454"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "isoYearIsoWeek value format",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "week 0",
+   "def": "weekly_users",
+   "raw": [
+    {
+     "dims": [
+      "202400"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "isoYearIsoWeek value format",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "week letters",
+   "def": "weekly_users",
+   "raw": [
+    {
+     "dims": [
+      "2024ab"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "isoYearIsoWeek value format",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "months",
+   "def": "monthly_users",
+   "raw": [
+    {
+     "dims": [
+      "202405"
+     ],
+     "metrics": [
+      "900",
+      "200"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202402"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202312"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "202405",
+       "2024-05-01",
+       "2024-05-31",
+       900,
+       200
+      ],
+      [
+       "202402",
+       "2024-02-01",
+       "2024-02-29",
+       1,
+       1
+      ],
+      [
+       "202312",
+       "2023-12-01",
+       "2023-12-31",
+       1,
+       1
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "month 13",
+   "def": "monthly_users",
+   "raw": [
+    {
+     "dims": [
+      "202413"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "name": "month 00",
+   "def": "monthly_users",
+   "raw": [
+    {
+     "dims": [
+      "202400"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "name": "date feb 30",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240230"
+     ],
+     "metrics": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "date value format",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "date month 13",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20241301"
+     ],
+     "metrics": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "name": "date short",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "2024061"
+     ],
+     "metrics": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "date value format",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "overview numbers",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "120",
+      "30",
+      "150",
+      "200",
+      "140",
+      "3600.5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    },
+    {
+     "dims": [
+      "20240610"
+     ],
+     "metrics": [
+      " 0x1A ",
+      "1e3",
+      "00012",
+      "+5",
+      "0b11",
+      ".5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    },
+    {
+     "dims": [
+      "20240611"
+     ],
+     "metrics": [
+      "3",
+      "2",
+      "1",
+      "0",
+      "-0",
+      "1e-7"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_MILLISECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-09",
+       120,
+       30,
+       150,
+       200,
+       140,
+       3600.5
+      ],
+      [
+       "2024-06-10",
+       26,
+       1000,
+       12,
+       5,
+       3,
+       0.5
+      ],
+      [
+       "2024-06-11",
+       3,
+       2,
+       1,
+       0,
+       0,
+       1e-7
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "number empty",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: not a number",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "number NaN",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "abc",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: not a number",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "number infinity",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "Infinity",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: not a number",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "integer fraction",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "1.5",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: not a safe integer",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "unsafe integer",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "9007199254740992",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: not a safe integer",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "float for int metric",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_FLOAT",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_SECONDS"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "activeUsers: metric type TYPE_FLOAT",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "unknown type",
+   "def": "daily_overview",
+   "raw": [
+    {
+     "dims": [
+      "20240609"
+     ],
+     "metrics": [
+      "1",
+      "1",
+      "1",
+      "1",
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_WHATEVER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "userEngagementDuration: metric type TYPE_WHATEVER",
+    "type": "ReportShapeError"
+   }
+  },
+  {
+   "name": "platform",
+   "def": "daily_platform",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "Android",
+      "mobile"
+     ],
+     "metrics": [
+      "70",
+      "12"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "iOS",
+      "tablet"
+     ],
+     "metrics": [
+      "3",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "web",
+      "smart tv"
+     ],
+     "metrics": [
+      "10",
+      "9"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-10",
+       "Android",
+       "mobile",
+       70,
+       12
+      ],
+      [
+       "2024-06-10",
+       "web",
+       "smart tv",
+       10,
+       null
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 1
+     }
+    }
+   }
+  },
+  {
+   "name": "patterns",
+   "def": "custom:dow",
+   "raw": [
+    {
+     "dims": [
+      "202423",
+      "0"
+     ],
+     "metrics": [
+      "20"
+     ],
+     "types": [
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202423",
+      "7"
+     ],
+     "metrics": [
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "202423",
+      "(other)"
+     ],
+     "metrics": [
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "202423",
+       "2024-06-03",
+       "2024-06-09",
+       "0",
+       20
+      ],
+      [
+       "202423",
+       "2024-06-03",
+       "2024-06-09",
+       "_unknown",
+       30
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "min users 1",
+   "def": "daily_channel",
+   "minUsers": 1,
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "Direct"
+     ],
+     "metrics": [
+      "0",
+      "0",
+      "0"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [],
+     "stats": {
+      "droppedSmall": 1,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "empty",
+   "def": "daily_channel",
+   "raw": [],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "empty totals",
+   "def": "daily_overview",
+   "raw": [],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "cohort",
+   "def": "weekly_cohort",
+   "raw": [
+    {
+     "dims": [
+      "2024-03-17",
+      "0000"
+     ],
+     "metrics": [
+      "5",
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-17",
+      "0001"
+     ],
+     "metrics": [
+      "4",
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-17",
+      "0002"
+     ],
+     "metrics": [
+      "3",
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-24",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-24",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-24",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-31",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-31",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-03-31",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-07",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-07",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-07",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-14",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-14",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-14",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-21",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-21",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-21",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-28",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-28",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-04-28",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-05",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-05",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-05",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-12",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-12",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-12",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-19",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-19",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-19",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-26",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-26",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-05-26",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-06-02",
+      "0000"
+     ],
+     "metrics": [
+      "50",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-06-02",
+      "0001"
+     ],
+     "metrics": [
+      "40",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "2024-06-02",
+      "0002"
+     ],
+     "metrics": [
+      "30",
+      "50"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "through": "2024-06-10",
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-03-24",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-03-24",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-03-24",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-03-31",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-03-31",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-03-31",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-04-07",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-04-07",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-04-07",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-04-14",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-04-14",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-04-14",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-04-21",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-04-21",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-04-21",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-04-28",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-04-28",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-04-28",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-05-05",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-05-05",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-05-05",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-05-12",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-05-12",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-05-12",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-05-19",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-05-19",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-05-19",
+       2,
+       30,
+       50
+      ],
+      [
+       "2024-05-26",
+       0,
+       50,
+       50
+      ],
+      [
+       "2024-05-26",
+       1,
+       40,
+       50
+      ],
+      [
+       "2024-06-02",
+       0,
+       50,
+       50
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 3,
+      "droppedUnobserved": 3,
+      "droppedUnmapped": 0,
+      "droppedCollision": 0,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "cohort bad date",
+   "def": "weekly_cohort",
+   "raw": [
+    {
+     "dims": [
+      "2024-13-01",
+      "0000"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "Invalid time value",
+    "type": "RangeError"
+   }
+  },
+  {
+   "name": "cohort bad nth",
+   "def": "weekly_cohort",
+   "raw": [
+    {
+     "dims": [
+      "2024-06-02",
+      "00000"
+     ],
+     "metrics": [
+      "1",
+      "1"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "cohortNthWeek value format",
+    "type": "ReportShapeError"
+   }
+  }
+ ]
+}

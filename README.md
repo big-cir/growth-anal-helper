@@ -4,13 +4,16 @@ Ask questions about your product data in plain language and get back an analytic
 
 ## Quick start
 
-Requires Node.js 26+ and the [Claude Code](https://docs.claude.com/en/docs/claude-code) CLI (logged in), or an API key for Anthropic or an OpenAI-compatible service ([agent settings](guide/configuration.md#agent)). No `npm install` needed.
+Requires Go 1.27+ and a C compiler to build (SQLite is compiled into the binary), plus the [Claude Code](https://docs.claude.com/en/docs/claude-code) CLI (logged in) or an API key for Anthropic or an OpenAI-compatible service ([agent settings](guide/configuration.md#agent)).
 
 ```bash
 git clone <this repository>
 cd growth-lab
-npm run demo
+scripts/go build        # builds bin/growth-lab
+bin/growth-lab demo
 ```
+
+`scripts/go` runs the Go tool with the SQLite build options the engine expects; use it instead of plain `go build`.
 
 This creates a fictional dataset, builds a snapshot and starts the app at http://127.0.0.1:4170. Open it and ask a question about the data, for example where new members drop off in their first 7 days.
 
@@ -37,21 +40,33 @@ cp -r examples/demo/{seed-panels,quality,tests} workspace/
 Then edit the files ([file reference](guide/workspace.md), [settings](guide/configuration.md)) and run:
 
 ```bash
-node src/cli.ts collect
-node src/cli.ts serve
+bin/growth-lab collect
+bin/growth-lab serve
 ```
 
-Sign-in is off by default, so anyone who can reach the server uses it as an admin. To require accounts, set `"server": { "auth": true }` and add one with `node src/cli.ts account add <name> --role admin`.
+Sign-in is off by default, so anyone who can reach the server uses it as an admin. To require accounts, set `"server": { "auth": true }` and add one with `bin/growth-lab account add <name> --role admin`.
 
 ## Commands
 
 | Command | |
 |---|---|
-| `npm run demo` | Run the demo |
-| `node src/cli.ts serve` | Start the web app |
-| `node src/cli.ts collect` | Build a new snapshot |
-| `node src/cli.ts derive` | Rebuild derived tables only |
-| `node src/cli.ts test-derived` | Test derived-table rules |
-| `node src/cli.ts verify` | Compare the snapshot with the source |
-| `node src/cli.ts account …` | Manage accounts |
-| `npm test` | Run tests |
+| `bin/growth-lab demo` | Run the demo |
+| `bin/growth-lab serve` | Start the web app |
+| `bin/growth-lab collect` | Build a new snapshot |
+| `bin/growth-lab derive` | Rebuild derived tables only |
+| `bin/growth-lab test-derived` | Test derived-table rules |
+| `bin/growth-lab verify` | Compare the snapshot with the source |
+| `bin/growth-lab eval` | Run evaluation cases |
+| `bin/growth-lab trace` | Show where web requests spend their time |
+| `bin/growth-lab account …` | Manage accounts |
+| `scripts/go test ./...` | Run tests |
+
+## Development checks
+
+The engine and server do not require Node.js. The browser renderer has a small standalone JavaScript test suite; run it with Node.js when changing `web/`:
+
+```bash
+scripts/go test ./...
+node --test test/web/charts.test.js
+bin/growth-lab public-check --require-denylist
+```

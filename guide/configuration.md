@@ -42,7 +42,7 @@
 | `server.port`                                          | 4170                | Port on`127.0.0.1`                                                                                                                                                       |
 | `server.auth` | `false` | `false`: no sign-in; every request is the admin `local`. `true`: accounts and roles (viewer, editor, admin) are required. Must be `true` with `publicOrigin` |
 | `server.publicOrigin`, `server.proxyHops`            | –                  | Public HTTPS address when running behind a reverse proxy                                                                                                                   |
-| `server.auditRetentionDays`                            | 90                  | Audit log retention                                                                                                                                                        |
+| `server.auditRetentionDays`                            | 90                  | Audit log and trace retention                                                                                                                                              |
 | `ga4` | – | GA4 connection ([GA4](#ga4)) |
 
 Restart the server after changing settings.

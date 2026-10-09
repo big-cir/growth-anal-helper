@@ -14,6 +14,7 @@ A workspace is a git-ignored folder for one product. `examples/demo/` is a compl
 | `tests/<case>/`                    | recommended | Fixtures for derived rules                                                                  |
 | `quality/<id>.sql` + `<id>.json` | optional    | Product-specific data quality checks                                                        |
 | `verify.json`                      | optional    | Source cross-check query pairs                                                              |
+| `eval/cases/*.json` | optional | Evaluation cases ([Evaluation](#evaluation)) |
 | `ga4-reports.json`                 | optional    | GA4 reports ([configuration.md](configuration.md#ga4))                                       |
 
 ## `tables.json`
@@ -62,7 +63,7 @@ Every column needs a role.
 - `input.sql`: small input data (`r_*` rows, one `snapshot_meta` row, `snapshot_params`).
 - `expected.json`: `[{ "query": "SELECT …", "rows": [ { … } ] }]`.
 
-`node src/cli.ts test-derived` runs `derived.sql` on each case and compares results.
+`bin/growth-lab test-derived` runs `derived.sql` on each case and compares results.
 
 ## `guide.md`
 
@@ -126,3 +127,46 @@ Shown in the admin data quality tab.
 ```
 
 Each pair must return one row with the same columns. The week defaults to five weeks before the snapshot; use `--week YYYY-MM-DD` to change it.
+
+## Evaluation
+
+`eval/cases/<id>.json` holds questions with the expected outcome. `examples/demo/eval/cases/` has one of each kind.
+
+```json
+{
+  "id": "board_join_12w",
+  "kind": "metric",
+  "question": "For each of the last 12 complete signup weeks, what share of new members joined a board within 7 days?",
+  "tags": ["core"],
+  "expect": { "action": "panel", "metric": "first_week_activation", "pattern": ["line", "bar"] },
+  "reference": "reference/board_join_12w.json",
+  "x_grain": "week"
+}
+```
+
+| Key | Meaning |
+|---|---|
+| `kind` | `metric` or `breakdown` (expects a panel), `ambiguous` (expects a question back), `refuse` (expects a refusal) |
+| `expect` | `panel`: metric id (or `null`) and allowed patterns (`line` and `bar` are interchangeable). `refuse`: `"via": "preflight"` (blocked by the input check) or `"agent"` |
+| `reference` | A complete panel (same format as an example panel) whose result is the correct answer |
+| `x_grain` | `day`, `week` or `month`: align time keys before comparing |
+| `label_aliases` | Accepted alternative step names or labels |
+
+```bash
+bin/growth-lab eval check                 # validate cases, check the snapshot matches the workspace
+bin/growth-lab eval freeze                # store the reference results for the current snapshot
+bin/growth-lab eval --runs 2              # run every case twice and save a report
+bin/growth-lab eval compare <a.json> <b.json>
+```
+
+Runs use the workspace's agent settings (`--model` overrides the model). Results are compared exactly by pattern role; labels that differ are listed for review. Reports and stored results go to `eval/` in the output folder.
+
+## Tracing
+
+The web server writes one line per step of each request (agent call, probe query, panel run, wait for an answer) to `logs/trace/<date>.jsonl` under the output folder: times, token counts and outcomes, never question text, SQL or results.
+
+```bash
+bin/growth-lab trace --days 7   # request time percentiles, time outside the model API, cache hit rate, failures, slowest requests
+```
+
+Eval reports keep the same steps per run (with SQL) under `steps`.

@@ -23,11 +23,11 @@ Exploration queries read the prefixes in `policy.readablePrefixes`. Panels read 
 
 ## Why panels read derived tables
 
-If panels read `r_*` tables directly, the agent would re-implement rules such as "exclude deleted members" in each panel, and two panels about the same metric could disagree. Writing the rule once in `derived.sql` keeps every panel on the same definition, and fixtures can test it (`node src/cli.ts test-derived`).
+If panels read `r_*` tables directly, the agent would re-implement rules such as "exclude deleted members" in each panel, and two panels about the same metric could disagree. Writing the rule once in `derived.sql` keeps every panel on the same definition, and fixtures can test it (`bin/growth-lab test-derived`).
 
 You can add `r_` to `policy.panelReadablePrefixes`, but the numbers then depend on how the agent interprets the raw data each time.
 
-To add a new kind of analysis: collect the source table, build a `d_*` table from it, then add the metric to the dictionary and the guide. See [workspace.md](workspace.md) for the files. If only `derived.sql` or column roles changed, `node src/cli.ts derive` rebuilds the derived tables without reading the source again.
+To add a new kind of analysis: collect the source table, build a `d_*` table from it, then add the metric to the dictionary and the guide. See [workspace.md](workspace.md) for the files. If only `derived.sql` or column roles changed, `bin/growth-lab derive` rebuilds the derived tables without reading the source again.
 
 ## Privacy
 

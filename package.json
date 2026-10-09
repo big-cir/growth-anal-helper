@@ -2,6 +2,7 @@
   "name": "growth-lab",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Local growth analytics engine: prompt-driven panels over a policy-checked SQLite snapshot",
   "type": "module",
   "engines": { "node": ">=26" },

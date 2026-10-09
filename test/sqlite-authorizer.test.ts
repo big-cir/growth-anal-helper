@@ -1,4 +1,4 @@
-// node:sqlite setAuthorizer 동작 확인.
+// How node:sqlite setAuthorizer behaves.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync, constants as C } from 'node:sqlite';
@@ -21,43 +21,43 @@ function record(sql: string): Call[] {
 const has = (calls: Call[], code: number, a1: string | null, a2: string | null) =>
   calls.some((c) => c[0] === code && c[1] === a1 && c[2] === a2);
 
-test('콜백 인자: (동작, 인자1, 인자2, DB 이름, CTE·뷰 이름)', () => {
+test('callback args: (action, arg1, arg2, DB name, CTE or view name)', () => {
   const calls = record('SELECT id FROM r_post');
   assert.deepEqual(calls[0], [C.SQLITE_SELECT, null, null, null, null]);
   assert.deepEqual(calls.find((c) => c[0] === C.SQLITE_READ), [C.SQLITE_READ, 'r_post', 'id', 'main', null]);
 });
 
-test('함수: (FUNCTION, null, 함수 이름). LIKE·GLOB는 함수로 보고된다', () => {
+test('functions: (FUNCTION, null, function name). LIKE and GLOB are reported as functions', () => {
   assert.ok(has(record("SELECT title LIKE 'a%' FROM r_post"), C.SQLITE_FUNCTION, null, 'like'));
   assert.ok(has(record("SELECT title GLOB 'a*' FROM r_post"), C.SQLITE_FUNCTION, null, 'glob'));
   assert.ok(has(record('SELECT count(*) FROM r_post'), C.SQLITE_FUNCTION, null, 'count'));
   assert.ok(has(record('SELECT row_number() OVER (ORDER BY id) FROM r_post'), C.SQLITE_FUNCTION, null, 'row_number'));
 });
 
-test('CAST·CASE·IN·BETWEEN은 함수로 보고되지 않는다', () => {
+test('CAST, CASE, IN and BETWEEN are not reported as functions', () => {
   const calls = record('SELECT CAST(id AS TEXT), CASE WHEN id IN (1,2) THEN 1 END, id BETWEEN 1 AND 2 FROM r_post');
   assert.deepEqual(calls.filter((c) => c[0] === C.SQLITE_FUNCTION), []);
 });
 
-test('CTE: 이름이 아니라 안에서 읽는 실제 테이블이 보고되고, 다섯째 인자에 CTE 이름', () => {
+test('CTE: the real tables read inside are reported, with the CTE name as the fifth arg', () => {
   const calls = record('WITH c AS (SELECT id FROM r_post) SELECT count(*) FROM c');
   assert.ok(calls.some((c) => c[0] === C.SQLITE_READ && c[1] === 'r_post' && c[2] === 'id' && c[4] === 'c'));
   assert.ok(!calls.some((c) => c[0] === C.SQLITE_READ && c[1] === 'c'));
 });
 
-test('pragma_* 테이블 함수: READ(pragma_…)와 PRAGMA 동작이 함께 보고된다', () => {
+test('pragma_* table functions: READ(pragma_…) and PRAGMA are both reported', () => {
   const calls = record("SELECT name FROM pragma_table_info('r_post')");
   assert.ok(calls.some((c) => c[0] === C.SQLITE_READ && c[1] === 'pragma_table_info'));
   assert.ok(has(calls, C.SQLITE_PRAGMA, 'table_info', 'r_post'));
 });
 
-test('테이블 값 함수(json_each)는 함수가 아니라 테이블 읽기로 보고된다 → 접두사 검사로 막힘', () => {
+test('table-valued functions (json_each) are reported as table reads, so the prefix check blocks them', () => {
   const calls = record("SELECT value FROM json_each('[1,2]')");
   assert.ok(calls.some((c) => c[0] === C.SQLITE_READ && c[1] === 'json_each'));
   assert.ok(!calls.some((c) => c[0] === C.SQLITE_FUNCTION && c[2] === 'json_each'));
 });
 
-test('FTS5 가상 테이블 조회는 내부 PRAGMA(data_version)를 일으킨다 → 정책상 거부됨 (스냅샷에는 가상 테이블을 두지 않음)', () => {
+test('FTS5 virtual table queries trigger an internal PRAGMA (data_version), so policy denies them (snapshots have no virtual tables)', () => {
   const db = new DatabaseSync(':memory:');
   db.exec("CREATE VIRTUAL TABLE r_doc USING fts5(body); INSERT INTO r_doc VALUES ('hello')");
   const calls: Call[] = [];
@@ -68,7 +68,7 @@ test('FTS5 가상 테이블 조회는 내부 PRAGMA(data_version)를 일으킨�
   assert.ok(has(calls, C.SQLITE_FUNCTION, null, 'match'));
 });
 
-test('DENY를 돌려주면 prepare가 실패한다', () => {
+test('returning DENY makes prepare fail', () => {
   const db = new DatabaseSync(':memory:');
   db.exec('CREATE TABLE hidden(x)');
   db.setAuthorizer((code: number, a1: string | null) =>

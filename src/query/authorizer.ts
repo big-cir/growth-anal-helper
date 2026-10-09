@@ -1,35 +1,40 @@
-// 쿼리 실행 권한: 허용 접두사 테이블 읽기와 허용 함수만.
+// Query permissions: reads of allowed-prefix tables and allowed functions only.
 import { constants as C } from 'node:sqlite';
 
 export const ALLOWED_FUNCTIONS = new Set([
-  // 집계
+  // aggregates
   'count', 'sum', 'total', 'avg', 'min', 'max', 'group_concat',
-  // 창 함수
+  // window functions
   'row_number', 'rank', 'dense_rank', 'lag', 'lead', 'first_value', 'last_value', 'ntile',
-  // 스칼라 (LIKE·GLOB 포함)
+  // scalars (including LIKE and GLOB)
   'abs', 'coalesce', 'ifnull', 'nullif', 'iif', 'round', 'length', 'lower', 'upper', 'substr', 'trim', 'instr', 'replace', 'like', 'glob',
-  // 날짜
+  // dates
   'date', 'time', 'datetime', 'julianday', 'strftime', 'unixepoch',
 ]);
 
 export type Seen = { reads: Set<string>; denied: Set<string>; sensitive: Set<string> };
-/** 막을 칸("표.칸")과 표. 여기에 걸리면 민감 거부로 따로 기록한다 */
+/** Columns ("table.column") and tables to block. Hits are recorded as sensitive denials */
 export type Blocked = { columns: Set<string>; tables: Set<string> };
 
-/** reads: 승인한 표 이름, denied: 거부한 표 이름, sensitive: 민감 거부(표.칸) */
-export function makeQueryAuthorizer(readablePrefixes: string[], seen?: Seen, blocked?: Blocked) {
+/**
+ * reads: allowed table names, denied: denied table names, sensitive: sensitive denials (table.column)
+ * cteOnly: WITH names (lowercase) that are not real schema objects. count(*) over a materialized WITH result
+ * makes SQLite report a read of that name with column "" and DB null; it is not a real table, so it passes
+ */
+export function makeQueryAuthorizer(readablePrefixes: string[], seen?: Seen, blocked?: Blocked, cteOnly?: Set<string>) {
   const readable = (t: string | null) => t !== null && readablePrefixes.some((p) => t.startsWith(p));
-  return (code: number, a1: string | null, a2: string | null): number => {
+  return (code: number, a1: string | null, a2: string | null, a3: string | null = null): number => {
     switch (code) {
       case C.SQLITE_SELECT:
         return C.SQLITE_OK;
       case C.SQLITE_READ:
-        // 기록할 곳이 있으면 거부한 읽기도 끝까지 훑게 IGNORE로 두고, 실행 전에 seen을 보고 거부한다
+        // When recording, denied reads return IGNORE so preparation continues; the query is rejected before running by checking seen
         if (a1 !== null && blocked && (blocked.tables.has(a1) || (a2 !== null && blocked.columns.has(`${a1}.${a2}`)))) {
           if (!seen) return C.SQLITE_DENY;
           seen.sensitive.add(a2 !== null ? `${a1}.${a2}` : a1);
           return C.SQLITE_IGNORE;
         }
+        if (a1 !== null && a2 === '' && a3 === null && cteOnly?.has(a1.toLowerCase())) return C.SQLITE_OK;
         if (readable(a1)) {
           seen?.reads.add(a1!);
           return C.SQLITE_OK;

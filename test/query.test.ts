@@ -1,4 +1,4 @@
-// 쿼리 실행: 정적 검사, 권한, worker, 실행 슬롯.
+// Query execution: static checks, permissions, worker, execution slots.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
@@ -11,7 +11,7 @@ import { runInWorker, type WorkerInput } from '../src/query/worker.ts';
 import { ExecutionSlots, LIMITS, runQuery, SlotCancelled, type QueryRequest, type SlotLease } from '../src/query/executor.ts';
 
 
-test('lint: 문장 하나, SELECT/WITH만, 끝의 ; 허용, 문자열·주석 안의 ;·키워드는 무시', () => {
+test('lint: one statement, SELECT/WITH only, trailing ; allowed, ; and keywords inside strings and comments ignored', () => {
   assert.deepEqual(lintSql('SELECT 1;', []), { ok: true, params: [] });
   assert.deepEqual(lintSql("SELECT ';' AS a, 'DROP TABLE x' -- ; comment\n /* ; */ FROM r_t", []), { ok: true, params: [] });
   assert.deepEqual(lintSql('WITH c AS (SELECT 1) SELECT * FROM c', []), { ok: true, params: [] });
@@ -20,13 +20,13 @@ test('lint: 문장 하나, SELECT/WITH만, 끝의 ; 허용, 문자열·주석 �
   }
 });
 
-test('lint: WITH RECURSIVE 거부', () => {
+test('lint: rejects WITH RECURSIVE', () => {
   const r = lintSql('WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM n) SELECT x FROM n', []);
   assert.equal(r.ok, false);
   assert.match((r as { message: string }).message, /d_calendar_week/);
 });
 
-test('lint: 매개변수는 :as_of와 워크스페이스 스칼라 키만', () => {
+test('lint: parameters only :as_of and workspace scalar keys', () => {
   assert.deepEqual(lintSql('SELECT :as_of, :start, :as_of', ['start']), { ok: true, params: ['as_of', 'start'] });
   assert.deepEqual(lintSql("SELECT '12:30' AS t, \"col:x\" FROM r_t", []), { ok: true, params: [] });
   for (const bad of ['SELECT ?', 'SELECT ?1', 'SELECT @x', 'SELECT $x', 'SELECT :1', 'SELECT :other']) {
@@ -62,7 +62,7 @@ const workerIn = (sql: string, over: Partial<WorkerInput> = {}): WorkerInput => 
   maxRows: 50, overflow: 'more', cellLimit: 4096, truncateCells: true, outputLimit: 4 * 1024 * 1024, ...over,
 });
 
-test('authorizer: 허용 접두사 밖 테이블·sqlite_master·pragma_*·json_each·허용 밖 함수·쓰기는 실행 단계에서 거부', () => {
+test('authorizer: denies tables outside allowed prefixes, sqlite_master, pragma_*, json_each, disallowed functions and writes', () => {
   for (const sql of [
     'SELECT secret FROM hidden',
     'SELECT name FROM sqlite_master',
@@ -85,7 +85,7 @@ test('authorizer: 허용 접두사 밖 테이블·sqlite_master·pragma_*·json_
   }
 });
 
-test('authorizer: 허용 함수·LIKE·GLOB·CTE·창 함수·CAST·CASE는 통과, 결과 칸의 원본 표시', () => {
+test('authorizer: allows allowed functions, LIKE, GLOB, CTEs, window functions, CAST, CASE; reports result column origins', () => {
   const r = runInWorker(workerIn(`
     WITH c AS (SELECT id, name FROM r_t WHERE name LIKE '%' AND name GLOB '*')
     SELECT c.id AS k, upper(c.name) AS u, row_number() OVER (ORDER BY c.id) AS rn,
@@ -98,10 +98,37 @@ test('authorizer: 허용 함수·LIKE·GLOB·CTE·창 함수·CAST·CASE는 통�
   assert.deepEqual(r.rows[0], [['i', 1], ['s', 'A'], ['i', 1], ['s', '1'], ['s', 'x'], ['s', '2024-01-01']]);
 });
 
-test('결과 타입: BLOB·안전 범위 밖 정수·무한대는 오류, 실수는 f 태그', () => {
+test('authorizer: count(*) over a materialized WITH passes; real or blocked table names get no exception', () => {
+  for (const sql of [
+    'WITH p AS (SELECT id, count(*) AS e FROM d_big GROUP BY id) SELECT count(*) FROM p',
+    'WITH p AS MATERIALIZED (SELECT id FROM d_big) SELECT count(*) AS n FROM p',
+    'WITH "Per Book"(k, e) AS (SELECT id, count(*) FROM d_big GROUP BY id) SELECT count(*) FROM "per book"',
+    'SELECT (WITH p AS (SELECT id FROM d_big GROUP BY id) SELECT count(*) FROM p) AS n',
+  ]) {
+    const r = runInWorker(workerIn(sql));
+    assert.ok(r.ok, `${sql}: ${JSON.stringify(r)}`);
+    if (r.ok) assert.deepEqual(r.tables, ['d_big'], sql);
+  }
+  const denied = (sql: string, over: Partial<WorkerInput> = {}) => {
+    const r = runInWorker(workerIn(sql, over));
+    assert.equal(r.ok, false, sql);
+    return r as { kind: string; message: string };
+  };
+  // Real disallowed table: denied directly, with a same-named WITH in another scope, or when read inside a WITH body
+  assert.match(denied('SELECT count(*) FROM hidden').message, /hidden/);
+  assert.match(denied('SELECT count(*) FROM hidden WHERE EXISTS (WITH hidden AS (SELECT 1) SELECT 1 FROM hidden)').message, /hidden/);
+  assert.match(denied('WITH p AS (SELECT secret FROM hidden GROUP BY secret) SELECT count(*) FROM p').message, /hidden/);
+  // A WITH named like a real table is conservatively denied
+  assert.match(denied('WITH hidden AS (SELECT id FROM d_big GROUP BY id) SELECT count(*) FROM hidden').message, /hidden/);
+  // A WITH named like a blocked table gets no exception, regardless of case
+  assert.equal(denied('WITH eng_log AS (SELECT id FROM d_big GROUP BY id) SELECT count(*) FROM eng_log', { blockedTables: ['eng_log'] }).kind, 'sensitive');
+  denied('WITH ENG_LOG AS (SELECT id FROM d_big GROUP BY id) SELECT count(*) FROM ENG_LOG', { blockedTables: ['eng_log'] });
+});
+
+test('result types: BLOB, unsafe integers and infinity are errors; reals get the f tag', () => {
   assert.deepEqual((runInWorker(workerIn('SELECT v FROM r_t WHERE id = 1')) as { kind: string }).kind, 'type');
   assert.match((runInWorker(workerIn('SELECT v FROM r_t WHERE id = 2')) as { message: string }).message, /BLOB/);
-  assert.match((runInWorker(workerIn('SELECT 1e999 AS inf')) as { message: string }).message, /유한하지 않은/);
+  assert.match((runInWorker(workerIn('SELECT 1e999 AS inf')) as { message: string }).message, /non-finite/);
   const r = runInWorker(workerIn('SELECT v FROM r_t WHERE id = 3'));
   assert.ok(r.ok && JSON.stringify(r.rows) === '[[["f",1.5]]]');
 });
@@ -117,7 +144,7 @@ const req = (sql: string, lease: SlotLease, over: Partial<QueryRequest> = {}): Q
   readablePrefixes: ['r_', 'd_'], heapLimitMb: 256, ...over,
 });
 
-test('탐색: 51행까지 읽고 50행 + 더 있음, 큰 셀은 잘라서 표시', async () => {
+test('probe: reads up to 51 rows, returns 50 + more flag, truncates large cells', async () => {
   const r = await q('SELECT id, s FROM d_big ORDER BY id');
   assert.ok(r.ok);
   if (!r.ok) return;
@@ -127,24 +154,24 @@ test('탐색: 51행까지 읽고 50행 + 더 있음, 큰 셀은 잘라서 표시
   assert.equal((r.rows[0][1][1] as string).length, LIMITS.cellBytes);
 });
 
-test('패널: 4KB 넘는 셀 거부, 5,000행 넘으면 거부, 출력 4MB 넘으면 거부', async () => {
+test('panel: rejects cells over 4KB, more than 5,000 rows, output over 4MB', async () => {
   const cell = await q('SELECT s FROM d_big WHERE id = 1', { mode: 'panel' });
   assert.deepEqual([cell.ok, !cell.ok && cell.kind], [false, 'limit']);
   const many = await q('SELECT id FROM d_big', { mode: 'panel' });
-  assert.match(!many.ok ? many.message : '', /5000행/);
+  assert.match(!many.ok ? many.message : '', /5000 rows/);
   const big = await q('SELECT id, s, s AS s2, s AS s3, s AS s4, s AS s5 FROM d_big WHERE id > 1 AND id <= 5000', { mode: 'panel' });
-  assert.match(!big.ok ? big.message : '', /바이트를 넘음/);
+  assert.match(!big.ok ? big.message : '', /exceeds \d+ bytes/);
 });
 
-test('출력 상한은 UTF-8 바이트로 센다(다바이트 글자), 상한 오류 뒤 worker가 남지 않는다', async () => {
+test('output limit counts UTF-8 bytes (multibyte chars); no worker is left after a limit error', async () => {
   const before = new Set(workerPids());
   const r = await q('SELECT id, s FROM d_ko', { mode: 'panel' });
   assert.deepEqual([r.ok, !r.ok && r.kind], [false, 'limit']);
   assert.deepEqual(workerPids().filter((p) => !before.has(p)), []);
 });
 
-test('실행 슬롯: 직접 만든 lease·반납한 lease·같은 lease 동시 사용은 거부, 차례로 쓰는 건 허용', async () => {
-  const msg = '실행 슬롯 없이(또는 같은 슬롯으로 동시에) 쿼리를 실행할 수 없음';
+test('execution slots: rejects hand-made leases, released leases and concurrent use of one lease; sequential use is fine', async () => {
+  const msg = 'cannot run a query without an execution slot (or two at once on the same slot)';
   const forged = { kind: 'interactive', active: true, release() {}, begin: () => true, end() {} } as unknown as SlotLease;
   assert.deepEqual(await runQuery(req('SELECT 1', forged)), { ok: false, kind: 'input', message: msg });
   assert.throws(() => new (SlotLease as unknown as new (...a: unknown[]) => SlotLease)(Symbol('x'), 'interactive', () => {}));
@@ -159,20 +186,20 @@ test('실행 슬롯: 직접 만든 lease·반납한 lease·같은 lease 동시 �
   assert.equal(typeof (lease as unknown as { begin?: unknown }).begin, 'undefined');
 });
 
-test('실행 슬롯: 쿼리 실행 중 release하면 그 쿼리가 끝날 때 반납된다', async () => {
+test('execution slots: release during a query returns the slot when the query ends', async () => {
   const s = new ExecutionSlots(1, 1);
   const lease = await s.acquire('interactive');
   const running = runQuery(req('SELECT count(*) FROM d_big a, d_big b', lease));
   lease.release();
   assert.equal(s.stats.inUse, 1);
   assert.equal(lease.active, true);
-  assert.deepEqual(await runQuery(req('SELECT 1', lease)), { ok: false, kind: 'input', message: '실행 슬롯 없이(또는 같은 슬롯으로 동시에) 쿼리를 실행할 수 없음' });
+  assert.deepEqual(await runQuery(req('SELECT 1', lease)), { ok: false, kind: 'input', message: 'cannot run a query without an execution slot (or two at once on the same slot)' });
   assert.ok((await running).ok);
   assert.equal(s.stats.inUse, 0);
   assert.equal(lease.active, false);
 });
 
-test('매개변수: :as_of와 스칼라 params 바인딩, 배열 params·모르는 이름은 거부', async () => {
+test('parameters: binds :as_of and scalar params; rejects array params and unknown names', async () => {
   const r = await q('SELECT :as_of AS a, :start AS s');
   assert.ok(r.ok && JSON.stringify(r.rows) === '[[["s","2024-06-01 00:00:00.000000"],["s","2024-01-01"]]]');
   assert.equal((await q('SELECT :marks')).ok, false);
@@ -181,7 +208,7 @@ test('매개변수: :as_of와 스칼라 params 바인딩, 배열 params·모르�
 
 function workerPids(): number[] {
   try {
-    // 이 테스트 프로세스가 띄운 worker만(다른 테스트 파일이 동시에 띄운 것은 제외)
+    // Only workers started by this test process (not by other test files running in parallel)
     return execFileSync('pgrep', ['-P', String(process.pid), '-f', 'src/query/worker.ts'], { encoding: 'utf8' }).split('\n').filter(Boolean).map(Number);
   } catch {
     return [];
@@ -197,14 +224,14 @@ function alive(pid: number): boolean {
   }
 }
 
-test('오래 걸리는 쿼리: 시간 제한 없이 돌고, 취소하면 프로세스 그룹이 죽는다', async () => {
+test('long query: runs without a time limit; cancel kills the process group', async () => {
   const ac = new AbortController();
   const slow = 'SELECT count(*) FROM d_big a, d_big b, d_big c';
   const before = new Set(workerPids());
   const p = q(slow, { signal: ac.signal });
   await new Promise((r) => setTimeout(r, 800));
   const workers = workerPids().filter((x) => !before.has(x));
-  assert.equal(workers.length, 1, '실행 중인 worker 1개');
+  assert.equal(workers.length, 1, 'one running worker');
   const t0 = Date.now();
   ac.abort();
   const r = await p;
@@ -213,7 +240,7 @@ test('오래 걸리는 쿼리: 시간 제한 없이 돌고, 취소하면 프로�
   assert.equal(alive(workers[0]), false);
 });
 
-test('이미 취소된 요청은 worker를 띄우지 않는다', async () => {
+test('an already cancelled request starts no worker', async () => {
   const ac = new AbortController();
   ac.abort();
   const r = await q('SELECT 1', { signal: ac.signal });
@@ -221,7 +248,7 @@ test('이미 취소된 요청은 worker를 띄우지 않는다', async () => {
 });
 
 
-test('슬롯: 전체 2개, 백그라운드는 1개까지, 대화 요청이 먼저', async () => {
+test('slots: 2 total, at most 1 background, interactive first', async () => {
   const s = new ExecutionSlots(2, 1);
   const order: string[] = [];
   const bg1 = await s.acquire('background');
@@ -243,7 +270,7 @@ test('슬롯: 전체 2개, 백그라운드는 1개까지, 대화 요청이 먼�
   assert.deepEqual(s.stats, { inUse: 0, backgroundInUse: 0, waiting: 0 });
 });
 
-test('슬롯: run()은 실패해도 반납한다', async () => {
+test('slots: run() releases even on failure', async () => {
   const s = new ExecutionSlots(1, 1);
   await assert.rejects(s.run('interactive', undefined, async () => { throw new Error('x'); }), /x/);
   assert.equal(s.stats.inUse, 0);
@@ -251,7 +278,7 @@ test('슬롯: run()은 실패해도 반납한다', async () => {
   assert.equal(s.stats.inUse, 0);
 });
 
-test('슬롯: 기다리는 중 취소하면 대기열에서 빠진다', async () => {
+test('slots: cancelling while waiting leaves the queue', async () => {
   const s = new ExecutionSlots(1, 1);
   const held = await s.acquire('interactive');
   const ac = new AbortController();
@@ -275,8 +302,8 @@ function runWorkerRaw(input: string): Promise<string> {
   });
 }
 
-test('worker 단독 실행: 64KB 넘는 입력은 읽다가 바로 거부', async () => {
-  assert.deepEqual(JSON.parse(await runWorkerRaw('x'.repeat(200 * 1024))), { ok: false, kind: 'input', message: '입력이 64KB를 넘음' });
+test('worker standalone: input over 64KB is rejected while reading', async () => {
+  assert.deepEqual(JSON.parse(await runWorkerRaw('x'.repeat(200 * 1024))), { ok: false, kind: 'input', message: 'input exceeds 64KB' });
   const ok = JSON.parse(await runWorkerRaw(JSON.stringify(workerIn('SELECT 1 AS one'))));
   assert.equal(ok.rows[0][0][1], 1);
 });

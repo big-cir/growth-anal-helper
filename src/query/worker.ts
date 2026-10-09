@@ -1,22 +1,24 @@
-// 쿼리 1개를 실행하는 하위 프로세스. 입력 stdin JSON, 출력 stdout JSON.
+// Child process that runs one query. Input: stdin JSON, output: stdout JSON.
 import { DatabaseSync } from 'node:sqlite';
 import { readSync } from 'node:fs';
 import { makeQueryAuthorizer } from './authorizer.ts';
+import { cteNames } from './sql-lint.ts';
+import { tr } from '../i18n.ts';
 
 export type WorkerInput = {
   path: string;
   sql: string;
   params: Record<string, string | number>;
   readablePrefixes: string[];
-  /** 민감 거부할 칸("표.칸")과 표 */
+  /** Columns ("table.column") and tables to deny as sensitive */
   blockedColumns?: string[];
   blockedTables?: string[];
   heapLimitMb: number;
   maxRows: number;
   overflow: 'more' | 'error';
-  cellLimit: number;     // 바이트
+  cellLimit: number;     // bytes
   truncateCells: boolean;
-  outputLimit: number;   // 바이트
+  outputLimit: number;   // bytes
 };
 
 export type Tagged = ['n', null] | ['s', string] | ['i', number] | ['f', number];
@@ -26,7 +28,9 @@ export type WorkerOutput =
   | { ok: false; kind: 'sqlite' | 'type' | 'limit' | 'input' | 'sensitive'; message: string };
 
 export const INPUT_LIMIT = 64 * 1024;
-export const SENSITIVE_MESSAGE = '이 도구가 다룰 수 없는 데이터예요';
+export const SENSITIVE_MESSAGE = "This tool can't work with that data";
+/** SENSITIVE_MESSAGE in the configured language (for the web UI) */
+export const sensitiveMessage = () => tr(SENSITIVE_MESSAGE, '이 도구가 다룰 수 없는 데이터예요');
 
 class Fail extends Error {
   readonly kind: 'type' | 'limit';
@@ -43,22 +47,22 @@ function tag(v: unknown, col: string, o: WorkerInput, counter: { truncated: numb
   if (typeof v === 'string') {
     const bytes = enc.encode(v).length;
     if (bytes <= o.cellLimit) return ['s', v];
-    if (!o.truncateCells) throw new Fail('limit', `칸 ${col}의 값이 ${o.cellLimit}바이트를 넘음`);
+    if (!o.truncateCells) throw new Fail('limit', `value of column ${col} exceeds ${o.cellLimit} bytes`);
     counter.truncated++;
     let cut = v.slice(0, o.cellLimit);
     while (enc.encode(cut).length > o.cellLimit) cut = cut.slice(0, -1);
     return ['s', cut];
   }
   if (typeof v === 'number') {
-    if (!Number.isFinite(v)) throw new Fail('type', `칸 ${col}: 유한하지 않은 수`);
+    if (!Number.isFinite(v)) throw new Fail('type', `column ${col}: non-finite number`);
     if (Number.isInteger(v)) {
-      if (!Number.isSafeInteger(v)) throw new Fail('type', `칸 ${col}: 안전 범위 밖 정수`);
+      if (!Number.isSafeInteger(v)) throw new Fail('type', `column ${col}: integer outside the safe range`);
       return ['i', v];
     }
     return ['f', v];
   }
-  if (v instanceof Uint8Array) throw new Fail('type', `칸 ${col}: BLOB은 지원하지 않음`);
-  throw new Fail('type', `칸 ${col}: 지원하지 않는 값 형식(${typeof v})`);
+  if (v instanceof Uint8Array) throw new Fail('type', `column ${col}: BLOB is not supported`);
+  throw new Fail('type', `column ${col}: unsupported value type (${typeof v})`);
 }
 
 export function runInWorker(o: WorkerInput): WorkerOutput {
@@ -73,11 +77,15 @@ export function runInWorker(o: WorkerInput): WorkerOutput {
   const blocked = { columns: new Set(o.blockedColumns ?? []), tables: new Set(o.blockedTables ?? []) };
   try {
     db.exec(`PRAGMA hard_heap_limit = ${Math.floor(o.heapLimitMb * 1024 * 1024)}`);
-    db.setAuthorizer(makeQueryAuthorizer(o.readablePrefixes, seen, blocked));
+    // A WITH name that matches a real schema object or a blocked table gets no exception
+    const taken = new Set((db.prepare('SELECT lower(name) AS n FROM sqlite_schema').all() as { n: string }[]).map((r) => r.n));
+    for (const t of blocked.tables) taken.add(t.toLowerCase());
+    const cteOnly = new Set([...cteNames(o.sql)].filter((n) => !taken.has(n)));
+    db.setAuthorizer(makeQueryAuthorizer(o.readablePrefixes, seen, blocked, cteOnly));
     const stmt = db.prepare(o.sql);
-    // 거부한 읽기가 하나라도 있으면 실행하지 않는다(민감 거부는 무엇을 막았는지 알리지 않음)
+    // Do not run if any read was denied (sensitive denials do not say what was blocked)
     if (seen.sensitive.size) return { ok: false, kind: 'sensitive', message: SENSITIVE_MESSAGE };
-    if (seen.denied.size) return { ok: false, kind: 'sqlite', message: `읽을 수 없는 표: ${[...seen.denied].sort().join(', ')}` };
+    if (seen.denied.size) return { ok: false, kind: 'sqlite', message: `tables not readable: ${[...seen.denied].sort().join(', ')}` };
     stmt.setReadBigInts(false);
     stmt.setReturnArrays(true);
     const columns: ResultColumn[] = stmt.columns().map((c) => ({ name: c.name, table: c.table, column: c.column }));
@@ -89,30 +97,30 @@ export function runInWorker(o: WorkerInput): WorkerOutput {
     const iter = (Object.keys(o.params).length ? stmt.iterate(o.params) : stmt.iterate()) as Iterable<unknown[]>;
     for (const row of iter) {
       if (rows.length === o.maxRows) {
-        if (o.overflow === 'error') throw new Fail('limit', `결과가 ${o.maxRows}행을 넘음`);
+        if (o.overflow === 'error') throw new Fail('limit', `result exceeds ${o.maxRows} rows`);
         more = true;
         break;
       }
       const tagged = row.map((v, i) => tag(v, columns[i].name, o, counter));
       size += Buffer.byteLength(JSON.stringify(tagged)) + 1;
-      if (size > o.outputLimit) throw new Fail('limit', `결과가 ${o.outputLimit}바이트를 넘음`);
+      if (size > o.outputLimit) throw new Fail('limit', `result exceeds ${o.outputLimit} bytes`);
       rows.push(tagged);
     }
     return { ok: true, columns, rows, more, truncatedCells: counter.truncated, ms: Math.round(performance.now() - t0), tables };
   } catch (e) {
     if (e instanceof Fail) return { ok: false, kind: e.kind, message: e.message };
     const msg = (e as Error).message;
-    if (/too large to be represented/i.test(msg)) return { ok: false, kind: 'type', message: '안전 범위 밖 정수' };
-    // 민감 거부는 무엇을 막았는지 알리지 않는다
+    if (/too large to be represented/i.test(msg)) return { ok: false, kind: 'type', message: 'integer outside the safe range' };
+    // Sensitive denials do not say what was blocked
     if (seen.sensitive.size) return { ok: false, kind: 'sensitive', message: SENSITIVE_MESSAGE };
-    if (seen.denied.size) return { ok: false, kind: 'sqlite', message: `읽을 수 없는 표: ${[...seen.denied].sort().join(', ')}` };
+    if (seen.denied.size) return { ok: false, kind: 'sqlite', message: `tables not readable: ${[...seen.denied].sort().join(', ')}` };
     return { ok: false, kind: 'sqlite', message: msg };
   } finally {
     db.close();
   }
 }
 
-// 하위 프로세스로 실행될 때
+// When run as a child process
 if (process.argv[1] && import.meta.filename === process.argv[1]) {
   let out: WorkerOutput;
   try {
@@ -131,7 +139,7 @@ if (process.argv[1] && import.meta.filename === process.argv[1]) {
       n += r;
       if (n > INPUT_LIMIT) break;
     }
-    if (n > INPUT_LIMIT) out = { ok: false, kind: 'input', message: '입력이 64KB를 넘음' };
+    if (n > INPUT_LIMIT) out = { ok: false, kind: 'input', message: 'input exceeds 64KB' };
     else out = runInWorker(JSON.parse(buf.subarray(0, n).toString('utf8')) as WorkerInput);
   } catch (e) {
     out = { ok: false, kind: 'input', message: (e as Error).message };

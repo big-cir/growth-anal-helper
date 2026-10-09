@@ -1,0 +1,3450 @@
+{
+ "cases": [
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": null,
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": null,
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "eda19b31718627e3f15a06726401ca0c1fbaf1aeb97b6946594bbc9aa43685ee",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": null,
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "eda19b31718627e3f15a06726401ca0c1fbaf1aeb97b6946594bbc9aa43685ee",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "Bad",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.metric: must be a metric dictionary id or null"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": 5,
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.metric: must be a metric dictionary id or null"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "7174057126e3caeee2b43cf12f2886b1a8697b20271d166e1fa06cb06c1273c7",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.metric: must be a metric dictionary id or null"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "   ",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "　",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: at most 60 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": 7,
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.question: at most 300 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.sql: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.sql: at most 12000 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": null,
+   "out": {
+    "ok": false,
+    "error": "panel: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": [],
+   "out": {
+    "ok": false,
+    "error": "panel: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": "x",
+   "out": {
+    "ok": false,
+    "error": "panel: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": 5,
+   "out": {
+    "ok": false,
+    "error": "panel: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": null,
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": [],
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "pie"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.type: number|table|line|bar|funnel|cohort"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": 5
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.type: number|table|line|bar|funnel|cohort"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {},
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.type: number|table|line|bar|funnel|cohort"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week",
+     "numerator": "n",
+     "denominator": "d",
+     "series": "grp"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "week",
+       "numerator": "n",
+       "denominator": "d",
+       "series": "grp"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "week",
+     "numerator": "n",
+     "denominator": "d",
+     "series": "grp"
+    },
+    "semantic": "e2e5dcffa6be68f26e3ef79af28920c8e928aad3d404daf11e1015ee1ecb15b0",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week",
+     "series": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "week",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "week",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "f8f84431309f98cffcb61ad5d5d8b3703849561853948bf2da2a6ce330c6ac8f",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.x: must be a result column name (identifier)"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "1bad"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.x: must be a result column name (identifier)"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "label": "x"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.label: not a key of the line pattern"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "extra": [
+      "a",
+      "b"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "bar",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [
+       "a",
+       "b"
+      ],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "bar",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "extra": [
+      "a",
+      "b"
+     ]
+    },
+    "semantic": "99f0f7528fea02fcefac57ad8b9e44dbe153049d04d3121252232ea91663cf24",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "extra": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "bar",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "bar",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "e2d10ce5a1b76f0778523c05453b7c186371056520e539e1c1618584bf21ea9c",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "extra": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.extra: must have 0–6 items"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "extra": "a"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.extra: must be an array"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "extra": [
+      1
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.extra[0]: must be a result column name (identifier)"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "key": [
+      "a"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.key: table pattern only (other patterns have fixed row keys)"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table",
+     "key": [
+      "a",
+      "b"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "table",
+      "columns": {},
+      "extra": [],
+      "key": [
+       "a",
+       "b"
+      ],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "table",
+     "key": [
+      "a",
+      "b"
+     ]
+    },
+    "semantic": "75311338d3c69130af8f845f026c3df143ea8ba4d60c7b5f60c2182be062601d",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table",
+     "key": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "table",
+      "columns": {},
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "table"
+    },
+    "semantic": "5954ce25acce76cda0f3d9702437261ac2f384781bfb146860d7c6b377f526dd",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "table",
+      "columns": {},
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "table"
+    },
+    "semantic": "5954ce25acce76cda0f3d9702437261ac2f384781bfb146860d7c6b377f526dd",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table",
+     "x": "a"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.x: not a key of the table pattern"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "c81a87d3e504187319061ba930e304302e42d3a67ba4e7d175a9ae4df01a15b4",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": "v"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": null,
+       "denominator": null,
+       "value": "v",
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "value": "v"
+    },
+    "semantic": "e84645ce5108131f1f1c0ae2cec25d7dae086774cd799db5c9efb7c29842d50e",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": "v",
+     "label": "l"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": null,
+       "denominator": null,
+       "value": "v",
+       "label": "l"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "value": "v",
+     "label": "l"
+    },
+    "semantic": "13996da42d85e36fd5b25dadf63c76fcae81cf28a69e036ddf17039388311532",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": "a"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "a",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "a",
+     "denominator": "denominator"
+    },
+    "semantic": "ee1820eed0acc4c1adcfc42322b27a8a8849aa69e8b2369c00acecd85bd5edb4",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "denominator": "b"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "b",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "numerator",
+     "denominator": "b"
+    },
+    "semantic": "aafd05c27a9dbd8cbb080c5186ad40d4fab4a0bfda5af777ef74d78dff17b2a5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "c81a87d3e504187319061ba930e304302e42d3a67ba4e7d175a9ae4df01a15b4",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": "a",
+     "value": "v"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.value: numerator/denominator and value cannot be used together"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": "a",
+     "value": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "a",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "a",
+     "denominator": "denominator"
+    },
+    "semantic": "ee1820eed0acc4c1adcfc42322b27a8a8849aa69e8b2369c00acecd85bd5edb4",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "c81a87d3e504187319061ba930e304302e42d3a67ba4e7d175a9ae4df01a15b4",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": 3
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.numerator: must be a result column name (identifier)"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "funnel",
+      "columns": {
+       "step_no": "step_no",
+       "step_name": "step_name",
+       "reached": "reached",
+       "eligible": "eligible",
+       "unknown": "unknown",
+       "cohort": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "funnel",
+     "step_no": "step_no",
+     "step_name": "step_name",
+     "reached": "reached",
+     "eligible": "eligible",
+     "unknown": "unknown"
+    },
+    "semantic": "287f262504974c6cf487a66557fc9bfb1b5e028e592dc898c97b97b267221d87",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "cohort": "c",
+     "step_no": "s"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "funnel",
+      "columns": {
+       "step_no": "s",
+       "step_name": "step_name",
+       "reached": "reached",
+       "eligible": "eligible",
+       "unknown": "unknown",
+       "cohort": "c"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "funnel",
+     "step_no": "s",
+     "step_name": "step_name",
+     "reached": "reached",
+     "eligible": "eligible",
+     "unknown": "unknown",
+     "cohort": "c"
+    },
+    "semantic": "18054cffa48d884867fe4a538c42cf0c709f7446bd5dc7d0b002fdae09aed26b",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "cohort",
+     "series": "s",
+     "deleted_n": "dn"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "cohort",
+      "columns": {
+       "cohort": "cohort",
+       "period": "period",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": "s",
+       "deleted_n": "dn"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "cohort",
+     "cohort": "cohort",
+     "period": "period",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "series": "s",
+     "deleted_n": "dn"
+    },
+    "semantic": "b98eeae9b01a22c4b89a1d0b2be674de19a4767e5cf725842b863f5614a55e0b",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "cohort",
+     "headline": {
+      "x": "a"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline: the cohort pattern has no headline number"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table",
+     "headline": {}
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline: the table pattern has no headline number"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "x": "2024-01-01"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": {
+       "x": "2024-01-01"
+      }
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "headline": {
+      "x": "2024-01-01"
+     }
+    },
+    "semantic": "3bccd749cde0550cf8d4e5e306056519aad792563477a22c286ed266c597104a",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "series": null
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": {
+       "series": null
+      }
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "headline": {
+      "series": null
+     }
+    },
+    "semantic": "e04e77efb17f4025f5714634f455fb9af743a4683f720fe5f844134053ae58d8",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "series": "a",
+      "x": "b"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": {
+       "x": "b",
+       "series": "a"
+      }
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "headline": {
+      "x": "b",
+      "series": "a"
+     }
+    },
+    "semantic": "de5689d099f36b149b444a91c08dd36ce612a81889b57fae8462e64bbe347a9e",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "y": 1
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline.y: unknown key"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": []
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": "x"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": null
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "x": ""
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline.x: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "headline": {
+      "x": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.headline.x: at most 100 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "headline": {
+      "x": "ALL"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "funnel",
+      "columns": {
+       "step_no": "step_no",
+       "step_name": "step_name",
+       "reached": "reached",
+       "eligible": "eligible",
+       "unknown": "unknown",
+       "cohort": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": {
+       "x": "ALL"
+      }
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "funnel",
+     "step_no": "step_no",
+     "step_name": "step_name",
+     "reached": "reached",
+     "eligible": "eligible",
+     "unknown": "unknown",
+     "headline": {
+      "x": "ALL"
+     }
+    },
+    "semantic": "b46b95068ffe1e6f1cfcf95dd68c67f5b7d0cc660040a84c09f460505ea22ca2",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "headline": {}
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "value": null,
+       "label": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": {}
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "number",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "headline": {}
+    },
+    "semantic": "2cf82676a54fd627d4ef4fc3c4c2dc9e6e5354bf05269fe5310fcbc6f69dc7fe",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition: must have 1–10 items"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": "x",
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition: must be an array"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "a"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0]: must be an [item, text] pair"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "a",
+      "b",
+      "c"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0]: must be an [item, text] pair"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "",
+      "b"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0][0]: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "b"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0][0]: at most 40 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ],
+     [
+      "a",
+      "b"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition: must have 1–10 items"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "a",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0][1]: at most 300 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     "ab"
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition[0]: must be an [item, text] pair"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     "c1",
+     "c2"
+    ],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [
+      "c1",
+      "c2"
+     ],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     "ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    ],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.caveats[0]: at most 200 characters"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     "c",
+     "c",
+     "c",
+     "c",
+     "c",
+     "c"
+    ],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.caveats: must have 0–5 items"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     1
+    ],
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.caveats[0]: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": null,
+    "answers": []
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.caveats: must be an array"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": true
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT 1",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": [
+      {
+       "question": "Q",
+       "answer": "A",
+       "defaulted": true
+      }
+     ]
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "3e849001a6ac0c432f85beddd9e99f62b2bfbcdaaf71b27ebf6fdd8d37edb9fd",
+    "normalized": "SELECT 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     {
+      "question": "Q",
+      "answer": "A"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.answers[0].defaulted: true/false"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     {
+      "question": "Q",
+      "answer": "",
+      "defaulted": false
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.answers[0].answer: must be a non-empty string"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     "x"
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.answers[0]: must be an object"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     },
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": false
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.answers: must have 0–8 items"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": [
+     {
+      "question": "Q",
+      "answer": "A",
+      "defaulted": "no"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.answers[0].defaulted: true/false"
+   },
+   "extra": null
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT a\r\n  FROM t   \n\n\n\n WHERE 1 \t\n",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "SELECT a\r\n  FROM t   \n\n\n\n WHERE 1 \t\n",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "50bbf95c60896da1955c9eedfd58372e3bbf049af9036ad4b607f1cbe08aab47",
+    "normalized": "SELECT a\n  FROM t\n\n WHERE 1"
+   }
+  },
+  {
+   "input": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "  \n SELECT 1  \n",
+    "display": {
+     "type": "line"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "metric": "signups",
+     "title": "Weekly signups",
+     "question": "How many signed up?",
+     "sql": "  \n SELECT 1  \n",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members"
+      ]
+     ],
+     "caveats": [],
+     "answers": []
+    }
+   },
+   "extra": {
+    "display": {
+     "type": "line",
+     "x": "x",
+     "numerator": "numerator",
+     "denominator": "denominator"
+    },
+    "semantic": "d16d3e3272d6fd5189d26d97fa69d701dd4685a432419e94608162b7213c76d5",
+    "normalized": "SELECT 1"
+   }
+  }
+ ]
+}

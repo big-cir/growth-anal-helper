@@ -1,0 +1,602 @@
+[
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "auto",
+  "changed": []
+ },
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "x",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "schema_version"
+  ]
+ },
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 3
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 2,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "pattern_contract_version"
+  ]
+ },
+ {
+  "status": "ok",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "x",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "docs_version"
+  ]
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "x",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": [
+   "schema_version"
+  ]
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 3
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 2,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": [
+   "pattern_contract_version"
+  ]
+ },
+ {
+  "status": "review",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "x",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": [
+   "docs_version"
+  ]
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "auto",
+  "changed": []
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "x",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "schema_version"
+  ]
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 3
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 2,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "pattern_contract_version"
+  ]
+ },
+ {
+  "status": "recompute_failed",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "x",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "docs_version"
+  ]
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "auto",
+  "changed": []
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "x",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "schema_version"
+  ]
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 3
+  },
+  "last": "s1",
+  "decision": "none",
+  "changed": []
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 2,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "pattern_contract_version"
+  ]
+ },
+ {
+  "status": "id_dependent",
+  "saved": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "current": {
+   "snapshot_id": "s2",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "x",
+   "prompt_version": "d",
+   "pattern_contract_version": 1,
+   "renderer_version": 2
+  },
+  "last": "s1",
+  "decision": "review",
+  "changed": [
+   "docs_version"
+  ]
+ }
+]

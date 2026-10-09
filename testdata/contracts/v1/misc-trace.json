@@ -1,0 +1,2030 @@
+{
+ "lines": [
+  {
+   "span": {
+    "t": "2026-10-01T08:15:30.250Z",
+    "request_id": "req0",
+    "conv": null,
+    "span": "llm",
+    "ms": 750,
+    "ok": true,
+    "turn": 1,
+    "provider": "anthropic",
+    "model": null,
+    "run_ms": 750,
+    "cost_usd": 0.0125,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-01T08:15:30.250Z\",\"request_id\":\"req0\",\"conv\":null,\"span\":\"llm\",\"ms\":750,\"ok\":true,\"turn\":1,\"provider\":\"anthropic\",\"model\":null,\"run_ms\":750,\"cost_usd\":0.0125,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T09:15:30.250Z",
+    "request_id": "req0",
+    "conv": null,
+    "span": "request",
+    "ms": 1250,
+    "ok": true,
+    "outcome": "preview",
+    "turns": 1,
+    "probes": 0,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-01T09:15:30.250Z\",\"request_id\":\"req0\",\"conv\":null,\"span\":\"request\",\"ms\":1250,\"ok\":true,\"outcome\":\"preview\",\"turns\":1,\"probes\":0,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req1",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 1727,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 1677,
+    "api_ms": 1327,
+    "in": 121,
+    "out": 40,
+    "cache_read": 9003,
+    "cache_write": 1,
+    "cost_usd": 0.0126,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1727,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":1677,\"api_ms\":1327,\"in\":121,\"out\":40,\"cache_read\":9003,\"cache_write\":1,\"cost_usd\":0.0126,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req1",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 2058,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 2007,
+    "api_ms": 1658,
+    "in": 121,
+    "out": 41,
+    "cache_read": 9003,
+    "cache_write": 1,
+    "cost_usd": 0.0126,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":2058,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":2007,\"api_ms\":1658,\"in\":121,\"out\":41,\"cache_read\":9003,\"cache_write\":1,\"cost_usd\":0.0126,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req1",
+    "conv": "c1",
+    "span": "probe_sql",
+    "ms": 41,
+    "ok": false,
+    "stage": "sqlite",
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req1\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":41,\"ok\":false,\"stage\":\"sqlite\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req1",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 260,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req1\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":260,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T09:15:30.250Z",
+    "request_id": "req1",
+    "conv": "c1",
+    "span": "request",
+    "ms": 3350,
+    "ok": true,
+    "outcome": "offdict_preview",
+    "turns": 2,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-02T09:15:30.250Z\",\"request_id\":\"req1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":3350,\"ok\":true,\"outcome\":\"offdict_preview\",\"turns\":2,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 2704,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 2652,
+    "in": 122,
+    "out": 40,
+    "cache_read": 9006,
+    "cache_write": 2,
+    "cost_usd": 0.012700000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":2704,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":2652,\"in\":122,\"out\":40,\"cache_read\":9006,\"cache_write\":2,\"cost_usd\":0.012700000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 3035,
+    "ok": false,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 2982,
+    "in": 122,
+    "out": 41,
+    "cache_read": 9006,
+    "cache_write": 2,
+    "cost_usd": 0.012700000000000001,
+    "error": "budget"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":3035,\"ok\":false,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":2982,\"in\":122,\"out\":41,\"cache_read\":9006,\"cache_write\":2,\"cost_usd\":0.012700000000000001,\"error\":\"budget\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 3366,
+    "ok": true,
+    "turn": 3,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 3312,
+    "in": 122,
+    "out": 42,
+    "cache_read": 9006,
+    "cache_write": 2,
+    "cost_usd": 0.012700000000000001,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":3366,\"ok\":true,\"turn\":3,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":3312,\"in\":122,\"out\":42,\"cache_read\":9006,\"cache_write\":2,\"cost_usd\":0.012700000000000001,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "panel_run",
+    "ms": 270,
+    "ok": false,
+    "stage": "contract"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"panel_run\",\"ms\":270,\"ok\":false,\"stage\":\"contract\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "wait_user",
+    "ms": 5000,
+    "ok": true,
+    "wait": "ask"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"wait_user\",\"ms\":5000,\"ok\":true,\"wait\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T09:15:30.250Z",
+    "request_id": "req2",
+    "conv": "c2",
+    "span": "request",
+    "ms": 13050,
+    "ok": true,
+    "outcome": "refused",
+    "turns": 3,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-03T09:15:30.250Z\",\"request_id\":\"req2\",\"conv\":\"c2\",\"span\":\"request\",\"ms\":13050,\"ok\":true,\"outcome\":\"refused\",\"turns\":3,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req3",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 3681,
+    "ok": false,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 3626,
+    "api_ms": 3281,
+    "in": 123,
+    "out": 40,
+    "cache_read": 9009,
+    "cache_write": 0,
+    "cost_usd": 0.0128,
+    "error": "rate_limit"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req3\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":3681,\"ok\":false,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":3626,\"api_ms\":3281,\"in\":123,\"out\":40,\"cache_read\":9009,\"cache_write\":0,\"cost_usd\":0.0128,\"error\":\"rate_limit\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req3",
+    "conv": "c0",
+    "span": "probe_sql",
+    "ms": 43,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req3\",\"conv\":\"c0\",\"span\":\"probe_sql\",\"ms\":43,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T09:15:30.250Z",
+    "request_id": "req3",
+    "conv": "c0",
+    "span": "request",
+    "ms": 6000,
+    "ok": false,
+    "outcome": "failed",
+    "reason": "turns",
+    "turns": 1,
+    "probes": 1,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-04T09:15:30.250Z\",\"request_id\":\"req3\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":6000,\"ok\":false,\"outcome\":\"failed\",\"reason\":\"turns\",\"turns\":1,\"probes\":1,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req4",
+    "conv": null,
+    "span": "llm",
+    "ms": 4658,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4658,
+    "in": 124,
+    "out": 40,
+    "cache_read": 9012,
+    "cache_write": 1,
+    "cost_usd": 0.0129,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req4\",\"conv\":null,\"span\":\"llm\",\"ms\":4658,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4658,\"in\":124,\"out\":40,\"cache_read\":9012,\"cache_write\":1,\"cost_usd\":0.0129,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req4",
+    "conv": null,
+    "span": "llm",
+    "ms": 4989,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4989,
+    "in": 124,
+    "out": 41,
+    "cache_read": 9012,
+    "cache_write": 1,
+    "cost_usd": 0.0129,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req4\",\"conv\":null,\"span\":\"llm\",\"ms\":4989,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4989,\"in\":124,\"out\":41,\"cache_read\":9012,\"cache_write\":1,\"cost_usd\":0.0129,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req4",
+    "conv": null,
+    "span": "panel_run",
+    "ms": 290,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req4\",\"conv\":null,\"span\":\"panel_run\",\"ms\":290,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T09:15:30.250Z",
+    "request_id": "req4",
+    "conv": null,
+    "span": "request",
+    "ms": 4450,
+    "ok": false,
+    "outcome": "cancelled",
+    "turns": 2,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-05T09:15:30.250Z\",\"request_id\":\"req4\",\"conv\":null,\"span\":\"request\",\"ms\":4450,\"ok\":false,\"outcome\":\"cancelled\",\"turns\":2,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 5635,
+    "ok": true,
+    "turn": 1,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 5579,
+    "api_ms": 5235,
+    "in": 125,
+    "out": 40,
+    "cache_read": 9015,
+    "cache_write": 2,
+    "cost_usd": 0.013000000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":5635,\"ok\":true,\"turn\":1,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":5579,\"api_ms\":5235,\"in\":125,\"out\":40,\"cache_read\":9015,\"cache_write\":2,\"cost_usd\":0.013000000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 5966,
+    "ok": true,
+    "turn": 2,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 5909,
+    "api_ms": 5566,
+    "in": 125,
+    "out": 41,
+    "cache_read": 9015,
+    "cache_write": 2,
+    "cost_usd": 0.013000000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":5966,\"ok\":true,\"turn\":2,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":5909,\"api_ms\":5566,\"in\":125,\"out\":41,\"cache_read\":9015,\"cache_write\":2,\"cost_usd\":0.013000000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 6297,
+    "ok": true,
+    "turn": 3,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 6239,
+    "api_ms": 5897,
+    "in": 125,
+    "out": 42,
+    "cache_read": 9015,
+    "cache_write": 2,
+    "cost_usd": 0.013000000000000001,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":6297,\"ok\":true,\"turn\":3,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":6239,\"api_ms\":5897,\"in\":125,\"out\":42,\"cache_read\":9015,\"cache_write\":2,\"cost_usd\":0.013000000000000001,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "probe_sql",
+    "ms": 45,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"probe_sql\",\"ms\":45,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "panel_run",
+    "ms": 300,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"panel_run\",\"ms\":300,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T09:15:30.250Z",
+    "request_id": "req5",
+    "conv": "c2",
+    "span": "request",
+    "ms": 13750,
+    "ok": true,
+    "outcome": "done",
+    "turns": 3,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-06T09:15:30.250Z\",\"request_id\":\"req5\",\"conv\":\"c2\",\"span\":\"request\",\"ms\":13750,\"ok\":true,\"outcome\":\"done\",\"turns\":3,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-07T08:15:30.250Z",
+    "request_id": "req6",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 6612,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 6553,
+    "cost_usd": 0.0131,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-07T08:15:30.250Z\",\"request_id\":\"req6\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":6612,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":6553,\"cost_usd\":0.0131,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-07T09:15:30.250Z",
+    "request_id": "req6",
+    "conv": "c0",
+    "span": "request",
+    "ms": 7050,
+    "ok": true,
+    "outcome": "preview",
+    "turns": 1,
+    "probes": 0,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-07T09:15:30.250Z\",\"request_id\":\"req6\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":7050,\"ok\":true,\"outcome\":\"preview\",\"turns\":1,\"probes\":0,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 7589,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 7529,
+    "api_ms": 7189,
+    "in": 127,
+    "out": 40,
+    "cache_read": 9021,
+    "cache_write": 1,
+    "cost_usd": 0.0132,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":7589,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":7529,\"api_ms\":7189,\"in\":127,\"out\":40,\"cache_read\":9021,\"cache_write\":1,\"cost_usd\":0.0132,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 7920,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 7859,
+    "api_ms": 7520,
+    "in": 127,
+    "out": 41,
+    "cache_read": 9021,
+    "cache_write": 1,
+    "cost_usd": 0.0132,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":7920,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":7859,\"api_ms\":7520,\"in\":127,\"out\":41,\"cache_read\":9021,\"cache_write\":1,\"cost_usd\":0.0132,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "probe_sql",
+    "ms": 47,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":47,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 320,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":320,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "wait_user",
+    "ms": 5000,
+    "ok": true,
+    "wait": "ask"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"wait_user\",\"ms\":5000,\"ok\":true,\"wait\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T09:15:30.250Z",
+    "request_id": "req7",
+    "conv": "c1",
+    "span": "request",
+    "ms": 8250,
+    "ok": true,
+    "outcome": "offdict_preview",
+    "turns": 2,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-08T09:15:30.250Z\",\"request_id\":\"req7\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":8250,\"ok\":true,\"outcome\":\"offdict_preview\",\"turns\":2,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req8",
+    "conv": null,
+    "span": "llm",
+    "ms": 8566,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 8566,
+    "in": 128,
+    "out": 40,
+    "cache_read": 9024,
+    "cache_write": 2,
+    "cost_usd": 0.013300000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req8\",\"conv\":null,\"span\":\"llm\",\"ms\":8566,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":8566,\"in\":128,\"out\":40,\"cache_read\":9024,\"cache_write\":2,\"cost_usd\":0.013300000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req8",
+    "conv": null,
+    "span": "llm",
+    "ms": 8897,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 8897,
+    "in": 128,
+    "out": 41,
+    "cache_read": 9024,
+    "cache_write": 2,
+    "cost_usd": 0.013300000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req8\",\"conv\":null,\"span\":\"llm\",\"ms\":8897,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":8897,\"in\":128,\"out\":41,\"cache_read\":9024,\"cache_write\":2,\"cost_usd\":0.013300000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req8",
+    "conv": null,
+    "span": "llm",
+    "ms": 9228,
+    "ok": false,
+    "turn": 3,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 9228,
+    "in": 128,
+    "out": 42,
+    "cache_read": 9024,
+    "cache_write": 2,
+    "cost_usd": 0.013300000000000001,
+    "error": "budget"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req8\",\"conv\":null,\"span\":\"llm\",\"ms\":9228,\"ok\":false,\"turn\":3,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":9228,\"in\":128,\"out\":42,\"cache_read\":9024,\"cache_write\":2,\"cost_usd\":0.013300000000000001,\"error\":\"budget\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req8",
+    "conv": null,
+    "span": "panel_run",
+    "ms": 330,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req8\",\"conv\":null,\"span\":\"panel_run\",\"ms\":330,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T09:15:30.250Z",
+    "request_id": "req8",
+    "conv": null,
+    "span": "request",
+    "ms": 10350,
+    "ok": true,
+    "outcome": "refused",
+    "turns": 3,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-09T09:15:30.250Z\",\"request_id\":\"req8\",\"conv\":null,\"span\":\"request\",\"ms\":10350,\"ok\":true,\"outcome\":\"refused\",\"turns\":3,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T08:15:30.250Z",
+    "request_id": "req9",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 9543,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 9481,
+    "api_ms": 9143,
+    "in": 129,
+    "out": 40,
+    "cache_read": 9027,
+    "cache_write": 0,
+    "cost_usd": 0.0134,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-01T08:15:30.250Z\",\"request_id\":\"req9\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":9543,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":9481,\"api_ms\":9143,\"in\":129,\"out\":40,\"cache_read\":9027,\"cache_write\":0,\"cost_usd\":0.0134,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T08:15:30.250Z",
+    "request_id": "req9",
+    "conv": "c0",
+    "span": "probe_sql",
+    "ms": 49,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-01T08:15:30.250Z\",\"request_id\":\"req9\",\"conv\":\"c0\",\"span\":\"probe_sql\",\"ms\":49,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T09:15:30.250Z",
+    "request_id": "req9",
+    "conv": "c0",
+    "span": "request",
+    "ms": 20050,
+    "ok": false,
+    "outcome": "failed",
+    "reason": "turns",
+    "turns": 1,
+    "probes": 1,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-01T09:15:30.250Z\",\"request_id\":\"req9\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":20050,\"ok\":false,\"outcome\":\"failed\",\"reason\":\"turns\",\"turns\":1,\"probes\":1,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req10",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 1520,
+    "ok": false,
+    "turn": 1,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 1457,
+    "in": 130,
+    "out": 40,
+    "cache_read": 9030,
+    "cache_write": 1,
+    "cost_usd": 0.013500000000000002,
+    "error": "process"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req10\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1520,\"ok\":false,\"turn\":1,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":1457,\"in\":130,\"out\":40,\"cache_read\":9030,\"cache_write\":1,\"cost_usd\":0.013500000000000002,\"error\":\"process\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req10",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 1851,
+    "ok": true,
+    "turn": 2,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 1787,
+    "in": 130,
+    "out": 41,
+    "cache_read": 9030,
+    "cache_write": 1,
+    "cost_usd": 0.013500000000000002,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req10\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1851,\"ok\":true,\"turn\":2,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":1787,\"in\":130,\"out\":41,\"cache_read\":9030,\"cache_write\":1,\"cost_usd\":0.013500000000000002,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req10",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 350,
+    "ok": false,
+    "stage": "contract"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req10\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":350,\"ok\":false,\"stage\":\"contract\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T09:15:30.250Z",
+    "request_id": "req10",
+    "conv": "c1",
+    "span": "request",
+    "ms": 13000,
+    "ok": false,
+    "outcome": "cancelled",
+    "turns": 2,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-02T09:15:30.250Z\",\"request_id\":\"req10\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":13000,\"ok\":false,\"outcome\":\"cancelled\",\"turns\":2,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 2497,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 2432,
+    "api_ms": 2097,
+    "in": 131,
+    "out": 40,
+    "cache_read": 9033,
+    "cache_write": 2,
+    "cost_usd": 0.013600000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":2497,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":2432,\"api_ms\":2097,\"in\":131,\"out\":40,\"cache_read\":9033,\"cache_write\":2,\"cost_usd\":0.013600000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 2828,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 2762,
+    "api_ms": 2428,
+    "in": 131,
+    "out": 41,
+    "cache_read": 9033,
+    "cache_write": 2,
+    "cost_usd": 0.013600000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":2828,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":2762,\"api_ms\":2428,\"in\":131,\"out\":41,\"cache_read\":9033,\"cache_write\":2,\"cost_usd\":0.013600000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 3159,
+    "ok": true,
+    "turn": 3,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 3092,
+    "api_ms": 2759,
+    "in": 131,
+    "out": 42,
+    "cache_read": 9033,
+    "cache_write": 2,
+    "cost_usd": 0.013600000000000001,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":3159,\"ok\":true,\"turn\":3,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":3092,\"api_ms\":2759,\"in\":131,\"out\":42,\"cache_read\":9033,\"cache_write\":2,\"cost_usd\":0.013600000000000001,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "probe_sql",
+    "ms": 51,
+    "ok": false,
+    "stage": "sqlite",
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"probe_sql\",\"ms\":51,\"ok\":false,\"stage\":\"sqlite\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "panel_run",
+    "ms": 360,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"panel_run\",\"ms\":360,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T09:15:30.250Z",
+    "request_id": "req11",
+    "conv": "c2",
+    "span": "request",
+    "ms": 11450,
+    "ok": true,
+    "outcome": "done",
+    "turns": 3,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-03T09:15:30.250Z\",\"request_id\":\"req11\",\"conv\":\"c2\",\"span\":\"request\",\"ms\":11450,\"ok\":true,\"outcome\":\"done\",\"turns\":3,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req12",
+    "conv": null,
+    "span": "llm",
+    "ms": 3474,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 3474,
+    "cost_usd": 0.0137,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req12\",\"conv\":null,\"span\":\"llm\",\"ms\":3474,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":3474,\"cost_usd\":0.0137,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req12",
+    "conv": null,
+    "span": "wait_user",
+    "ms": 5000,
+    "ok": true,
+    "wait": "ask"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req12\",\"conv\":null,\"span\":\"wait_user\",\"ms\":5000,\"ok\":true,\"wait\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T09:15:30.250Z",
+    "request_id": "req12",
+    "conv": null,
+    "span": "request",
+    "ms": 20750,
+    "ok": true,
+    "outcome": "preview",
+    "turns": 1,
+    "probes": 0,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-04T09:15:30.250Z\",\"request_id\":\"req12\",\"conv\":null,\"span\":\"request\",\"ms\":20750,\"ok\":true,\"outcome\":\"preview\",\"turns\":1,\"probes\":0,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req13",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 4451,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4383,
+    "api_ms": 4051,
+    "in": 133,
+    "out": 40,
+    "cache_read": 9039,
+    "cache_write": 1,
+    "cost_usd": 0.013800000000000002,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req13\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":4451,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4383,\"api_ms\":4051,\"in\":133,\"out\":40,\"cache_read\":9039,\"cache_write\":1,\"cost_usd\":0.013800000000000002,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req13",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 4782,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4713,
+    "api_ms": 4382,
+    "in": 133,
+    "out": 41,
+    "cache_read": 9039,
+    "cache_write": 1,
+    "cost_usd": 0.013800000000000002,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req13\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":4782,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4713,\"api_ms\":4382,\"in\":133,\"out\":41,\"cache_read\":9039,\"cache_write\":1,\"cost_usd\":0.013800000000000002,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req13",
+    "conv": "c1",
+    "span": "probe_sql",
+    "ms": 53,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req13\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":53,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req13",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 380,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req13\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":380,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T09:15:30.250Z",
+    "request_id": "req13",
+    "conv": "c1",
+    "span": "request",
+    "ms": 14050,
+    "ok": true,
+    "outcome": "offdict_preview",
+    "turns": 2,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-05T09:15:30.250Z\",\"request_id\":\"req13\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":14050,\"ok\":true,\"outcome\":\"offdict_preview\",\"turns\":2,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req14",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 5428,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 5358,
+    "in": 134,
+    "out": 40,
+    "cache_read": 9042,
+    "cache_write": 2,
+    "cost_usd": 0.013900000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req14\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":5428,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":5358,\"in\":134,\"out\":40,\"cache_read\":9042,\"cache_write\":2,\"cost_usd\":0.013900000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req14",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 5759,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 5688,
+    "in": 134,
+    "out": 41,
+    "cache_read": 9042,
+    "cache_write": 2,
+    "cost_usd": 0.013900000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req14\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":5759,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":5688,\"in\":134,\"out\":41,\"cache_read\":9042,\"cache_write\":2,\"cost_usd\":0.013900000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req14",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 6090,
+    "ok": true,
+    "turn": 3,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 6018,
+    "in": 134,
+    "out": 42,
+    "cache_read": 9042,
+    "cache_write": 2,
+    "cost_usd": 0.013900000000000001,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req14\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":6090,\"ok\":true,\"turn\":3,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":6018,\"in\":134,\"out\":42,\"cache_read\":9042,\"cache_write\":2,\"cost_usd\":0.013900000000000001,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T08:15:30.250Z",
+    "request_id": "req14",
+    "conv": "c2",
+    "span": "panel_run",
+    "ms": 390,
+    "ok": false,
+    "stage": "contract"
+   },
+   "line": "{\"t\":\"2026-10-06T08:15:30.250Z\",\"request_id\":\"req14\",\"conv\":\"c2\",\"span\":\"panel_run\",\"ms\":390,\"ok\":false,\"stage\":\"contract\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-06T09:15:30.250Z",
+    "request_id": "req14",
+    "conv": "c2",
+    "span": "request",
+    "ms": 15250,
+    "ok": true,
+    "outcome": "refused",
+    "turns": 3,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-06T09:15:30.250Z\",\"request_id\":\"req14\",\"conv\":\"c2\",\"span\":\"request\",\"ms\":15250,\"ok\":true,\"outcome\":\"refused\",\"turns\":3,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-07T08:15:30.250Z",
+    "request_id": "req15",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 6405,
+    "ok": true,
+    "turn": 1,
+    "provider": "anthropic",
+    "model": null,
+    "run_ms": 6332,
+    "api_ms": 6005,
+    "in": 135,
+    "out": 40,
+    "cache_read": 9045,
+    "cache_write": 0,
+    "cost_usd": 0.014,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-07T08:15:30.250Z\",\"request_id\":\"req15\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":6405,\"ok\":true,\"turn\":1,\"provider\":\"anthropic\",\"model\":null,\"run_ms\":6332,\"api_ms\":6005,\"in\":135,\"out\":40,\"cache_read\":9045,\"cache_write\":0,\"cost_usd\":0.014,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-07T08:15:30.250Z",
+    "request_id": "req15",
+    "conv": "c0",
+    "span": "probe_sql",
+    "ms": 55,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-07T08:15:30.250Z\",\"request_id\":\"req15\",\"conv\":\"c0\",\"span\":\"probe_sql\",\"ms\":55,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-07T09:15:30.250Z",
+    "request_id": "req15",
+    "conv": "c0",
+    "span": "request",
+    "ms": 17350,
+    "ok": false,
+    "outcome": "failed",
+    "reason": "turns",
+    "turns": 1,
+    "probes": 1,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-07T09:15:30.250Z\",\"request_id\":\"req15\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":17350,\"ok\":false,\"outcome\":\"failed\",\"reason\":\"turns\",\"turns\":1,\"probes\":1,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req16",
+    "conv": null,
+    "span": "llm",
+    "ms": 7382,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 7382,
+    "in": 136,
+    "out": 40,
+    "cache_read": 9048,
+    "cache_write": 1,
+    "cost_usd": 0.014100000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req16\",\"conv\":null,\"span\":\"llm\",\"ms\":7382,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":7382,\"in\":136,\"out\":40,\"cache_read\":9048,\"cache_write\":1,\"cost_usd\":0.014100000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req16",
+    "conv": null,
+    "span": "llm",
+    "ms": 7713,
+    "ok": false,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 7713,
+    "in": 136,
+    "out": 41,
+    "cache_read": 9048,
+    "cache_write": 1,
+    "cost_usd": 0.014100000000000001,
+    "error": "process"
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req16\",\"conv\":null,\"span\":\"llm\",\"ms\":7713,\"ok\":false,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":7713,\"in\":136,\"out\":41,\"cache_read\":9048,\"cache_write\":1,\"cost_usd\":0.014100000000000001,\"error\":\"process\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T08:15:30.250Z",
+    "request_id": "req16",
+    "conv": null,
+    "span": "panel_run",
+    "ms": 410,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-08T08:15:30.250Z\",\"request_id\":\"req16\",\"conv\":null,\"span\":\"panel_run\",\"ms\":410,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-08T09:15:30.250Z",
+    "request_id": "req16",
+    "conv": null,
+    "span": "request",
+    "ms": 27050,
+    "ok": false,
+    "outcome": "cancelled",
+    "turns": 2,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-08T09:15:30.250Z\",\"request_id\":\"req16\",\"conv\":null,\"span\":\"request\",\"ms\":27050,\"ok\":false,\"outcome\":\"cancelled\",\"turns\":2,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 8359,
+    "ok": false,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 8285,
+    "api_ms": 7959,
+    "in": 137,
+    "out": 40,
+    "cache_read": 9051,
+    "cache_write": 2,
+    "cost_usd": 0.0142,
+    "error": "budget"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":8359,\"ok\":false,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":8285,\"api_ms\":7959,\"in\":137,\"out\":40,\"cache_read\":9051,\"cache_write\":2,\"cost_usd\":0.0142,\"error\":\"budget\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 8690,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 8615,
+    "api_ms": 8290,
+    "in": 137,
+    "out": 41,
+    "cache_read": 9051,
+    "cache_write": 2,
+    "cost_usd": 0.0142,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":8690,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":8615,\"api_ms\":8290,\"in\":137,\"out\":41,\"cache_read\":9051,\"cache_write\":2,\"cost_usd\":0.0142,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "llm",
+    "ms": 9021,
+    "ok": true,
+    "turn": 3,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 8945,
+    "api_ms": 8621,
+    "in": 137,
+    "out": 42,
+    "cache_read": 9051,
+    "cache_write": 2,
+    "cost_usd": 0.0142,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"llm\",\"ms\":9021,\"ok\":true,\"turn\":3,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":8945,\"api_ms\":8621,\"in\":137,\"out\":42,\"cache_read\":9051,\"cache_write\":2,\"cost_usd\":0.0142,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "probe_sql",
+    "ms": 57,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"probe_sql\",\"ms\":57,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "panel_run",
+    "ms": 420,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"panel_run\",\"ms\":420,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T08:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "wait_user",
+    "ms": 5000,
+    "ok": true,
+    "wait": "ask"
+   },
+   "line": "{\"t\":\"2026-10-09T08:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"wait_user\",\"ms\":5000,\"ok\":true,\"wait\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-09T09:15:30.250Z",
+    "request_id": "req17",
+    "conv": "c2",
+    "span": "request",
+    "ms": 20000,
+    "ok": true,
+    "outcome": "done",
+    "turns": 3,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-09T09:15:30.250Z\",\"request_id\":\"req17\",\"conv\":\"c2\",\"span\":\"request\",\"ms\":20000,\"ok\":true,\"outcome\":\"done\",\"turns\":3,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T08:15:30.250Z",
+    "request_id": "req18",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 9336,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 9259,
+    "cost_usd": 0.0143,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-01T08:15:30.250Z\",\"request_id\":\"req18\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":9336,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":9259,\"cost_usd\":0.0143,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-01T09:15:30.250Z",
+    "request_id": "req18",
+    "conv": "c0",
+    "span": "request",
+    "ms": 18450,
+    "ok": true,
+    "outcome": "preview",
+    "turns": 1,
+    "probes": 0,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-01T09:15:30.250Z\",\"request_id\":\"req18\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":18450,\"ok\":true,\"outcome\":\"preview\",\"turns\":1,\"probes\":0,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req19",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 1313,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 1235,
+    "api_ms": 913,
+    "in": 139,
+    "out": 40,
+    "cache_read": 9057,
+    "cache_write": 1,
+    "cost_usd": 0.014400000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req19\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1313,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":1235,\"api_ms\":913,\"in\":139,\"out\":40,\"cache_read\":9057,\"cache_write\":1,\"cost_usd\":0.014400000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req19",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 1644,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 1565,
+    "api_ms": 1244,
+    "in": 139,
+    "out": 41,
+    "cache_read": 9057,
+    "cache_write": 1,
+    "cost_usd": 0.014400000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req19\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1644,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":1565,\"api_ms\":1244,\"in\":139,\"out\":41,\"cache_read\":9057,\"cache_write\":1,\"cost_usd\":0.014400000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req19",
+    "conv": "c1",
+    "span": "probe_sql",
+    "ms": 59,
+    "ok": true,
+    "rows": 12,
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req19\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":59,\"ok\":true,\"rows\":12}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T08:15:30.250Z",
+    "request_id": "req19",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 440,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-02T08:15:30.250Z\",\"request_id\":\"req19\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":440,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-02T09:15:30.250Z",
+    "request_id": "req19",
+    "conv": "c1",
+    "span": "request",
+    "ms": 27750,
+    "ok": true,
+    "outcome": "offdict_preview",
+    "turns": 2,
+    "probes": 1,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-02T09:15:30.250Z\",\"request_id\":\"req19\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":27750,\"ok\":true,\"outcome\":\"offdict_preview\",\"turns\":2,\"probes\":1,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req20",
+    "conv": null,
+    "span": "llm",
+    "ms": 2290,
+    "ok": true,
+    "turn": 1,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 2290,
+    "in": 140,
+    "out": 40,
+    "cache_read": 9060,
+    "cache_write": 2,
+    "cost_usd": 0.0145,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req20\",\"conv\":null,\"span\":\"llm\",\"ms\":2290,\"ok\":true,\"turn\":1,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":2290,\"in\":140,\"out\":40,\"cache_read\":9060,\"cache_write\":2,\"cost_usd\":0.0145,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req20",
+    "conv": null,
+    "span": "llm",
+    "ms": 2621,
+    "ok": true,
+    "turn": 2,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 2621,
+    "in": 140,
+    "out": 41,
+    "cache_read": 9060,
+    "cache_write": 2,
+    "cost_usd": 0.0145,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req20\",\"conv\":null,\"span\":\"llm\",\"ms\":2621,\"ok\":true,\"turn\":2,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":2621,\"in\":140,\"out\":41,\"cache_read\":9060,\"cache_write\":2,\"cost_usd\":0.0145,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req20",
+    "conv": null,
+    "span": "llm",
+    "ms": 2952,
+    "ok": true,
+    "turn": 3,
+    "provider": "anthropic",
+    "model": "sonnet",
+    "run_ms": 2952,
+    "in": 140,
+    "out": 42,
+    "cache_read": 9060,
+    "cache_write": 2,
+    "cost_usd": 0.0145,
+    "action": "panel"
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req20\",\"conv\":null,\"span\":\"llm\",\"ms\":2952,\"ok\":true,\"turn\":3,\"provider\":\"anthropic\",\"model\":\"sonnet\",\"run_ms\":2952,\"in\":140,\"out\":42,\"cache_read\":9060,\"cache_write\":2,\"cost_usd\":0.0145,\"action\":\"panel\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T08:15:30.250Z",
+    "request_id": "req20",
+    "conv": null,
+    "span": "panel_run",
+    "ms": 450,
+    "ok": true,
+    "rows": 30
+   },
+   "line": "{\"t\":\"2026-10-03T08:15:30.250Z\",\"request_id\":\"req20\",\"conv\":null,\"span\":\"panel_run\",\"ms\":450,\"ok\":true,\"rows\":30}"
+  },
+  {
+   "span": {
+    "t": "2026-10-03T09:15:30.250Z",
+    "request_id": "req20",
+    "conv": null,
+    "span": "request",
+    "ms": 21050,
+    "ok": true,
+    "outcome": "refused",
+    "turns": 3,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-03T09:15:30.250Z\",\"request_id\":\"req20\",\"conv\":null,\"span\":\"request\",\"ms\":21050,\"ok\":true,\"outcome\":\"refused\",\"turns\":3,\"probes\":0,\"panels\":1}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req21",
+    "conv": "c0",
+    "span": "llm",
+    "ms": 3267,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": null,
+    "run_ms": 3187,
+    "api_ms": 2867,
+    "in": 141,
+    "out": 40,
+    "cache_read": 9063,
+    "cache_write": 0,
+    "cost_usd": 0.014600000000000002,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req21\",\"conv\":\"c0\",\"span\":\"llm\",\"ms\":3267,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":3187,\"api_ms\":2867,\"in\":141,\"out\":40,\"cache_read\":9063,\"cache_write\":0,\"cost_usd\":0.014600000000000002,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T08:15:30.250Z",
+    "request_id": "req21",
+    "conv": "c0",
+    "span": "probe_sql",
+    "ms": 61,
+    "ok": false,
+    "stage": "sqlite",
+    "sql": "SELECT 1"
+   },
+   "line": "{\"t\":\"2026-10-04T08:15:30.250Z\",\"request_id\":\"req21\",\"conv\":\"c0\",\"span\":\"probe_sql\",\"ms\":61,\"ok\":false,\"stage\":\"sqlite\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-04T09:15:30.250Z",
+    "request_id": "req21",
+    "conv": "c0",
+    "span": "request",
+    "ms": 22250,
+    "ok": false,
+    "outcome": "failed",
+    "reason": "turns",
+    "turns": 1,
+    "probes": 1,
+    "panels": 0
+   },
+   "line": "{\"t\":\"2026-10-04T09:15:30.250Z\",\"request_id\":\"req21\",\"conv\":\"c0\",\"span\":\"request\",\"ms\":22250,\"ok\":false,\"outcome\":\"failed\",\"reason\":\"turns\",\"turns\":1,\"probes\":1,\"panels\":0}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req22",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 4244,
+    "ok": true,
+    "turn": 1,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4163,
+    "in": 142,
+    "out": 40,
+    "cache_read": 9066,
+    "cache_write": 1,
+    "cost_usd": 0.014700000000000001,
+    "action": "ask"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req22\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":4244,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4163,\"in\":142,\"out\":40,\"cache_read\":9066,\"cache_write\":1,\"cost_usd\":0.014700000000000001,\"action\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req22",
+    "conv": "c1",
+    "span": "llm",
+    "ms": 4575,
+    "ok": true,
+    "turn": 2,
+    "provider": "claude-code",
+    "model": "sonnet",
+    "run_ms": 4493,
+    "in": 142,
+    "out": 41,
+    "cache_read": 9066,
+    "cache_write": 1,
+    "cost_usd": 0.014700000000000001,
+    "action": "probe"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req22\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":4575,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":\"sonnet\",\"run_ms\":4493,\"in\":142,\"out\":41,\"cache_read\":9066,\"cache_write\":1,\"cost_usd\":0.014700000000000001,\"action\":\"probe\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req22",
+    "conv": "c1",
+    "span": "panel_run",
+    "ms": 470,
+    "ok": false,
+    "stage": "contract"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req22\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":470,\"ok\":false,\"stage\":\"contract\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T08:15:30.250Z",
+    "request_id": "req22",
+    "conv": "c1",
+    "span": "wait_user",
+    "ms": 5000,
+    "ok": true,
+    "wait": "ask"
+   },
+   "line": "{\"t\":\"2026-10-05T08:15:30.250Z\",\"request_id\":\"req22\",\"conv\":\"c1\",\"span\":\"wait_user\",\"ms\":5000,\"ok\":true,\"wait\":\"ask\"}"
+  },
+  {
+   "span": {
+    "t": "2026-10-05T09:15:30.250Z",
+    "request_id": "req22",
+    "conv": "c1",
+    "span": "request",
+    "ms": 24350,
+    "ok": false,
+    "outcome": "cancelled",
+    "turns": 2,
+    "probes": 0,
+    "panels": 1
+   },
+   "line": "{\"t\":\"2026-10-05T09:15:30.250Z\",\"request_id\":\"req22\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":24350,\"ok\":false,\"outcome\":\"cancelled\",\"turns\":2,\"probes\":0,\"panels\":1}"
+  }
+ ],
+ "reads": [
+  {
+   "days": 1,
+   "now": 1791547200000,
+   "lines": [
+    "Requests      2 (refused 1, done 1)",
+    "Request       p50 10.3s  p95 20.0s  max 20.0s  (n=2)",
+    "Per request   agent calls 3.0, probes 0.5, panel runs 1.0 (average)",
+    "Agent call    p50 8.7s  p95 9.2s  max 9.2s  (n=6)",
+    "  slot wait   p50 0.0s  p95 0.1s  max 0.1s  (n=6)",
+    "  outside API p50 0.3s  p95 0.3s  max 0.3s  (n=3)",
+    "Probe query   p50 0.1s  p95 0.1s  max 0.1s  (n=1)",
+    "Panel run     p50 0.3s  p95 0.4s  max 0.4s  (n=2)",
+    "Cache hit     99% of prompt tokens (6 calls, avg prompt 9172 tokens, avg output 41)",
+    "Cost          claude-code/sonnet: $0.041 per request (2 requests)",
+    "Failures      agent call budget 2",
+    "Slowest requests",
+    "    20.0s  2026-10-09 09:15  request req17 (conversation c2)  done  agent 3×26.1s, probe 1×0.1s, panel 1×0.4s",
+    "    10.3s  2026-10-09 09:15  request req8  refused  agent 3×26.7s, panel 1×0.3s"
+   ]
+  },
+  {
+   "days": 3,
+   "now": 1791547200000,
+   "lines": [
+    "Requests      6 (preview 1, failed 1, offdict_preview 1, cancelled 1, refused 1, done 1)",
+    "Request       p50 10.3s  p95 27.1s  max 27.1s  (n=6)",
+    "Per request   agent calls 2.0, probes 0.5, panel runs 0.7 (average)",
+    "Agent call    p50 7.9s  p95 9.2s  max 9.2s  (n=12)",
+    "  slot wait   p50 0.1s  p95 0.1s  max 0.1s  (n=12)",
+    "  outside API p50 0.3s  p95 0.3s  max 0.3s  (n=6)",
+    "Probe query   p50 0.1s  p95 0.1s  max 0.1s  (n=3)",
+    "Panel run     p50 0.3s  p95 0.4s  max 0.4s  (n=4)",
+    "Cache hit     99% of prompt tokens (11 calls, avg prompt 9171 tokens, avg output 41)",
+    "Cost          claude-code/default: $0.013 per request (1 requests)",
+    "Cost          anthropic/default: $0.014 per request (1 requests)",
+    "Cost          claude-code/sonnet: $0.034 per request (4 requests)",
+    "Failures      agent call budget 2, agent call process 1, request turns 1",
+    "Slowest requests",
+    "    27.1s  2026-10-08 09:15  request req16  cancelled  agent 2×15.1s, panel 1×0.4s",
+    "    20.0s  2026-10-09 09:15  request req17 (conversation c2)  done  agent 3×26.1s, probe 1×0.1s, panel 1×0.4s",
+    "    17.4s  2026-10-07 09:15  request req15 (conversation c0)  failed  agent 1×6.4s, probe 1×0.1s",
+    "    10.3s  2026-10-09 09:15  request req8  refused  agent 3×26.7s, panel 1×0.3s",
+    "     8.3s  2026-10-08 09:15  request req7 (conversation c1)  offdict_preview  agent 2×15.5s, probe 1×0.0s, panel 1×0.3s"
+   ]
+  },
+  {
+   "days": 7,
+   "now": 1791547200000,
+   "lines": [
+    "Requests      17 (refused 4, done 3, failed 3, cancelled 3, preview 2, offdict_preview 2)",
+    "Request       p50 14.1s  p95 27.1s  max 27.1s  (n=17)",
+    "Per request   agent calls 2.1, probes 0.5, panel runs 0.7 (average)",
+    "Agent call    p50 5.0s  p95 9.0s  max 9.2s  (n=36)",
+    "  slot wait   p50 0.1s  p95 0.1s  max 0.1s  (n=36)",
+    "  outside API p50 0.3s  p95 0.3s  max 0.3s  (n=16)",
+    "Probe query   p50 0.1s  p95 0.1s  max 0.1s  (n=8)",
+    "Panel run     p50 0.4s  p95 0.5s  max 0.5s  (n=12)",
+    "Cache hit     99% of prompt tokens (34 calls, avg prompt 9168 tokens, avg output 41)",
+    "Cost          claude-code/sonnet: $0.034 per request (10 requests)",
+    "Cost          anthropic/sonnet: $0.041 per request (2 requests)",
+    "Cost          claude-code/default: $0.014 per request (4 requests)",
+    "Cost          anthropic/default: $0.014 per request (1 requests)",
+    "Failures      agent call budget 3, panel contract 3, request turns 3, probe sqlite 2, agent call rate_limit 1, agent call process 1",
+    "Slowest requests",
+    "    27.1s  2026-10-08 09:15  request req16  cancelled  agent 2×15.1s, panel 1×0.4s",
+    "    24.4s  2026-10-05 09:15  request req22 (conversation c1)  cancelled  agent 2×8.8s, panel 1×0.5s",
+    "    22.3s  2026-10-04 09:15  request req21 (conversation c0)  failed  agent 1×3.3s, probe 1×0.1s",
+    "    21.1s  2026-10-03 09:15  request req20  refused  agent 3×7.9s, panel 1×0.5s",
+    "    20.8s  2026-10-04 09:15  request req12  preview  agent 1×3.5s"
+   ]
+  },
+  {
+   "days": 30,
+   "now": 1791547200000,
+   "lines": [
+    "Requests      23 (preview 4, failed 4, offdict_preview 4, cancelled 4, refused 4, done 3)",
+    "Request       p50 14.1s  p95 27.1s  max 27.8s  (n=23)",
+    "Per request   agent calls 2.0, probes 0.5, panel runs 0.7 (average)",
+    "Agent call    p50 4.7s  p95 9.2s  max 9.5s  (n=45)",
+    "  slot wait   p50 0.1s  p95 0.1s  max 0.1s  (n=45)",
+    "  outside API p50 0.3s  p95 0.3s  max 0.3s  (n=21)",
+    "Probe query   p50 0.1s  p95 0.1s  max 0.1s  (n=11)",
+    "Panel run     p50 0.4s  p95 0.5s  max 0.5s  (n=15)",
+    "Cache hit     99% of prompt tokens (41 calls, avg prompt 9167 tokens, avg output 41)",
+    "Cost          anthropic/default: $0.013 per request (2 requests)",
+    "Cost          claude-code/default: $0.014 per request (6 requests)",
+    "Cost          claude-code/sonnet: $0.033 per request (12 requests)",
+    "Cost          anthropic/sonnet: $0.036 per request (3 requests)",
+    "Failures      panel contract 4, request turns 4, agent call budget 3, probe sqlite 3, agent call process 2, agent call rate_limit 1",
+    "Slowest requests",
+    "    27.8s  2026-10-02 09:15  request req19 (conversation c1)  offdict_preview  agent 2×3.0s, probe 1×0.1s, panel 1×0.4s",
+    "    27.1s  2026-10-08 09:15  request req16  cancelled  agent 2×15.1s, panel 1×0.4s",
+    "    24.4s  2026-10-05 09:15  request req22 (conversation c1)  cancelled  agent 2×8.8s, panel 1×0.5s",
+    "    22.3s  2026-10-04 09:15  request req21 (conversation c0)  failed  agent 1×3.3s, probe 1×0.1s",
+    "    21.1s  2026-10-03 09:15  request req20  refused  agent 3×7.9s, panel 1×0.5s"
+   ]
+  }
+ ],
+ "empty": [
+  "No requests in this period"
+ ],
+ "slowest2": [
+  "Requests      23 (preview 4, offdict_preview 4, refused 4, failed 4, cancelled 4, done 3)",
+  "Request       p50 14.1s  p95 27.1s  max 27.8s  (n=23)",
+  "Per request   agent calls 2.0, probes 0.5, panel runs 0.7 (average)",
+  "Agent call    p50 4.7s  p95 9.2s  max 9.5s  (n=45)",
+  "  slot wait   p50 0.1s  p95 0.1s  max 0.1s  (n=45)",
+  "  outside API p50 0.3s  p95 0.3s  max 0.3s  (n=21)",
+  "Probe query   p50 0.1s  p95 0.1s  max 0.1s  (n=11)",
+  "Panel run     p50 0.4s  p95 0.5s  max 0.5s  (n=15)",
+  "Cache hit     99% of prompt tokens (41 calls, avg prompt 9167 tokens, avg output 41)",
+  "Cost          anthropic/default: $0.013 per request (2 requests)",
+  "Cost          claude-code/sonnet: $0.033 per request (12 requests)",
+  "Cost          claude-code/default: $0.014 per request (6 requests)",
+  "Cost          anthropic/sonnet: $0.036 per request (3 requests)",
+  "Failures      panel contract 4, request turns 4, agent call budget 3, probe sqlite 3, agent call process 2, agent call rate_limit 1",
+  "Slowest requests",
+  "    27.8s  2026-10-02 09:15  request req19 (conversation c1)  offdict_preview  agent 2×3.0s, probe 1×0.1s, panel 1×0.4s",
+  "    27.1s  2026-10-08 09:15  request req16  cancelled  agent 2×15.1s, panel 1×0.4s"
+ ],
+ "tracer": [
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "call",
+     1200,
+     {
+      "ok": true,
+      "ms": 1100,
+      "apiMs": 900,
+      "usage": {
+       "input": 10,
+       "output": 20,
+       "cacheRead": 3000,
+       "cacheWrite": 5
+      },
+      "costUsd": 0.02,
+      "structured": {
+       "step": {
+        "action": "probe"
+       }
+      }
+     }
+    ],
+    [
+     "probe",
+     40,
+     "SELECT 1"
+    ],
+    [
+     "probe",
+     5,
+     "bad"
+    ],
+    [
+     "call",
+     800,
+     {
+      "ok": true,
+      "ms": 700,
+      "costUsd": 0.01,
+      "structured": {
+       "step": {
+        "action": "weird"
+       }
+      }
+     }
+    ],
+    [
+     "question",
+     10
+    ],
+    [
+     "answers",
+     60000
+    ],
+    [
+     "panel",
+     300,
+     "SELECT 2"
+    ],
+    [
+     "preview",
+     1,
+     {
+      "spec": {
+       "metric": "m"
+      }
+     }
+    ],
+    [
+     "done",
+     2
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:06.878Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":1200,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":1100,\"api_ms\":900,\"in\":10,\"out\":20,\"cache_read\":3000,\"cache_write\":5,\"cost_usd\":0.02,\"action\":\"probe\"}",
+    "{\"t\":\"2026-10-09T03:04:06.918Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":40,\"ok\":true,\"rows\":3,\"sql\":\"SELECT 1\"}",
+    "{\"t\":\"2026-10-09T03:04:06.923Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"probe_sql\",\"ms\":5,\"ok\":false,\"stage\":\"lint\",\"sql\":\"bad\"}",
+    "{\"t\":\"2026-10-09T03:04:07.723Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":800,\"ok\":true,\"turn\":2,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":700,\"cost_usd\":0.01}",
+    "{\"t\":\"2026-10-09T03:05:07.733Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"wait_user\",\"ms\":60000,\"ok\":true,\"wait\":\"ask\"}",
+    "{\"t\":\"2026-10-09T03:05:08.033Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":300,\"ok\":true,\"rows\":2,\"sql\":\"SELECT 2\"}",
+    "{\"t\":\"2026-10-09T03:05:08.036Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":2358,\"ok\":true,\"outcome\":\"preview\",\"turns\":2,\"probes\":2,\"panels\":1}"
+   ]
+  },
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "call",
+     100,
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "ms": 90,
+      "costUsd": 0
+     }
+    ],
+    [
+     "offdict",
+     5
+    ],
+    [
+     "cancelled",
+     7000
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:05.778Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":100,\"ok\":false,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":90,\"cost_usd\":0,\"error\":\"rate_limit\"}",
+    "{\"t\":\"2026-10-09T03:04:12.783Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"wait_user\",\"ms\":7000,\"ok\":true,\"wait\":\"offdict\"}",
+    "{\"t\":\"2026-10-09T03:04:12.783Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":105,\"ok\":false,\"outcome\":\"cancelled\",\"turns\":1,\"probes\":0,\"panels\":0}"
+   ]
+  },
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "panel",
+     20,
+     "bad"
+    ],
+    [
+     "preview",
+     1,
+     {
+      "spec": {
+       "metric": null
+      }
+     }
+    ],
+    [
+     "offdict",
+     3
+    ],
+    [
+     "offdict_answer",
+     400
+    ],
+    [
+     "done",
+     1
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:05.698Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"panel_run\",\"ms\":20,\"ok\":false,\"stage\":\"exec\",\"sql\":\"bad\"}",
+    "{\"t\":\"2026-10-09T03:04:06.102Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"wait_user\",\"ms\":400,\"ok\":true,\"wait\":\"offdict\"}",
+    "{\"t\":\"2026-10-09T03:04:06.103Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":25,\"ok\":true,\"outcome\":\"offdict_preview\",\"turns\":0,\"probes\":0,\"panels\":1}"
+   ]
+  },
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "refused",
+     3
+    ],
+    [
+     "done",
+     1
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:05.682Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":4,\"ok\":true,\"outcome\":\"refused\",\"turns\":0,\"probes\":0,\"panels\":0}"
+   ]
+  },
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "failed",
+     12,
+     {
+      "reason": "turns"
+     }
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:05.690Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":12,\"ok\":false,\"outcome\":\"failed\",\"reason\":\"turns\",\"turns\":0,\"probes\":0,\"panels\":0}"
+   ]
+  },
+  {
+   "steps": [
+    [
+     "request_started",
+     0
+    ],
+    [
+     "call",
+     5,
+     {
+      "ok": true,
+      "ms": 4,
+      "costUsd": 0,
+      "structured": null
+     }
+    ],
+    [
+     "done",
+     0
+    ]
+   ],
+   "spans": [
+    "{\"t\":\"2026-10-09T03:04:05.683Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"llm\",\"ms\":5,\"ok\":true,\"turn\":1,\"provider\":\"claude-code\",\"model\":null,\"run_ms\":4,\"cost_usd\":0}",
+    "{\"t\":\"2026-10-09T03:04:05.683Z\",\"request_id\":\"r1\",\"conv\":\"c1\",\"span\":\"request\",\"ms\":5,\"ok\":true,\"outcome\":\"done\",\"turns\":1,\"probes\":0,\"panels\":0}"
+   ]
+  }
+ ]
+}

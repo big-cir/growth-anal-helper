@@ -1,0 +1,1103 @@
+{
+ "panels": [
+  {
+   "input": {
+    "title": "Panel 0",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "First-7-day activation funnel by signup week",
+     "question": "Where do new members drop off in their first 7 days?",
+     "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
+     "display": {
+      "type": "funnel",
+      "cohort": "cohort"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members at least 7 days past signup (signup week starts Monday)"
+      ],
+      [
+       "Steps",
+       "Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post"
+      ],
+      [
+       "Window",
+       "Every step within 7 days of signup, after the previous step"
+      ],
+      [
+       "Denominator",
+       "Members who reached the previous step"
+      ]
+     ],
+     "caveats": [
+      "Members who only read are not counted as active"
+     ],
+     "answers": [
+      {
+       "question": "Window for each step",
+       "answer": "7 days after signup",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk0",
+    "created_at": "2024-06-01T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "get": {
+    "title": "Panel 0",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "First-7-day activation funnel by signup week",
+     "question": "Where do new members drop off in their first 7 days?",
+     "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
+     "display": {
+      "type": "funnel",
+      "columns": {
+       "step_no": "step_no",
+       "step_name": "step_name",
+       "reached": "reached",
+       "eligible": "eligible",
+       "unknown": "unknown",
+       "cohort": "cohort"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members at least 7 days past signup (signup week starts Monday)"
+      ],
+      [
+       "Steps",
+       "Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post"
+      ],
+      [
+       "Window",
+       "Every step within 7 days of signup, after the previous step"
+      ],
+      [
+       "Denominator",
+       "Members who reached the previous step"
+      ]
+     ],
+     "caveats": [
+      "Members who only read are not counted as active"
+     ],
+     "answers": [
+      {
+       "question": "Window for each step",
+       "answer": "7 days after signup",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk0",
+    "created_at": "2024-06-01T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "file": "{\n \"title\": \"Panel 0\",\n \"description\": \"d\",\n \"summary\": \"\",\n \"summary_snapshot_id\": null,\n \"prompt\": \"q\",\n \"spec\": {\n  \"metric\": \"first_week_activation\",\n  \"title\": \"First-7-day activation funnel by signup week\",\n  \"question\": \"Where do new members drop off in their first 7 days?\",\n  \"sql\": \"WITH f AS (\\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\\n  UNION ALL\\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\\n)\\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\\nORDER BY cohort, step_no\",\n  \"display\": {\n   \"type\": \"funnel\",\n   \"step_no\": \"step_no\",\n   \"step_name\": \"step_name\",\n   \"reached\": \"reached\",\n   \"eligible\": \"eligible\",\n   \"unknown\": \"unknown\",\n   \"cohort\": \"cohort\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members at least 7 days past signup (signup week starts Monday)\"\n   ],\n   [\n    \"Steps\",\n    \"Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post\"\n   ],\n   [\n    \"Window\",\n    \"Every step within 7 days of signup, after the previous step\"\n   ],\n   [\n    \"Denominator\",\n    \"Members who reached the previous step\"\n   ]\n  ],\n  \"caveats\": [\n   \"Members who only read are not counted as active\"\n  ],\n  \"answers\": [\n   {\n    \"question\": \"Window for each step\",\n    \"answer\": \"7 days after signup\",\n    \"defaulted\": true\n   }\n  ]\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"c\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n },\n \"generated_model\": \"m\",\n \"preview_hash\": \"h\",\n \"last_result\": {\n  \"snapshot_id\": \"s1\",\n  \"as_of\": \"2024-06-03 12:00:00.000000\",\n  \"computed_at\": \"2024-06-03T12:00:00.000Z\",\n  \"mode\": \"preview\",\n  \"columns\": [\n   {\n    \"name\": \"x\",\n    \"table\": null,\n    \"column\": null\n   }\n  ],\n  \"rows\": [\n   [\n    \"a\",\n    1,\n    0.5,\n    null,\n    0\n   ]\n  ],\n  \"tables\": [\n   \"d_x\"\n  ],\n  \"caveats\": [\n   \"c\"\n  ],\n  \"headline\": {\n   \"value\": 0.5\n  }\n },\n \"created_by\": \"local\",\n \"id\": \"abcdefghijk0\",\n \"created_at\": \"2024-06-01T00:00:00.000Z\",\n \"status\": \"ok\",\n \"last_error\": null\n}\n"
+  },
+  {
+   "input": {
+    "title": "Panel 1",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "connected_retention",
+     "title": "Weekly retention by first-week connection",
+     "question": "Do members who connect with others in their first 7 days stay longer than those who do not?",
+     "sql": "WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\nbase AS (\n  SELECT member_id, signup_week AS cohort, signup_at,\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\n  FROM d_member_first_week\n  WHERE board_state = 'reached'\n)\nSELECT b.cohort, b.series, p.period,\n       sum(w.member_id IS NOT NULL) AS numerator,\n       count(*) AS denominator\nFROM base b\nJOIN periods p\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\nLEFT JOIN d_member_activity_week w\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\nGROUP BY b.cohort, b.series, p.period\nORDER BY b.cohort, b.series, p.period",
+     "display": {
+      "type": "cohort",
+      "series": "series"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who joined a board within 7 days of signup"
+      ],
+      [
+       "Groups",
+       "connected: shared a board with another member within 7 days / unconnected: did not"
+      ],
+      [
+       "Retention",
+       "Wn = at least one post, comment or like in days [7n, 7n+7) after signup"
+      ],
+      [
+       "Denominator",
+       "Only members whose window has fully passed by the cutoff (observable)"
+      ]
+     ],
+     "caveats": [
+      "Selection bias: members who are more active in their first week also connect more easily",
+      "Members who left are kept in the denominator and counted as inactive"
+     ],
+     "answers": [
+      {
+       "question": "Connection window",
+       "answer": "7 days after signup",
+       "defaulted": true
+      },
+      {
+       "question": "Activity",
+       "answer": "Any post, comment or like",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk1",
+    "created_at": "2024-06-02T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "get": {
+    "title": "Panel 1",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "connected_retention",
+     "title": "Weekly retention by first-week connection",
+     "question": "Do members who connect with others in their first 7 days stay longer than those who do not?",
+     "sql": "WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\nbase AS (\n  SELECT member_id, signup_week AS cohort, signup_at,\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\n  FROM d_member_first_week\n  WHERE board_state = 'reached'\n)\nSELECT b.cohort, b.series, p.period,\n       sum(w.member_id IS NOT NULL) AS numerator,\n       count(*) AS denominator\nFROM base b\nJOIN periods p\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\nLEFT JOIN d_member_activity_week w\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\nGROUP BY b.cohort, b.series, p.period\nORDER BY b.cohort, b.series, p.period",
+     "display": {
+      "type": "cohort",
+      "columns": {
+       "cohort": "cohort",
+       "period": "period",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": "series",
+       "deleted_n": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who joined a board within 7 days of signup"
+      ],
+      [
+       "Groups",
+       "connected: shared a board with another member within 7 days / unconnected: did not"
+      ],
+      [
+       "Retention",
+       "Wn = at least one post, comment or like in days [7n, 7n+7) after signup"
+      ],
+      [
+       "Denominator",
+       "Only members whose window has fully passed by the cutoff (observable)"
+      ]
+     ],
+     "caveats": [
+      "Selection bias: members who are more active in their first week also connect more easily",
+      "Members who left are kept in the denominator and counted as inactive"
+     ],
+     "answers": [
+      {
+       "question": "Connection window",
+       "answer": "7 days after signup",
+       "defaulted": true
+      },
+      {
+       "question": "Activity",
+       "answer": "Any post, comment or like",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk1",
+    "created_at": "2024-06-02T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "file": "{\n \"title\": \"Panel 1\",\n \"description\": \"d\",\n \"summary\": \"\",\n \"summary_snapshot_id\": null,\n \"prompt\": \"q\",\n \"spec\": {\n  \"metric\": \"connected_retention\",\n  \"title\": \"Weekly retention by first-week connection\",\n  \"question\": \"Do members who connect with others in their first 7 days stay longer than those who do not?\",\n  \"sql\": \"WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\\nbase AS (\\n  SELECT member_id, signup_week AS cohort, signup_at,\\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\\n  FROM d_member_first_week\\n  WHERE board_state = 'reached'\\n)\\nSELECT b.cohort, b.series, p.period,\\n       sum(w.member_id IS NOT NULL) AS numerator,\\n       count(*) AS denominator\\nFROM base b\\nJOIN periods p\\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\\nLEFT JOIN d_member_activity_week w\\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\\nGROUP BY b.cohort, b.series, p.period\\nORDER BY b.cohort, b.series, p.period\",\n  \"display\": {\n   \"type\": \"cohort\",\n   \"cohort\": \"cohort\",\n   \"period\": \"period\",\n   \"numerator\": \"numerator\",\n   \"denominator\": \"denominator\",\n   \"series\": \"series\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members who joined a board within 7 days of signup\"\n   ],\n   [\n    \"Groups\",\n    \"connected: shared a board with another member within 7 days / unconnected: did not\"\n   ],\n   [\n    \"Retention\",\n    \"Wn = at least one post, comment or like in days [7n, 7n+7) after signup\"\n   ],\n   [\n    \"Denominator\",\n    \"Only members whose window has fully passed by the cutoff (observable)\"\n   ]\n  ],\n  \"caveats\": [\n   \"Selection bias: members who are more active in their first week also connect more easily\",\n   \"Members who left are kept in the denominator and counted as inactive\"\n  ],\n  \"answers\": [\n   {\n    \"question\": \"Connection window\",\n    \"answer\": \"7 days after signup\",\n    \"defaulted\": true\n   },\n   {\n    \"question\": \"Activity\",\n    \"answer\": \"Any post, comment or like\",\n    \"defaulted\": true\n   }\n  ]\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"c\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n },\n \"generated_model\": \"m\",\n \"preview_hash\": \"h\",\n \"last_result\": {\n  \"snapshot_id\": \"s1\",\n  \"as_of\": \"2024-06-03 12:00:00.000000\",\n  \"computed_at\": \"2024-06-03T12:00:00.000Z\",\n  \"mode\": \"preview\",\n  \"columns\": [\n   {\n    \"name\": \"x\",\n    \"table\": null,\n    \"column\": null\n   }\n  ],\n  \"rows\": [\n   [\n    \"a\",\n    1,\n    0.5,\n    null,\n    0\n   ]\n  ],\n  \"tables\": [\n   \"d_x\"\n  ],\n  \"caveats\": [\n   \"c\"\n  ],\n  \"headline\": {\n   \"value\": 0.5\n  }\n },\n \"created_by\": \"local\",\n \"id\": \"abcdefghijk1\",\n \"created_at\": \"2024-06-02T00:00:00.000Z\",\n \"status\": \"ok\",\n \"last_error\": null\n}\n"
+  },
+  {
+   "input": {
+    "title": "Panel 2",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "First post within 7 days, signups in the last 4 weeks",
+     "question": "What share of members who signed up in the last 4 weeks wrote a first post within 7 days?",
+     "sql": "SELECT sum(post_state = 'reached') AS numerator,\n       count(*) AS denominator,\n       'Signups in the last 4 weeks' AS label\nFROM d_member_first_week\nWHERE signup_at >= strftime('%Y-%m-%d %H:%M:%S', :as_of, '-35 days') || substr(:as_of, 20)",
+     "display": {
+      "type": "number",
+      "label": "label"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who signed up within 35 days before the cutoff and are at least 7 days past signup (= last 4 weekly cohorts)"
+      ],
+      [
+       "Numerator",
+       "Members who wrote a first post within 7 days of signup, after connecting with another member"
+      ]
+     ],
+     "caveats": [],
+     "answers": [
+      {
+       "question": "Period",
+       "answer": "Last 4 weeks",
+       "defaulted": false
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk2",
+    "created_at": "2024-06-03T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "get": {
+    "title": "Panel 2",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "First post within 7 days, signups in the last 4 weeks",
+     "question": "What share of members who signed up in the last 4 weeks wrote a first post within 7 days?",
+     "sql": "SELECT sum(post_state = 'reached') AS numerator,\n       count(*) AS denominator,\n       'Signups in the last 4 weeks' AS label\nFROM d_member_first_week\nWHERE signup_at >= strftime('%Y-%m-%d %H:%M:%S', :as_of, '-35 days') || substr(:as_of, 20)",
+     "display": {
+      "type": "number",
+      "columns": {
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "value": null,
+       "label": "label"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who signed up within 35 days before the cutoff and are at least 7 days past signup (= last 4 weekly cohorts)"
+      ],
+      [
+       "Numerator",
+       "Members who wrote a first post within 7 days of signup, after connecting with another member"
+      ]
+     ],
+     "caveats": [],
+     "answers": [
+      {
+       "question": "Period",
+       "answer": "Last 4 weeks",
+       "defaulted": false
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk2",
+    "created_at": "2024-06-03T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "file": "{\n \"title\": \"Panel 2\",\n \"description\": \"d\",\n \"summary\": \"\",\n \"summary_snapshot_id\": null,\n \"prompt\": \"q\",\n \"spec\": {\n  \"metric\": \"first_week_activation\",\n  \"title\": \"First post within 7 days, signups in the last 4 weeks\",\n  \"question\": \"What share of members who signed up in the last 4 weeks wrote a first post within 7 days?\",\n  \"sql\": \"SELECT sum(post_state = 'reached') AS numerator,\\n       count(*) AS denominator,\\n       'Signups in the last 4 weeks' AS label\\nFROM d_member_first_week\\nWHERE signup_at >= strftime('%Y-%m-%d %H:%M:%S', :as_of, '-35 days') || substr(:as_of, 20)\",\n  \"display\": {\n   \"type\": \"number\",\n   \"numerator\": \"numerator\",\n   \"denominator\": \"denominator\",\n   \"label\": \"label\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members who signed up within 35 days before the cutoff and are at least 7 days past signup (= last 4 weekly cohorts)\"\n   ],\n   [\n    \"Numerator\",\n    \"Members who wrote a first post within 7 days of signup, after connecting with another member\"\n   ]\n  ],\n  \"caveats\": [],\n  \"answers\": [\n   {\n    \"question\": \"Period\",\n    \"answer\": \"Last 4 weeks\",\n    \"defaulted\": false\n   }\n  ]\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"c\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n },\n \"generated_model\": \"m\",\n \"preview_hash\": \"h\",\n \"last_result\": {\n  \"snapshot_id\": \"s1\",\n  \"as_of\": \"2024-06-03 12:00:00.000000\",\n  \"computed_at\": \"2024-06-03T12:00:00.000Z\",\n  \"mode\": \"preview\",\n  \"columns\": [\n   {\n    \"name\": \"x\",\n    \"table\": null,\n    \"column\": null\n   }\n  ],\n  \"rows\": [\n   [\n    \"a\",\n    1,\n    0.5,\n    null,\n    0\n   ]\n  ],\n  \"tables\": [\n   \"d_x\"\n  ],\n  \"caveats\": [\n   \"c\"\n  ],\n  \"headline\": {\n   \"value\": 0.5\n  }\n },\n \"created_by\": \"local\",\n \"id\": \"abcdefghijk2\",\n \"created_at\": \"2024-06-03T00:00:00.000Z\",\n \"status\": \"ok\",\n \"last_error\": null\n}\n"
+  },
+  {
+   "input": {
+    "title": "Panel 3",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "7-day board join rate by signup week (last 12 weeks)",
+     "question": "What is the 7-day board join rate for the last 12 complete signup weeks?",
+     "sql": "SELECT signup_week AS x,\n       sum(board_state = 'reached') AS numerator,\n       count(*) AS denominator\nFROM d_member_first_week\n-- Signup week W is complete when W + 14 days ≤ cutoff: every signup in it has a full 7-day window\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\nGROUP BY signup_week\nORDER BY signup_week",
+     "display": {
+      "type": "line"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who signed up in the last 12 complete signup weeks (starting Monday), where every signup has had 7 days"
+      ],
+      [
+       "Numerator",
+       "Members who created or joined a board within 7 days of signup"
+      ]
+     ],
+     "caveats": [],
+     "answers": [
+      {
+       "question": "Period",
+       "answer": "Last 12 weeks",
+       "defaulted": false
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk3",
+    "created_at": "2024-06-04T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "get": {
+    "title": "Panel 3",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": "first_week_activation",
+     "title": "7-day board join rate by signup week (last 12 weeks)",
+     "question": "What is the 7-day board join rate for the last 12 complete signup weeks?",
+     "sql": "SELECT signup_week AS x,\n       sum(board_state = 'reached') AS numerator,\n       count(*) AS denominator\nFROM d_member_first_week\n-- Signup week W is complete when W + 14 days ≤ cutoff: every signup in it has a full 7-day window\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\nGROUP BY signup_week\nORDER BY signup_week",
+     "display": {
+      "type": "line",
+      "columns": {
+       "x": "x",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who signed up in the last 12 complete signup weeks (starting Monday), where every signup has had 7 days"
+      ],
+      [
+       "Numerator",
+       "Members who created or joined a board within 7 days of signup"
+      ]
+     ],
+     "caveats": [],
+     "answers": [
+      {
+       "question": "Period",
+       "answer": "Last 12 weeks",
+       "defaulted": false
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk3",
+    "created_at": "2024-06-04T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "file": "{\n \"title\": \"Panel 3\",\n \"description\": \"d\",\n \"summary\": \"\",\n \"summary_snapshot_id\": null,\n \"prompt\": \"q\",\n \"spec\": {\n  \"metric\": \"first_week_activation\",\n  \"title\": \"7-day board join rate by signup week (last 12 weeks)\",\n  \"question\": \"What is the 7-day board join rate for the last 12 complete signup weeks?\",\n  \"sql\": \"SELECT signup_week AS x,\\n       sum(board_state = 'reached') AS numerator,\\n       count(*) AS denominator\\nFROM d_member_first_week\\n-- Signup week W is complete when W + 14 days ≤ cutoff: every signup in it has a full 7-day window\\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\\nGROUP BY signup_week\\nORDER BY signup_week\",\n  \"display\": {\n   \"type\": \"line\",\n   \"x\": \"x\",\n   \"numerator\": \"numerator\",\n   \"denominator\": \"denominator\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members who signed up in the last 12 complete signup weeks (starting Monday), where every signup has had 7 days\"\n   ],\n   [\n    \"Numerator\",\n    \"Members who created or joined a board within 7 days of signup\"\n   ]\n  ],\n  \"caveats\": [],\n  \"answers\": [\n   {\n    \"question\": \"Period\",\n    \"answer\": \"Last 12 weeks\",\n    \"defaulted\": false\n   }\n  ]\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"c\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n },\n \"generated_model\": \"m\",\n \"preview_hash\": \"h\",\n \"last_result\": {\n  \"snapshot_id\": \"s1\",\n  \"as_of\": \"2024-06-03 12:00:00.000000\",\n  \"computed_at\": \"2024-06-03T12:00:00.000Z\",\n  \"mode\": \"preview\",\n  \"columns\": [\n   {\n    \"name\": \"x\",\n    \"table\": null,\n    \"column\": null\n   }\n  ],\n  \"rows\": [\n   [\n    \"a\",\n    1,\n    0.5,\n    null,\n    0\n   ]\n  ],\n  \"tables\": [\n   \"d_x\"\n  ],\n  \"caveats\": [\n   \"c\"\n  ],\n  \"headline\": {\n   \"value\": 0.5\n  }\n },\n \"created_by\": \"local\",\n \"id\": \"abcdefghijk3\",\n \"created_at\": \"2024-06-04T00:00:00.000Z\",\n \"status\": \"ok\",\n \"last_error\": null\n}\n"
+  },
+  {
+   "input": {
+    "title": "Legacy",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "title": "First-7-day activation funnel by signup week",
+     "question": "Where do new members drop off in their first 7 days?",
+     "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
+     "display": {
+      "type": "funnel",
+      "cohort": "cohort"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members at least 7 days past signup (signup week starts Monday)"
+      ],
+      [
+       "Steps",
+       "Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post"
+      ],
+      [
+       "Window",
+       "Every step within 7 days of signup, after the previous step"
+      ],
+      [
+       "Denominator",
+       "Members who reached the previous step"
+      ]
+     ],
+     "caveats": [
+      "Members who only read are not counted as active"
+     ],
+     "answers": [
+      {
+       "question": "Window for each step",
+       "answer": "7 days after signup",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk7",
+    "created_at": "2024-06-08T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null
+   },
+   "get": {
+    "title": "Legacy",
+    "description": "d",
+    "summary": "",
+    "summary_snapshot_id": null,
+    "prompt": "q",
+    "spec": {
+     "metric": null,
+     "title": "First-7-day activation funnel by signup week",
+     "question": "Where do new members drop off in their first 7 days?",
+     "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
+     "display": {
+      "type": "funnel",
+      "columns": {
+       "step_no": "step_no",
+       "step_name": "step_name",
+       "reached": "reached",
+       "eligible": "eligible",
+       "unknown": "unknown",
+       "cohort": "cohort"
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members at least 7 days past signup (signup week starts Monday)"
+      ],
+      [
+       "Steps",
+       "Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post"
+      ],
+      [
+       "Window",
+       "Every step within 7 days of signup, after the previous step"
+      ],
+      [
+       "Denominator",
+       "Members who reached the previous step"
+      ]
+     ],
+     "caveats": [
+      "Members who only read are not counted as active"
+     ],
+     "answers": [
+      {
+       "question": "Window for each step",
+       "answer": "7 days after signup",
+       "defaulted": true
+      }
+     ]
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "c",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    },
+    "generated_model": "m",
+    "preview_hash": "h",
+    "last_result": {
+     "snapshot_id": "s1",
+     "as_of": "2024-06-03 12:00:00.000000",
+     "computed_at": "2024-06-03T12:00:00.000Z",
+     "mode": "preview",
+     "columns": [
+      {
+       "name": "x",
+       "table": null,
+       "column": null
+      }
+     ],
+     "rows": [
+      [
+       "a",
+       1,
+       0.5,
+       null,
+       0
+      ]
+     ],
+     "tables": [
+      "d_x"
+     ],
+     "caveats": [
+      "c"
+     ],
+     "headline": {
+      "value": 0.5
+     }
+    },
+    "created_by": "local",
+    "id": "abcdefghijk7",
+    "created_at": "2024-06-08T00:00:00.000Z",
+    "status": "ok",
+    "last_error": null,
+    "legacy": true
+   },
+   "file": "{\n \"title\": \"Legacy\",\n \"description\": \"d\",\n \"summary\": \"\",\n \"summary_snapshot_id\": null,\n \"prompt\": \"q\",\n \"spec\": {\n  \"title\": \"First-7-day activation funnel by signup week\",\n  \"question\": \"Where do new members drop off in their first 7 days?\",\n  \"sql\": \"WITH f AS (\\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\\n  UNION ALL\\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\\n)\\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\\nUNION ALL\\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\\nORDER BY cohort, step_no\",\n  \"display\": {\n   \"type\": \"funnel\",\n   \"step_no\": \"step_no\",\n   \"step_name\": \"step_name\",\n   \"reached\": \"reached\",\n   \"eligible\": \"eligible\",\n   \"unknown\": \"unknown\",\n   \"cohort\": \"cohort\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members at least 7 days past signup (signup week starts Monday)\"\n   ],\n   [\n    \"Steps\",\n    \"Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post\"\n   ],\n   [\n    \"Window\",\n    \"Every step within 7 days of signup, after the previous step\"\n   ],\n   [\n    \"Denominator\",\n    \"Members who reached the previous step\"\n   ]\n  ],\n  \"caveats\": [\n   \"Members who only read are not counted as active\"\n  ],\n  \"answers\": [\n   {\n    \"question\": \"Window for each step\",\n    \"answer\": \"7 days after signup\",\n    \"defaulted\": true\n   }\n  ]\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"c\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n },\n \"generated_model\": \"m\",\n \"preview_hash\": \"h\",\n \"last_result\": {\n  \"snapshot_id\": \"s1\",\n  \"as_of\": \"2024-06-03 12:00:00.000000\",\n  \"computed_at\": \"2024-06-03T12:00:00.000Z\",\n  \"mode\": \"preview\",\n  \"columns\": [\n   {\n    \"name\": \"x\",\n    \"table\": null,\n    \"column\": null\n   }\n  ],\n  \"rows\": [\n   [\n    \"a\",\n    1,\n    0.5,\n    null,\n    0\n   ]\n  ],\n  \"tables\": [\n   \"d_x\"\n  ],\n  \"caveats\": [\n   \"c\"\n  ],\n  \"headline\": {\n   \"value\": 0.5\n  }\n },\n \"created_by\": \"local\",\n \"id\": \"abcdefghijk7\",\n \"created_at\": \"2024-06-08T00:00:00.000Z\",\n \"status\": \"ok\",\n \"last_error\": null\n}\n"
+  },
+  {
+   "input": {
+    "10": "numeric key",
+    "id": "zzzzzzzzzzz9",
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "spec": {
+     "metric": "connected_retention",
+     "title": "Weekly retention by first-week connection",
+     "question": "Do members who connect with others in their first 7 days stay longer than those who do not?",
+     "sql": "WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\nbase AS (\n  SELECT member_id, signup_week AS cohort, signup_at,\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\n  FROM d_member_first_week\n  WHERE board_state = 'reached'\n)\nSELECT b.cohort, b.series, p.period,\n       sum(w.member_id IS NOT NULL) AS numerator,\n       count(*) AS denominator\nFROM base b\nJOIN periods p\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\nLEFT JOIN d_member_activity_week w\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\nGROUP BY b.cohort, b.series, p.period\nORDER BY b.cohort, b.series, p.period",
+     "display": {
+      "type": "cohort",
+      "series": "series"
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who joined a board within 7 days of signup"
+      ],
+      [
+       "Groups",
+       "connected: shared a board with another member within 7 days / unconnected: did not"
+      ],
+      [
+       "Retention",
+       "Wn = at least one post, comment or like in days [7n, 7n+7) after signup"
+      ],
+      [
+       "Denominator",
+       "Only members whose window has fully passed by the cutoff (observable)"
+      ]
+     ],
+     "caveats": [
+      "Selection bias: members who are more active in their first week also connect more easily",
+      "Members who left are kept in the denominator and counted as inactive"
+     ],
+     "answers": [
+      {
+       "question": "Connection window",
+       "answer": "7 days after signup",
+       "defaulted": true
+      },
+      {
+       "question": "Activity",
+       "answer": "Any post, comment or like",
+       "defaulted": true
+      }
+     ]
+    },
+    "title": "Keys first",
+    "status": "review",
+    "last_result": {
+     "snapshot_id": "s0"
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "z",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    }
+   },
+   "get": {
+    "10": "numeric key",
+    "id": "zzzzzzzzzzz9",
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "spec": {
+     "metric": "connected_retention",
+     "title": "Weekly retention by first-week connection",
+     "question": "Do members who connect with others in their first 7 days stay longer than those who do not?",
+     "sql": "WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\nbase AS (\n  SELECT member_id, signup_week AS cohort, signup_at,\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\n  FROM d_member_first_week\n  WHERE board_state = 'reached'\n)\nSELECT b.cohort, b.series, p.period,\n       sum(w.member_id IS NOT NULL) AS numerator,\n       count(*) AS denominator\nFROM base b\nJOIN periods p\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\nLEFT JOIN d_member_activity_week w\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\nGROUP BY b.cohort, b.series, p.period\nORDER BY b.cohort, b.series, p.period",
+     "display": {
+      "type": "cohort",
+      "columns": {
+       "cohort": "cohort",
+       "period": "period",
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": "series",
+       "deleted_n": null
+      },
+      "extra": [],
+      "key": [],
+      "headline": null
+     },
+     "definition": [
+      [
+       "Population",
+       "Members who joined a board within 7 days of signup"
+      ],
+      [
+       "Groups",
+       "connected: shared a board with another member within 7 days / unconnected: did not"
+      ],
+      [
+       "Retention",
+       "Wn = at least one post, comment or like in days [7n, 7n+7) after signup"
+      ],
+      [
+       "Denominator",
+       "Only members whose window has fully passed by the cutoff (observable)"
+      ]
+     ],
+     "caveats": [
+      "Selection bias: members who are more active in their first week also connect more easily",
+      "Members who left are kept in the denominator and counted as inactive"
+     ],
+     "answers": [
+      {
+       "question": "Connection window",
+       "answer": "7 days after signup",
+       "defaulted": true
+      },
+      {
+       "question": "Activity",
+       "answer": "Any post, comment or like",
+       "defaulted": true
+      }
+     ]
+    },
+    "title": "Keys first",
+    "status": "review",
+    "last_result": {
+     "snapshot_id": "s0"
+    },
+    "versions": {
+     "snapshot_id": "s1",
+     "schema_version": "a",
+     "policy_version": "b",
+     "docs_version": "z",
+     "prompt_version": "d",
+     "pattern_contract_version": 1,
+     "renderer_version": 2
+    }
+   },
+   "file": "{\n \"10\": \"numeric key\",\n \"id\": \"zzzzzzzzzzz9\",\n \"created_at\": \"2024-01-01T00:00:00.000Z\",\n \"spec\": {\n  \"metric\": \"connected_retention\",\n  \"title\": \"Weekly retention by first-week connection\",\n  \"question\": \"Do members who connect with others in their first 7 days stay longer than those who do not?\",\n  \"sql\": \"WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\\nbase AS (\\n  SELECT member_id, signup_week AS cohort, signup_at,\\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\\n  FROM d_member_first_week\\n  WHERE board_state = 'reached'\\n)\\nSELECT b.cohort, b.series, p.period,\\n       sum(w.member_id IS NOT NULL) AS numerator,\\n       count(*) AS denominator\\nFROM base b\\nJOIN periods p\\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\\nLEFT JOIN d_member_activity_week w\\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\\nGROUP BY b.cohort, b.series, p.period\\nORDER BY b.cohort, b.series, p.period\",\n  \"display\": {\n   \"type\": \"cohort\",\n   \"cohort\": \"cohort\",\n   \"period\": \"period\",\n   \"numerator\": \"numerator\",\n   \"denominator\": \"denominator\",\n   \"series\": \"series\"\n  },\n  \"definition\": [\n   [\n    \"Population\",\n    \"Members who joined a board within 7 days of signup\"\n   ],\n   [\n    \"Groups\",\n    \"connected: shared a board with another member within 7 days / unconnected: did not\"\n   ],\n   [\n    \"Retention\",\n    \"Wn = at least one post, comment or like in days [7n, 7n+7) after signup\"\n   ],\n   [\n    \"Denominator\",\n    \"Only members whose window has fully passed by the cutoff (observable)\"\n   ]\n  ],\n  \"caveats\": [\n   \"Selection bias: members who are more active in their first week also connect more easily\",\n   \"Members who left are kept in the denominator and counted as inactive\"\n  ],\n  \"answers\": [\n   {\n    \"question\": \"Connection window\",\n    \"answer\": \"7 days after signup\",\n    \"defaulted\": true\n   },\n   {\n    \"question\": \"Activity\",\n    \"answer\": \"Any post, comment or like\",\n    \"defaulted\": true\n   }\n  ]\n },\n \"title\": \"Keys first\",\n \"status\": \"review\",\n \"last_result\": {\n  \"snapshot_id\": \"s0\"\n },\n \"versions\": {\n  \"snapshot_id\": \"s1\",\n  \"schema_version\": \"a\",\n  \"policy_version\": \"b\",\n  \"docs_version\": \"z\",\n  \"prompt_version\": \"d\",\n  \"pattern_contract_version\": 1,\n  \"renderer_version\": 2\n }\n}\n"
+  }
+ ],
+ "list": [
+  "zzzzzzzzzzz9",
+  "abcdefghijk0",
+  "abcdefghijk1",
+  "abcdefghijk2",
+  "abcdefghijk3",
+  "abcdefghijk7"
+ ]
+}

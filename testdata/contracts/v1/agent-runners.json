@@ -1,0 +1,3352 @@
+{
+ "callDefaults": {
+  "input": "hello",
+  "systemPrompt": "sys",
+  "jsonSchema": "{\"type\":\"object\"}",
+  "budgetUsd": 0.5,
+  "timeoutMs": 10000
+ },
+ "claude": [
+  {
+   "name": "success",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "chunked",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "alternatives": []
+     },
+     "chunk": 7
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "usage and api time",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "usage": {
+      "input_tokens": 10,
+      "output_tokens": 3,
+      "cache_read_input_tokens": 100,
+      "cache_creation_input_tokens": 2
+     },
+     "apiMs": 1234
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01,
+    "usage": {
+     "input": 10,
+     "output": 3,
+     "cacheRead": 100,
+     "cacheWrite": 2
+    },
+    "apiMs": 1234
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "multibyte split",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀",
+      "alternatives": []
+     },
+     "chunkBytes": 5
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀한글😀",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "empty output",
+   "script": [
+    {
+     "raw": []
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "empty output (exit code 0)",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "no result",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[\"StructuredOutput\"],\"mcp_servers\":[]}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "ended without a result event",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "event before init",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"assistant\"}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "protocol violation: event before init",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "duplicate init",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[\"StructuredOutput\"],\"mcp_servers\":[]}",
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[],\"mcp_servers\":[]}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "protocol violation: duplicate init",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "after result",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[\"StructuredOutput\"],\"mcp_servers\":[]}",
+      "{\"type\":\"result\",\"subtype\":\"success\",\"session_id\":\"s\",\"total_cost_usd\":0.02,\"structured_output\":{}}",
+      "{\"type\":\"assistant\"}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "protocol violation: event after result",
+    "sessionId": "s",
+    "costUsd": 0.02
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "non json lines",
+   "script": [
+    {
+     "raw": [
+      "noise",
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[\"StructuredOutput\"],\"mcp_servers\":[]}",
+      "more noise",
+      "{\"type\":\"result\",\"subtype\":\"success\",\"session_id\":\"s\",\"total_cost_usd\":0.02,\"structured_output\":{\"step\":1}}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "s",
+    "structured": {
+     "step": 1
+    },
+    "costUsd": 0.02
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "trailing line without newline",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[\"StructuredOutput\"],\"mcp_servers\":[]}",
+      "{\"type\":\"result\",\"subtype\":\"success\",\"session_id\":\"s\",\"structured_output\":1}"
+     ],
+     "chunk": 1000
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "s",
+    "structured": 1,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "exit code mismatch",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "exitCode": 3
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "result succeeded but exit code was 3",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "budget",
+   "script": [
+    {
+     "isError": true,
+     "subtype": "error_max_budget_usd"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "budget",
+    "message": "call budget reached",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "rate limit",
+   "script": [
+    {
+     "isError": true,
+     "resultText": "API Error: 429 Too Many Requests"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "rate_limit",
+    "message": "API rate limit or overload",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "overloaded in errors",
+   "script": [
+    {
+     "isError": true,
+     "resultText": "x"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "error",
+    "message": "result error: error_during_execution",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "other error",
+   "script": [
+    {
+     "isError": true,
+     "resultText": "boom"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "error",
+    "message": "result error: error_during_execution",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "not success subtype",
+   "script": [
+    {
+     "subtype": "error_during_execution"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "error",
+    "message": "result error: error_during_execution",
+    "sessionId": "sess-1",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "resume failure in result",
+   "script": [
+    {
+     "isError": true,
+     "resultText": "No conversation found with session ID",
+     "sessionId": "want"
+    }
+   ],
+   "call": {
+    "sessionId": "want"
+   },
+   "result": {
+    "ok": false,
+    "type": "resume",
+    "message": "could not resume session",
+    "sessionId": "want",
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000",
+     "--resume",
+     "want"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "resume failure stderr",
+   "script": [
+    {
+     "raw": [],
+     "stderr": "Error: No conversation found with session ID: x"
+    }
+   ],
+   "call": {
+    "sessionId": "x"
+   },
+   "result": {
+    "ok": false,
+    "type": "resume",
+    "message": "could not resume session",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000",
+     "--resume",
+     "x"
+    ]
+   ],
+   "logs": [
+    "---\nError: No conversation found with session ID: x\n"
+   ]
+  },
+  {
+   "name": "resume failure stderr no session",
+   "script": [
+    {
+     "raw": [],
+     "stderr": "Error: No conversation found"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "empty output (exit code 0)",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": [
+    "---\nError: No conversation found\n"
+   ]
+  },
+  {
+   "name": "different session on resume",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "sessionId": "other"
+    }
+   ],
+   "call": {
+    "sessionId": "wanted"
+   },
+   "result": {
+    "ok": false,
+    "type": "resume",
+    "message": "continued a different session than wanted",
+    "sessionId": null,
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000",
+     "--resume",
+     "wanted"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "init result session mismatch",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "resultSessionId": "nope"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "process",
+    "message": "init and result session_id differ",
+    "sessionId": null,
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "isolation tools",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "tools": [
+      "Bash"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "isolation",
+    "message": "agent isolation check failed: init event has tools that are not allowed: Bash",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "isolation mcp",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "mcpServers": [
+      {
+       "name": "x"
+      }
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "isolation",
+    "message": "agent isolation check failed: init event has 1 mcp_servers",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "isolation no tools",
+   "script": [
+    {
+     "raw": [
+      "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"mcp_servers\":[]}"
+     ]
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": false,
+    "type": "isolation",
+    "message": "agent isolation check failed: init event has no tools",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "timeout",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "delayMs": 3000,
+     "chunk": 10
+    }
+   ],
+   "call": {
+    "timeoutMs": 300
+   },
+   "result": {
+    "ok": false,
+    "type": "timeout",
+    "message": "call timed out (300ms)",
+    "sessionId": null,
+    "costUsd": 0
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "stderr secret",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "stderr": "token=abcdefghijklmnop"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": [
+    "---\n(not logged: looks like it contains a secret)\n"
+   ]
+  },
+  {
+   "name": "stderr plain",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "stderr": "warning: something"
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": [
+    "---\nwarning: something\n"
+   ]
+  },
+  {
+   "name": "child ignoring TERM",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     },
+     "spawnChild": true,
+     "childIgnoresTerm": true
+    }
+   ],
+   "call": {},
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.5000"
+    ]
+   ],
+   "logs": []
+  },
+  {
+   "name": "model and budget args",
+   "script": [
+    {
+     "structured": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    }
+   ],
+   "call": {
+    "model": "opus",
+    "budgetUsd": 0.12345
+   },
+   "result": {
+    "ok": true,
+    "sessionId": "sess-1",
+    "structured": {
+     "step": {
+      "action": "refuse",
+      "reason": "r",
+      "alternatives": []
+     }
+    },
+    "costUsd": 0.01
+   },
+   "argv": [
+    [
+     "-p",
+     "hello",
+     "--safe-mode",
+     "--strict-mcp-config",
+     "--tools",
+     "",
+     "--output-format",
+     "stream-json",
+     "--verbose",
+     "--json-schema",
+     "{\"type\":\"object\"}",
+     "--append-system-prompt",
+     "sys",
+     "--max-budget-usd",
+     "0.1235",
+     "--model",
+     "opus"
+    ]
+   ],
+   "logs": []
+  }
+ ],
+ "api": [
+  {
+   "name": "anthropic continued",
+   "provider": "anthropic",
+   "apiKey": "test-key",
+   "pricing": {
+    "inputPerMTok": 3,
+    "outputPerMTok": 15
+   },
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "tool_use",
+         "name": "respond",
+         "input": {
+          "step": {
+           "action": "refuse",
+           "reason": "r",
+           "alternatives": []
+          }
+         }
+        }
+       ],
+       "usage": {
+        "input_tokens": 100,
+        "output_tokens": 20,
+        "cache_read_input_tokens": 1000,
+        "cache_creation_input_tokens": 10
+       },
+       "stop_reason": "tool_use"
+      }
+     }
+    },
+    {
+     "call": {
+      "model": "m",
+      "input": "second",
+      "sessionFrom": 0
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "tool_use",
+         "name": "respond",
+         "input": {
+          "a": 1
+         }
+        }
+       ],
+       "usage": {
+        "input_tokens": 100,
+        "output_tokens": 20
+       },
+       "stop_reason": "tool_use"
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "test-key",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "test-key",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       },
+       {
+        "role": "assistant",
+        "content": "{\"step\":{\"action\":\"refuse\",\"reason\":\"r\",\"alternatives\":[]}}"
+       },
+       {
+        "role": "user",
+        "content": "second"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {
+      "step": {
+       "action": "refuse",
+       "reason": "r",
+       "alternatives": []
+      }
+     },
+     "costUsd": 0.00363,
+     "usage": {
+      "input": 100,
+      "output": 20,
+      "cacheRead": 1000,
+      "cacheWrite": 10
+     }
+    },
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {
+      "a": 1
+     },
+     "costUsd": 0.0006,
+     "usage": {
+      "input": 100,
+      "output": 20,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"anthropic\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"{\\\"step\\\":{\\\"action\\\":\\\"refuse\\\",\\\"reason\\\":\\\"r\\\",\\\"alternatives\\\":[]}}\"},{\"role\":\"user\",\"text\":\"second\"},{\"role\":\"assistant\",\"text\":\"{\\\"a\\\":1}\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "anthropic trailing slash base",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "/",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "tool_use",
+         "name": "respond",
+         "input": 1
+        }
+       ],
+       "usage": {
+        "input_tokens": 100,
+        "output_tokens": 20
+       },
+       "stop_reason": "tool_use"
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": 1,
+     "costUsd": 0,
+     "usage": {
+      "input": 100,
+      "output": 20,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"anthropic\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"1\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "anthropic no tool",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "hi"
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "response has no structured output",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic tool without input",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "tool_use",
+         "name": "respond"
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"anthropic\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "anthropic max tokens",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "stop_reason": "max_tokens",
+       "usage": {
+        "input_tokens": 5,
+        "output_tokens": 8192
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "response cut off at the output limit (maxOutputTokens)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 5,
+      "output": 8192,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic 429",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 429,
+      "body": {
+       "error": {
+        "type": "rate_limit_error",
+        "message": "slow down"
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "rate_limit",
+     "message": "API rate limit or overload (429)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic overloaded 500",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 500,
+      "body": {
+       "error": {
+        "type": "overloaded_error",
+        "message": "busy"
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "rate_limit",
+     "message": "API rate limit or overload (500)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic 401",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 401,
+      "body": {
+       "error": {
+        "message": "invalid x-api-key"
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "API authentication failed (401): invalid x-api-key",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic 400 secret detail",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 400,
+      "body": {
+       "error": {
+        "message": "bad key=abcdefghijklmnopqrstuv"
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "API error (400): bad key=abcdefghijklmnopqrstuv",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic 500 text",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 500,
+      "raw": "Internal error"
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "API error (500)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic 400 long",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     },
+     "reply": {
+      "status": 400,
+      "body": {
+       "message": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "API error (400)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "anthropic budget",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": {
+    "inputPerMTok": 3,
+    "outputPerMTok": 15
+   },
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m",
+      "budgetUsd": 0.0001
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "tool_use",
+         "name": "respond",
+         "input": 1
+        }
+       ],
+       "usage": {
+        "input_tokens": 100,
+        "output_tokens": 20
+       },
+       "stop_reason": "tool_use"
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "budget",
+     "message": "call budget reached",
+     "sessionId": null,
+     "costUsd": 0.0006,
+     "usage": {
+      "input": 100,
+      "output": 20,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "no model",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {}
+    }
+   ],
+   "requests": [],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "agent.model is required",
+     "sessionId": null,
+     "costUsd": 0
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "missing session",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m",
+      "sessionId": "api_0123456789abcdef01234567"
+     }
+    }
+   ],
+   "requests": [],
+   "results": [
+    {
+     "ok": false,
+     "type": "resume",
+     "message": "could not resume session",
+     "sessionId": null,
+     "costUsd": 0
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "bad session id",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m",
+      "sessionId": "../x"
+     }
+    }
+   ],
+   "requests": [],
+   "results": [
+    {
+     "ok": false,
+     "type": "resume",
+     "message": "could not resume session",
+     "sessionId": null,
+     "costUsd": 0
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "timeout",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "m",
+      "timeoutMs": 200
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        },
+        {
+         "type": "tool_use",
+         "name": "respond",
+         "input": 1
+        }
+       ],
+       "usage": {
+        "input_tokens": 100,
+        "output_tokens": 20
+       },
+       "stop_reason": "tool_use"
+      },
+      "delayMs": 1500
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "content-type": "application/json",
+      "x-api-key": "k",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "model": "m",
+      "max_tokens": 1024,
+      "system": "sys",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "tools": [
+       {
+        "name": "respond",
+        "description": "Give the answer in this format",
+        "input_schema": {
+         "type": "object"
+        }
+       }
+      ],
+      "tool_choice": {
+       "type": "tool",
+       "name": "respond"
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "timeout",
+     "message": "call timed out (200ms)",
+     "sessionId": null,
+     "costUsd": 0
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "connection failure",
+   "provider": "anthropic",
+   "apiKey": "k",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": true,
+   "calls": [
+    {
+     "call": {
+      "model": "m"
+     }
+    }
+   ],
+   "requests": [],
+   "results": [
+    {
+     "ok": false,
+     "type": "process",
+     "message": "API connection failed: fetch failed",
+     "sessionId": null,
+     "costUsd": 0
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai continued keyless",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "{\"step\":{\"action\":\"refuse\",\"reason\":\"r\",\"alternatives\":[]}}"
+         },
+         "finish_reason": "stop"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    },
+    {
+     "call": {
+      "model": "gpt",
+      "input": "again",
+      "sessionFrom": 0
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "```json\n{\"a\": [1, 2]}\n```"
+         },
+         "finish_reason": "stop"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       },
+       {
+        "role": "assistant",
+        "content": "{\"step\":{\"action\":\"refuse\",\"reason\":\"r\",\"alternatives\":[]}}"
+       },
+       {
+        "role": "user",
+        "content": "again"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {
+      "step": {
+       "action": "refuse",
+       "reason": "r",
+       "alternatives": []
+      }
+     },
+     "costUsd": 0,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    },
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {
+      "a": [
+       1,
+       2
+      ]
+     },
+     "costUsd": 0,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"openai\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"{\\\"step\\\":{\\\"action\\\":\\\"refuse\\\",\\\"reason\\\":\\\"r\\\",\\\"alternatives\\\":[]}}\"},{\"role\":\"user\",\"text\":\"again\"},{\"role\":\"assistant\",\"text\":\"{\\\"a\\\":[1,2]}\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "openai key and pricing",
+   "provider": "openai",
+   "apiKey": "sk-test",
+   "pricing": {
+    "inputPerMTok": 0.3,
+    "outputPerMTok": 2.5
+   },
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "{}"
+         },
+         "finish_reason": "stop"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json",
+      "authorization": "Bearer sk-test"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {},
+     "costUsd": 0.0000275,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"openai\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"{}\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "openai not json",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀"
+         },
+         "finish_reason": "stop"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": {
+      "not_json": "I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot d"
+     },
+     "costUsd": 0,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"openai\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"{\\\"not_json\\\":\\\"I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot do that 😀I cannot d\\\"}\"}]}"
+    ]
+   ]
+  },
+  {
+   "name": "openai refusal",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "refusal": "no",
+          "content": null
+         }
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "model refused to answer",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai no content",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": []
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "response has no content",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai length",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "{\"a\""
+         },
+         "finish_reason": "length"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "response cut off at the output limit (maxOutputTokens)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai 503",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 503,
+      "body": {
+       "error": {
+        "message": "unavailable"
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "rate_limit",
+     "message": "API rate limit or overload (503)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai 403",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 403,
+      "body": {
+       "error": "denied"
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": false,
+     "type": "error",
+     "message": "API authentication failed (403)",
+     "sessionId": null,
+     "costUsd": 0,
+     "usage": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": []
+  },
+  {
+   "name": "openai fence variants",
+   "provider": "openai",
+   "apiKey": "",
+   "pricing": null,
+   "maxOutputTokens": 1024,
+   "baseSuffix": "",
+   "closed": false,
+   "calls": [
+    {
+     "call": {
+      "model": "gpt"
+     },
+     "reply": {
+      "status": 200,
+      "body": {
+       "choices": [
+        {
+         "message": {
+          "content": "  ```\n[1]\n```  "
+         },
+         "finish_reason": "stop"
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 50,
+        "completion_tokens": 5,
+        "prompt_tokens_details": {
+         "cached_tokens": 20
+        }
+       }
+      }
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/chat/completions",
+     "headers": {
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "gpt",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nRespond with one JSON object that matches this JSON Schema, and nothing else:\n{\"type\":\"object\"}"
+       },
+       {
+        "role": "user",
+        "content": "hello"
+       }
+      ],
+      "response_format": {
+       "type": "json_schema",
+       "json_schema": {
+        "name": "respond",
+        "schema": {
+         "type": "object"
+        },
+        "strict": false
+       }
+      }
+     }
+    }
+   ],
+   "results": [
+    {
+     "ok": true,
+     "sessionId": "api_X",
+     "structured": [
+      1
+     ],
+     "costUsd": 0,
+     "usage": {
+      "input": 30,
+      "output": 5,
+      "cacheRead": 20,
+      "cacheWrite": 0
+     }
+    }
+   ],
+   "sessions": [
+    [
+     "api_X.json",
+     "{\"provider\":\"openai\",\"turns\":[{\"role\":\"user\",\"text\":\"hello\"},{\"role\":\"assistant\",\"text\":\"[1]\"}]}"
+    ]
+   ]
+  }
+ ]
+}

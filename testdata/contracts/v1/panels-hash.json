@@ -1,0 +1,124 @@
+{
+ "normalize": [
+  {
+   "sql": "SELECT 1",
+   "out": "SELECT 1"
+  },
+  {
+   "sql": " a \r\n b \n\n\n\n c\t",
+   "out": "a\n b\n\n c"
+  },
+  {
+   "sql": "\n\n\nx\n\n\n",
+   "out": "x"
+  },
+  {
+   "sql": "a\rb",
+   "out": "a\rb"
+  },
+  {
+   "sql": "a   b",
+   "out": "a   b"
+  },
+  {
+   "sql": "",
+   "out": ""
+  }
+ ],
+ "policy": [
+  {
+   "readable": [
+    "r_",
+    "d_",
+    "snapshot_"
+   ],
+   "panel": [
+    "d_"
+   ],
+   "out": "ffae6dd4bd5d22bda6d0414052ce0efe830ce162a6327ea099a160c72c199eb2"
+  },
+  {
+   "readable": [
+    "Z_",
+    "a_",
+    "_x"
+   ],
+   "panel": [
+    "a_"
+   ],
+   "out": "e455bb2708bf31b4a2b0cb9397f1514ff61a93f8aba0920221f8f6cf547ff1e5"
+  },
+  {
+   "readable": [],
+   "panel": [],
+   "out": "b3bb70198a0c7daaf093fc36f73c0a922308d5690c416100cd3b821377355d99"
+  }
+ ],
+ "docs": [
+  {
+   "guide": "# G",
+   "seeds": [
+    {
+     "name": "b.json",
+     "text": "{}"
+    },
+    {
+     "name": "a.json",
+     "text": "x"
+    },
+    {
+     "name": "B.json",
+     "text": "y"
+    }
+   ],
+   "metrics": "m",
+   "out": "b92553de3d47d89f54a2c907097533806da7fdf6a9739da685446639d301c4ac"
+  },
+  {
+   "guide": "",
+   "seeds": [],
+   "metrics": "",
+   "out": "4613a86607e5cd161dc1a1157615deef64cf27f4ad282c1b4aba885c003f4887"
+  }
+ ],
+ "prompt": [
+  {
+   "a": "guide",
+   "b": "schema",
+   "out": "54245175a0e455f33453f55b39edf29411397ce1b01702d21426e09d25b6a2f4"
+  },
+  {
+   "a": "",
+   "b": "",
+   "out": "439083f38956ba51ece90631552c6ea23c5c29570d3d5710e408e77e01ba7375"
+  },
+  {
+   "a": "한글 😀",
+   "b": "\"q\"",
+   "out": "4f02189d295d79aa4645269972449719cab49273ab0e6d6de6618d5462b8e0f4"
+  }
+ ],
+ "schema": [
+  {
+   "a": "CREATE TABLE d_a AS SELECT 1;",
+   "b": "roles",
+   "out": "dffe0998714884b9df97c32487486bfa4aba3c71b08907cce5b5d86ba2c5da75"
+  },
+  {
+   "a": "",
+   "b": "",
+   "out": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  }
+ ],
+ "context": {
+  "ctx": {
+   "snapshot_id": "s1",
+   "schema_version": "a",
+   "policy_version": "b",
+   "docs_version": "c",
+   "prompt_version": "d"
+  },
+  "key": "s1:a:b:c:d",
+  "cache": "02130f22d64d43c3b98ebc9219fa47c248140812678b0cfed4f13ce999211400"
+ }
+}

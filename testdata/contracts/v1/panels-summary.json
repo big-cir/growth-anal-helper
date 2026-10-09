@@ -1,0 +1,3107 @@
+{
+ "parse": [
+  {
+   "input": {
+    "prose": "Signups were {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "312"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "prose": "Signups were {c1}.",
+     "claims": [
+      {
+       "id": "c1",
+       "op": "value",
+       "refs": [
+        {
+         "row": [
+          {
+           "column": "week",
+           "value": "2024-01-01"
+          }
+         ],
+         "column": "n"
+        }
+       ],
+       "display": "312"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "input": null,
+   "out": {
+    "ok": false,
+    "error": "reply is not an object"
+   }
+  },
+  {
+   "input": [],
+   "out": {
+    "ok": false,
+    "error": "reply is not an object"
+   }
+  },
+  {
+   "input": {
+    "prose": ""
+   },
+   "out": {
+    "ok": false,
+    "error": "prose is empty"
+   }
+  },
+  {
+   "input": {
+    "prose": "  "
+   },
+   "out": {
+    "ok": false,
+    "error": "prose is empty"
+   }
+  },
+  {
+   "input": {
+    "prose": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "error": "prose must be 800 characters or fewer"
+   }
+  },
+  {
+   "input": {
+    "prose": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "claims": []
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "prose": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "claims": []
+    }
+   }
+  },
+  {
+   "input": {
+    "prose": "p"
+   },
+   "out": {
+    "ok": false,
+    "error": "claims must be an array of 12 or fewer"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {},
+     {}
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims must be an array of 12 or fewer"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     5
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0]: not an object"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "x1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].id: must look like c1"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c100"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].id: must look like c1"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [],
+        "column": "a"
+       }
+      ],
+      "display": "1"
+     },
+     {
+      "id": "c1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[1].id: duplicate c1"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "mean"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].op: value|rate|diff|ratio|sum"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [],
+        "column": "a"
+       }
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].refs: wrong count for rate"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "sum",
+      "refs": []
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].refs: wrong count for sum"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {},
+       {},
+       {},
+       {}
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].refs[0]: must be { row, column }"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "a"
+         }
+        ],
+        "column": "a"
+       }
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].refs[0].row: must be a list of { column, value }"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [],
+        "column": "a"
+       }
+      ],
+      "display": " "
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].display: empty"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [],
+        "column": "a"
+       }
+      ]
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].display: empty"
+   }
+  },
+  {
+   "input": {
+    "prose": "p",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": "x",
+        "column": "a"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "error": "claims[0].refs[0]: must be { row, column }"
+   }
+  }
+ ],
+ "spec": {
+  "metric": "signups",
+  "title": "Weekly signups",
+  "question": "How many signed up?",
+  "sql": "SELECT 1",
+  "display": {
+   "type": "line",
+   "x": "week",
+   "series": "grp"
+  },
+  "definition": [
+   [
+    "Population",
+    "Members"
+   ]
+  ],
+  "caveats": [],
+  "answers": []
+ },
+ "columns": [
+  "week",
+  "grp",
+  "numerator",
+  "denominator",
+  "n"
+ ],
+ "rows": [
+  [
+   "2024-01-01",
+   "a",
+   12,
+   40,
+   1234567
+  ],
+  [
+   "2024-01-08",
+   "a",
+   5,
+   25,
+   3
+  ],
+  [
+   "2024-01-15",
+   "b",
+   0,
+   0,
+   -7.25
+  ],
+  [
+   "2024-01-22",
+   "b",
+   1,
+   3,
+   2.5
+  ]
+ ],
+ "checks": [
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Total {c1} members.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1,234,567"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Total 1,234,567 members."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Total {c1} members.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1234567"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Total 1,234,567 members."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Total {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1,234,568"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display 1,234,568 does not match the computed value 1,234,567"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 30.0%."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30.0%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 30.0%."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30.00%"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display 30.00% does not match the computed value 30.0%"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "33.3 %"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 33.3%."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "33%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 33.3%."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "0%"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: denominator is 0"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Diff {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "−10pp"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Diff -10.0pp."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Diff {c1} lower.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "10%p"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Diff 10.0pp lower."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Diff {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "+10pp"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display +10pp does not match the computed value -10.0pp"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1.5x"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Ratio 1.5x."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1.5배"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Ratio 1.5x."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1x"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: denominator is 0"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1x"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: the rate compared against is 0"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Sum {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "sum",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-4.8"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display -4.8 does not match the computed value -4.7"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Sum {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "sum",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-4.7"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Sum -4.7."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "2.5"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Value 2.5."
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-7.3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display -7.3 does not match the computed value -7.2"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "week"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: week at week=2024-01-01 is not a number"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key (no key) matches 4 rows (must be exactly 1)"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-02-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key week=2024-02-01 matches 0 rows (must be exactly 1)"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "nope",
+          "value": "x"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key column not in result: nope"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "nope"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: column not in result: nope"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Value {c1} and {c2} and {c3}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "no claim for {c2} in the text",
+     "no claim for {c3} in the text"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "In week 2024-01-08 we had {c1}, grade a, 12 stray, 7 more, 45% more.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 12, 7, 45"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Stray: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 1,, 2,, 3,, 4,, 5,, 6,, 7,, 8,"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Fullwidth １２ and ５０％ and ٣ arabic and 2024-01-01 label.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 12, 50, ٣"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "첫 7일 동안 {c1}명이 가입했고 3주차에 늘었다.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 7, 3"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "Members 1234567 appear as a key? no.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 1234567"
+    ]
+   }
+  },
+  {
+   "lang": "en",
+   "draft": {
+    "prose": "value 33x faster, 5 pp, 7percent",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 33, 5, 7"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Total {c1} members.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1,234,567"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Total 1,234,567 members."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Total {c1} members.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1234567"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Total 1,234,567 members."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Total {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1,234,568"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display 1,234,568 does not match the computed value 1,234,567"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 30.0%."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30.0%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 30.0%."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "30.00%"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display 30.00% does not match the computed value 30.0%"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "33.3 %"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 33.3%."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "33%"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Rate 33.3%."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Rate {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "rate",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "0%"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: denominator is 0"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Diff {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "−10pp"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Diff -10.0%p."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Diff {c1} lower.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "10%p"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Diff 10.0%p lower."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Diff {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "diff",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "+10pp"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display +10pp does not match the computed value -10.0%p"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1.5x"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Ratio 1.5배."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1.5배"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Ratio 1.5배."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1x"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: denominator is 0"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Ratio {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "ratio",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "denominator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "numerator"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "denominator"
+       }
+      ],
+      "display": "1x"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: c1: the rate compared against is 0"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Sum {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "sum",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-4.8"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display -4.8 does not match the computed value -4.7"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Sum {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "sum",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       },
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-4.7"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Sum -4.7."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-22"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "2.5"
+     }
+    ]
+   },
+   "out": {
+    "ok": true,
+    "text": "Value 2.5."
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-15"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "-7.3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: display -7.3 does not match the computed value -7.2"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "week"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: week at week=2024-01-01 is not a number"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key (no key) matches 4 rows (must be exactly 1)"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-02-01"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key week=2024-02-01 matches 0 rows (must be exactly 1)"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "nope",
+          "value": "x"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: row key column not in result: nope"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-01"
+         }
+        ],
+        "column": "nope"
+       }
+      ],
+      "display": "1"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "c1: column not in result: nope"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Value {c1} and {c2} and {c3}.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "no claim for {c2} in the text",
+     "no claim for {c3} in the text"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "In week 2024-01-08 we had {c1}, grade a, 12 stray, 7 more, 45% more.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 12, 7, 45"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Stray: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 1,, 2,, 3,, 4,, 5,, 6,, 7,, 8,"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Fullwidth １２ and ５０％ and ٣ arabic and 2024-01-01 label.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 12, 50, ٣"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "첫 7일 동안 {c1}명이 가입했고 3주차에 늘었다.",
+    "claims": [
+     {
+      "id": "c1",
+      "op": "value",
+      "refs": [
+       {
+        "row": [
+         {
+          "column": "week",
+          "value": "2024-01-08"
+         }
+        ],
+        "column": "n"
+       }
+      ],
+      "display": "3"
+     }
+    ]
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 7, 3"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "Members 1234567 appear as a key? no.",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 1234567"
+    ]
+   }
+  },
+  {
+   "lang": "ko",
+   "draft": {
+    "prose": "value 33x faster, 5 pp, 7percent",
+    "claims": []
+   },
+   "out": {
+    "ok": false,
+    "problems": [
+     "the text has numbers outside claims, or labels not in the result or definition: 33, 5, 7"
+    ]
+   }
+  }
+ ],
+ "formats": [
+  {
+   "lang": "en",
+   "op": "value",
+   "x": "0",
+   "out": "0"
+  },
+  {
+   "lang": "en",
+   "op": "value",
+   "x": "1234567",
+   "out": "1,234,567"
+  },
+  {
+   "lang": "en",
+   "op": "value",
+   "x": "-1234.5",
+   "out": "-1234.5"
+  },
+  {
+   "lang": "en",
+   "op": "value",
+   "x": "1152921504606847000",
+   "out": "1,152,921,504,606,847,000"
+  },
+  {
+   "lang": "en",
+   "op": "value",
+   "x": "1e+21",
+   "out": "1,000,000,000,000,000,000,000"
+  },
+  {
+   "lang": "en",
+   "op": "sum",
+   "x": "999",
+   "out": "999"
+  },
+  {
+   "lang": "en",
+   "op": "sum",
+   "x": "1000",
+   "out": "1,000"
+  },
+  {
+   "lang": "en",
+   "op": "sum",
+   "x": "0.05",
+   "out": "0.1"
+  },
+  {
+   "lang": "en",
+   "op": "sum",
+   "x": "-0.05",
+   "out": "0.0"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "0.25",
+   "out": "0.3%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "0.75",
+   "out": "0.8%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "-0.25",
+   "out": "-0.2%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "33.333333",
+   "out": "33.3%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "99.95",
+   "out": "100.0%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "1.05",
+   "out": "1.1%"
+  },
+  {
+   "lang": "en",
+   "op": "diff",
+   "x": "-2.5",
+   "out": "-2.5pp"
+  },
+  {
+   "lang": "en",
+   "op": "diff",
+   "x": "2.45",
+   "out": "2.5pp"
+  },
+  {
+   "lang": "en",
+   "op": "ratio",
+   "x": "1.5",
+   "out": "1.5x"
+  },
+  {
+   "lang": "en",
+   "op": "ratio",
+   "x": "1e+22",
+   "out": "1e+22x"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "0",
+   "out": "0.0%"
+  },
+  {
+   "lang": "en",
+   "op": "rate",
+   "x": "NaN",
+   "out": "NaN%"
+  },
+  {
+   "lang": "ko",
+   "op": "value",
+   "x": "0",
+   "out": "0"
+  },
+  {
+   "lang": "ko",
+   "op": "value",
+   "x": "1234567",
+   "out": "1,234,567"
+  },
+  {
+   "lang": "ko",
+   "op": "value",
+   "x": "-1234.5",
+   "out": "-1234.5"
+  },
+  {
+   "lang": "ko",
+   "op": "value",
+   "x": "1152921504606847000",
+   "out": "1,152,921,504,606,847,000"
+  },
+  {
+   "lang": "ko",
+   "op": "value",
+   "x": "1e+21",
+   "out": "1,000,000,000,000,000,000,000"
+  },
+  {
+   "lang": "ko",
+   "op": "sum",
+   "x": "999",
+   "out": "999"
+  },
+  {
+   "lang": "ko",
+   "op": "sum",
+   "x": "1000",
+   "out": "1,000"
+  },
+  {
+   "lang": "ko",
+   "op": "sum",
+   "x": "0.05",
+   "out": "0.1"
+  },
+  {
+   "lang": "ko",
+   "op": "sum",
+   "x": "-0.05",
+   "out": "0.0"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "0.25",
+   "out": "0.3%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "0.75",
+   "out": "0.8%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "-0.25",
+   "out": "-0.2%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "33.333333",
+   "out": "33.3%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "99.95",
+   "out": "100.0%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "1.05",
+   "out": "1.1%"
+  },
+  {
+   "lang": "ko",
+   "op": "diff",
+   "x": "-2.5",
+   "out": "-2.5%p"
+  },
+  {
+   "lang": "ko",
+   "op": "diff",
+   "x": "2.45",
+   "out": "2.5%p"
+  },
+  {
+   "lang": "ko",
+   "op": "ratio",
+   "x": "1.5",
+   "out": "1.5배"
+  },
+  {
+   "lang": "ko",
+   "op": "ratio",
+   "x": "1e+22",
+   "out": "1e+22배"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "0",
+   "out": "0.0%"
+  },
+  {
+   "lang": "ko",
+   "op": "rate",
+   "x": "NaN",
+   "out": "NaN%"
+  }
+ ],
+ "labels": {
+  "spec": {
+   "metric": "signups",
+   "title": "Retention W4 in 2024",
+   "question": "3주차 리텐션은 50% 넘나?",
+   "sql": "SELECT 1",
+   "display": {
+    "type": "cohort",
+    "columns": {
+     "cohort": "cohort",
+     "period": "period",
+     "numerator": "numerator",
+     "denominator": "denominator",
+     "series": null,
+     "deleted_n": null
+    },
+    "extra": [],
+    "key": [],
+    "headline": null
+   },
+   "definition": [
+    [
+     "Window",
+     "７일 이내, 2.5배 이상, 10x faster, 30 percent"
+    ],
+    [
+     "Cohort",
+     "2024-01 가입 1,000명"
+    ]
+   ],
+   "caveats": [],
+   "answers": [
+    {
+     "question": "Weeks?",
+     "answer": "12주",
+     "defaulted": false
+    }
+   ]
+  },
+  "input": {
+   "metric": "signups",
+   "title": "Retention W4 in 2024",
+   "question": "3주차 리텐션은 50% 넘나?",
+   "sql": "SELECT 1",
+   "display": {
+    "type": "cohort"
+   },
+   "definition": [
+    [
+     "Window",
+     "７일 이내, 2.5배 이상, 10x faster, 30 percent"
+    ],
+    [
+     "Cohort",
+     "2024-01 가입 1,000명"
+    ]
+   ],
+   "caveats": [],
+   "answers": [
+    {
+     "question": "Weeks?",
+     "answer": "12주",
+     "defaulted": false
+    }
+   ]
+  },
+  "columns": [
+   "cohort",
+   "period",
+   "numerator",
+   "denominator"
+  ],
+  "rows": [
+   [
+    "2024-01",
+    0,
+    1,
+    2
+   ],
+   [
+    "2024-02",
+    3,
+    1,
+    2
+   ],
+   [
+    5000,
+    1.5,
+    1,
+    2
+   ]
+  ],
+  "out": [
+   "week 1.5",
+   "Week 1.5",
+   "2024-01",
+   "2024-02",
+   "week 0",
+   "Week 0",
+   "week 3",
+   "Week 3",
+   "1.5주 차",
+   "1,000명",
+   "1.5주차",
+   "0주 차",
+   "3주 차",
+   "5000",
+   "W1.5",
+   "2024",
+   "0주차",
+   "3주차",
+   "12주",
+   "W0",
+   "W3",
+   "7일",
+   "4"
+  ]
+ },
+ "stray": [
+  {
+   "text": "12 and 34 and 1,234.5 and 2024-01-01",
+   "labels": [
+    "34",
+    "2024"
+   ],
+   "out": [
+    "12",
+    "1,234.5",
+    "2024-01-01"
+   ]
+  },
+  {
+   "text": "week 3 and W3",
+   "labels": [
+    "W3"
+   ],
+   "out": [
+    "3"
+   ]
+  },
+  {
+   "text": "50% then 50 then 3x",
+   "labels": [
+    "50"
+   ],
+   "out": [
+    "50",
+    "3"
+   ]
+  },
+  {
+   "text": "𝟏𝟐 math digits and ٣٤",
+   "labels": [],
+   "out": [
+    "𝟏𝟐",
+    "٣٤"
+   ]
+  },
+  {
+   "text": "😀12 emoji before digits",
+   "labels": [
+    "12"
+   ],
+   "out": []
+  },
+  {
+   "text": "repeat 12 12 12",
+   "labels": [
+    "12"
+   ],
+   "out": []
+  },
+  {
+   "text": "",
+   "labels": [],
+   "out": []
+  }
+ ]
+}

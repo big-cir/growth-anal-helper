@@ -1,0 +1,5329 @@
+{
+ "cases": [
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week",
+     "series": "grp"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "week",
+    "grp",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     "2024-01-01",
+     "a",
+     1,
+     10
+    ],
+    [
+     "2024-01-08",
+     "a",
+     3,
+     10
+    ],
+    [
+     "2024-01-01",
+     "b",
+     2,
+     20
+    ],
+    [
+     "2024-01-08",
+     "b",
+     30,
+     20
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "week=2024-01-08, grp=b",
+      "problem": "numerator(30) > denominator(20)",
+      "index": 3,
+      "rule": "numerator_le_denominator",
+      "column": "numerator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- week=2024-01-08, grp=b: numerator(30) > denominator(20)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.3,\"numerator\":3,\"denominator\":10,\"lowN\":true,\"label\":\"2024-01-08 · a\"}",
+     "value": "0.3"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "week",
+     "grp",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      "2024-01-01",
+      "a",
+      1,
+      10
+     ],
+     [
+      "2024-01-08",
+      "a",
+      3,
+      10
+     ],
+     [
+      "2024-01-01",
+      "b",
+      2,
+      20
+     ],
+     [
+      "2024-01-08",
+      "b",
+      30,
+      20
+     ]
+    ]
+   },
+   "labels": [
+    "2024-01-01",
+    "2024-01-08"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "week",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     "2024-01-08",
+     5,
+     50
+    ],
+    [
+     "2024-01-01",
+     2,
+     0
+    ],
+    [
+     "2024-01-15",
+     -1,
+     1.5
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "week=2024-01-01",
+      "problem": "numerator(2) > denominator(0)",
+      "index": 1,
+      "rule": "numerator_le_denominator",
+      "column": "numerator"
+     },
+     {
+      "row": "week=2024-01-15",
+      "problem": "numerator must be an integer ≥ 0 (-1)",
+      "index": 2,
+      "rule": "count_nonneg_int",
+      "column": "numerator"
+     },
+     {
+      "row": "week=2024-01-15",
+      "problem": "denominator must be an integer ≥ 0 (1.5)",
+      "index": 2,
+      "rule": "count_nonneg_int",
+      "column": "denominator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- week=2024-01-01: numerator(2) > denominator(0)\n- week=2024-01-15: numerator must be an integer ≥ 0 (-1)\n- … and 1 more"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":-0.6666666666666666,\"numerator\":-1,\"denominator\":1.5,\"lowN\":true,\"label\":\"2024-01-15\"}",
+     "value": "-0.6666666666666666"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "week",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      "2024-01-08",
+      5,
+      50
+     ],
+     [
+      "2024-01-01",
+      2,
+      0
+     ],
+     [
+      "2024-01-15",
+      -1,
+      1.5
+     ]
+    ]
+   },
+   "labels": [
+    "2024-01-08",
+    "2024-01-01",
+    "2024-01-15"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "week",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "-",
+      "problem": "result has no rows",
+      "index": null,
+      "rule": "rows_nonempty",
+      "column": null
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- -: result has no rows"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "week",
+     "numerator",
+     "denominator"
+    ],
+    "rows": []
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "week",
+    "numerator"
+   ],
+   "rows": [
+    [
+     "a",
+     1
+    ]
+   ],
+   "contract": {
+    "ok": false,
+    "error": "result is missing columns the line pattern needs: denominator (result columns: week, numerator)"
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "week=a",
+      "problem": "denominator must be an integer ≥ 0 (undefined)",
+      "index": 0,
+      "rule": "count_nonneg_int",
+      "column": "denominator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- week=a: denominator must be an integer ≥ 0 (undefined)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":null,\"numerator\":1,\"lowN\":false,\"label\":\"a\"}",
+     "value": "NaN"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "week",
+     "numerator"
+    ],
+    "rows": [
+     [
+      "a",
+      1
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "week"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "week",
+    "numerator",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     "a",
+     1,
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": false,
+    "error": "duplicate result column name: numerator"
+   },
+   "invariants": {
+    "ok": false,
+    "error": "duplicate result column name: numerator"
+   },
+   "formatted": {
+    "ok": false,
+    "error": "duplicate result column name: numerator"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": false,
+    "error": "duplicate result column name: numerator"
+   },
+   "summaryResult": {
+    "columns": [
+     "week",
+     "numerator",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      "a",
+      1,
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k",
+     "extra": [
+      "e"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator",
+    "e"
+   ],
+   "rows": [
+    [
+     null,
+     1,
+     2,
+     "x"
+    ],
+    [
+     2,
+     1,
+     2,
+     -3
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "k=NULL",
+      "problem": "e must be an integer ≥ 0 (x)",
+      "index": 0,
+      "rule": "count_nonneg_int",
+      "column": "e"
+     },
+     {
+      "row": "k=2",
+      "problem": "e must be an integer ≥ 0 (-3)",
+      "index": 1,
+      "rule": "count_nonneg_int",
+      "column": "e"
+     },
+     {
+      "row": "-",
+      "problem": "x has NULL",
+      "index": null,
+      "rule": "x_not_null",
+      "column": "k"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- k=NULL: e must be an integer ≥ 0 (x)\n- k=2: e must be an integer ≥ 0 (-3)\n- … and 1 more"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"2\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator",
+     "e"
+    ],
+    "rows": [
+     [
+      null,
+      1,
+      2,
+      "x"
+     ],
+     [
+      2,
+      1,
+      2,
+      -3
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     1,
+     2
+    ],
+    [
+     "b",
+     1,
+     2
+    ],
+    [
+     1,
+     3,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "k=1",
+      "problem": "numerator(3) > denominator(2)",
+      "index": 2,
+      "rule": "numerator_le_denominator",
+      "column": "numerator"
+     },
+     {
+      "row": "k=1",
+      "problem": "duplicate row key (same as row 1)",
+      "index": 2,
+      "rule": "unique_row_key",
+      "column": null
+     },
+     {
+      "row": "-",
+      "problem": "x mixes numbers and strings and cannot be sorted",
+      "index": null,
+      "rule": "x_sortable",
+      "column": "k"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- k=1: numerator(3) > denominator(2)\n- k=1: duplicate row key (same as row 1)\n- … and 1 more"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"b\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      1,
+      2
+     ],
+     [
+      "b",
+      1,
+      2
+     ],
+     [
+      1,
+      3,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k",
+     "series": "s"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "s",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     "s0",
+     1,
+     2
+    ],
+    [
+     1,
+     "s1",
+     1,
+     2
+    ],
+    [
+     1,
+     "s2",
+     1,
+     2
+    ],
+    [
+     1,
+     "s3",
+     1,
+     2
+    ],
+    [
+     1,
+     "s4",
+     1,
+     2
+    ],
+    [
+     1,
+     "s5",
+     1,
+     2
+    ],
+    [
+     1,
+     "s6",
+     1,
+     2
+    ],
+    [
+     1,
+     "s7",
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "-",
+      "problem": "8 series (6 or fewer)",
+      "index": null,
+      "rule": "series_max_6",
+      "column": "s"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- -: 8 series (6 or fewer)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"1 · s0\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "s",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      "s0",
+      1,
+      2
+     ],
+     [
+      1,
+      "s1",
+      1,
+      2
+     ],
+     [
+      1,
+      "s2",
+      1,
+      2
+     ],
+     [
+      1,
+      "s3",
+      1,
+      2
+     ],
+     [
+      1,
+      "s4",
+      1,
+      2
+     ],
+     [
+      1,
+      "s5",
+      1,
+      2
+     ],
+     [
+      1,
+      "s6",
+      1,
+      2
+     ],
+     [
+      1,
+      "s7",
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": [
+    "s0",
+    "s1",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6",
+    "s7"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k",
+     "series": "s",
+     "headline": {
+      "series": "s3"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "s",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     0,
+     "s0",
+     0,
+     40
+    ],
+    [
+     1,
+     "s1",
+     1,
+     40
+    ],
+    [
+     2,
+     "s2",
+     2,
+     40
+    ],
+    [
+     3,
+     "s3",
+     3,
+     40
+    ],
+    [
+     4,
+     "s0",
+     4,
+     40
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.075,\"numerator\":3,\"denominator\":40,\"lowN\":false,\"label\":\"3 · s3\"}",
+     "value": "0.075"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "s",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      0,
+      "s0",
+      0,
+      40
+     ],
+     [
+      1,
+      "s1",
+      1,
+      40
+     ],
+     [
+      2,
+      "s2",
+      2,
+      40
+     ],
+     [
+      3,
+      "s3",
+      3,
+      40
+     ],
+     [
+      4,
+      "s0",
+      4,
+      40
+     ]
+    ]
+   },
+   "labels": [
+    "s0",
+    "s1",
+    "s2",
+    "s3"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k",
+     "series": "s",
+     "headline": {
+      "series": "zz"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "s",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     "a",
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": false,
+    "error": "headline series not in the result: zz"
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "s",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      "a",
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "bar",
+     "x": "k",
+     "series": "s",
+     "headline": {
+      "series": null
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "s",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     null,
+     1,
+     2
+    ],
+    [
+     2,
+     "a",
+     3,
+     4
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"1 · NULL\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "s",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      null,
+      1,
+      2
+     ],
+     [
+      2,
+      "a",
+      3,
+      4
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k",
+     "headline": {
+      "x": "2"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     1,
+     2
+    ],
+    [
+     2,
+     7,
+     9
+    ],
+    [
+     3,
+     1,
+     1
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.7777777777777778,\"numerator\":7,\"denominator\":9,\"lowN\":true,\"label\":\"2\"}",
+     "value": "0.7777777777777778"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      1,
+      2
+     ],
+     [
+      2,
+      7,
+      9
+     ],
+     [
+      3,
+      1,
+      1
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k",
+     "headline": {
+      "x": "9"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": false,
+    "error": "headline x not in the result: 9"
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k",
+     "headline": {
+      "series": "q"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"1\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     "b",
+     1,
+     2
+    ],
+    [
+     "B",
+     2,
+     3
+    ],
+    [
+     "가",
+     3,
+     4
+    ],
+    [
+     "😀",
+     4,
+     5
+    ],
+    [
+     "￿",
+     5,
+     6
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.8333333333333334,\"numerator\":5,\"denominator\":6,\"lowN\":true,\"label\":\"￿\"}",
+     "value": "0.8333333333333334"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      "b",
+      1,
+      2
+     ],
+     [
+      "B",
+      2,
+      3
+     ],
+     [
+      "가",
+      3,
+      4
+     ],
+     [
+      "😀",
+      4,
+      5
+     ],
+     [
+      "￿",
+      5,
+      6
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     2.5,
+     1,
+     2
+    ],
+    [
+     -1,
+     1,
+     2
+    ],
+    [
+     10,
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"10\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      2.5,
+      1,
+      2
+     ],
+     [
+      -1,
+      1,
+      2
+     ],
+     [
+      10,
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     3,
+     12
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.25,\"numerator\":3,\"denominator\":12,\"lowN\":true,\"label\":\"\"}",
+     "value": "0.25"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      3,
+      12
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     3,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "row 1",
+      "problem": "numerator(3) > denominator(0)",
+      "index": 0,
+      "rule": "numerator_le_denominator",
+      "column": "numerator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- row 1: numerator(3) > denominator(0)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":null,\"numerator\":3,\"denominator\":0,\"lowN\":true,\"label\":\"\"}",
+     "value": "NaN"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      3,
+      0
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "label": "l"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "numerator",
+    "denominator",
+    "l"
+   ],
+   "rows": [
+    [
+     30,
+     300,
+     "last month"
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.1,\"numerator\":30,\"denominator\":300,\"lowN\":false,\"label\":\"last month\"}",
+     "value": "0.1"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "numerator",
+     "denominator",
+     "l"
+    ],
+    "rows": [
+     [
+      30,
+      300,
+      "last month"
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": "v",
+     "label": "l"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "v",
+    "l"
+   ],
+   "rows": [
+    [
+     1234.5,
+     null
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":1234.5,\"numerator\":null,\"denominator\":null,\"lowN\":false,\"label\":\"NULL\"}",
+     "value": "1234.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "v",
+     "l"
+    ],
+    "rows": [
+     [
+      1234.5,
+      null
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": "v"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "v"
+   ],
+   "rows": [
+    [
+     "12"
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "row 1",
+      "problem": "value must be a number (12)",
+      "index": 0,
+      "rule": "value_number",
+      "column": "v"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- row 1: value must be a number (12)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":\"12\",\"numerator\":null,\"denominator\":null,\"lowN\":false,\"label\":\"\"}",
+     "value": "12"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "v"
+    ],
+    "rows": [
+     [
+      "12"
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "value": "v"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "v"
+   ],
+   "rows": [
+    [
+     1
+    ],
+    [
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "-",
+      "problem": "the number pattern needs exactly 1 row (got 2)",
+      "index": null,
+      "rule": "number_one_row",
+      "column": null
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- -: the number pattern needs exactly 1 row (got 2)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":1,\"numerator\":null,\"denominator\":null,\"lowN\":false,\"label\":\"\"}",
+     "value": "1"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "v"
+    ],
+    "rows": [
+     [
+      1
+     ],
+     [
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number",
+     "numerator": "a",
+     "denominator": "b"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "a",
+    "b"
+   ],
+   "rows": [
+    [
+     5,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "row 1",
+      "problem": "a(5) > b(2)",
+      "index": 0,
+      "rule": "numerator_le_denominator",
+      "column": "a"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- row 1: a(5) > b(2)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":2.5,\"numerator\":5,\"denominator\":2,\"lowN\":true,\"label\":\"\"}",
+     "value": "2.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "a",
+     "b"
+    ],
+    "rows": [
+     [
+      5,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     "3",
+     "30"
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "row 1",
+      "problem": "numerator must be an integer ≥ 0 (3)",
+      "index": 0,
+      "rule": "count_nonneg_int",
+      "column": "numerator"
+     },
+     {
+      "row": "row 1",
+      "problem": "denominator must be an integer ≥ 0 (30)",
+      "index": 0,
+      "rule": "count_nonneg_int",
+      "column": "denominator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- row 1: numerator must be an integer ≥ 0 (3)\n- row 1: denominator must be an integer ≥ 0 (30)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.1,\"numerator\":\"3\",\"denominator\":\"30\",\"lowN\":false,\"label\":\"\"}",
+     "value": "0.1"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      "3",
+      "30"
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "number"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     null,
+     10
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "row 1",
+      "problem": "numerator must be an integer ≥ 0 (NULL)",
+      "index": 0,
+      "rule": "count_nonneg_int",
+      "column": "numerator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- row 1: numerator must be an integer ≥ 0 (NULL)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0,\"numerator\":null,\"denominator\":10,\"lowN\":true,\"label\":\"\"}",
+     "value": "0"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      null,
+      10
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     2,
+     "b",
+     80,
+     95,
+     5
+    ],
+    [
+     1,
+     "a",
+     100,
+     100,
+     0
+    ],
+    [
+     3,
+     "c",
+     90,
+     70,
+     10
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "step_no=3",
+      "problem": "reached(90) > eligible(70)",
+      "index": 2,
+      "rule": "numerator_le_denominator",
+      "column": "reached"
+     },
+     {
+      "row": "step_no=3",
+      "problem": "reached (90) is more than the previous step's reached (80)",
+      "index": 2,
+      "rule": "reached_nonincreasing",
+      "column": "reached"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- step_no=3: reached(90) > eligible(70)\n- step_no=3: reached (90) is more than the previous step's reached (80)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.9,\"numerator\":90,\"denominator\":100,\"lowN\":false,\"label\":\"c / a\"}",
+     "value": "0.9"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      2,
+      "b",
+      80,
+      95,
+      5
+     ],
+     [
+      1,
+      "a",
+      100,
+      100,
+      0
+     ],
+     [
+      3,
+      "c",
+      90,
+      70,
+      10
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     1,
+     "a",
+     100,
+     100,
+     0
+    ],
+    [
+     3,
+     "c",
+     50,
+     80,
+     0
+    ],
+    [
+     3,
+     "d",
+     40,
+     50,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "step_no=3",
+      "problem": "duplicate row key (same as row 2)",
+      "index": 2,
+      "rule": "unique_row_key",
+      "column": null
+     },
+     {
+      "row": "step_no=3",
+      "problem": "step numbers are not consecutive from 1 (expected 2)",
+      "index": 1,
+      "rule": "steps_consecutive",
+      "column": "step_no"
+     },
+     {
+      "row": "step_no=3",
+      "problem": "eligible (80) ≠ previous step's reached (100) − unknown (0)",
+      "index": 1,
+      "rule": "eligible_is_prev_minus_unknown",
+      "column": "eligible"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- step_no=3: duplicate row key (same as row 2)\n- step_no=3: step numbers are not consecutive from 1 (expected 2)\n- … and 1 more"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.4,\"numerator\":40,\"denominator\":100,\"lowN\":false,\"label\":\"d / a\"}",
+     "value": "0.4"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      1,
+      "a",
+      100,
+      100,
+      0
+     ],
+     [
+      3,
+      "c",
+      50,
+      80,
+      0
+     ],
+     [
+      3,
+      "d",
+      40,
+      50,
+      0
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     1.5,
+     "a",
+     1,
+     1,
+     0
+    ],
+    [
+     1,
+     "b",
+     1,
+     1,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "step_no=1.5",
+      "problem": "step_no must be an integer",
+      "index": 0,
+      "rule": "step_no_int",
+      "column": "step_no"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- step_no=1.5: step_no must be an integer"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":1,\"numerator\":1,\"denominator\":1,\"lowN\":true,\"label\":\"a / b\"}",
+     "value": "1"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      1.5,
+      "a",
+      1,
+      1,
+      0
+     ],
+     [
+      1,
+      "b",
+      1,
+      1,
+      0
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "cohort": "c"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "c",
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     "ALL",
+     1,
+     "a",
+     10,
+     10,
+     0
+    ],
+    [
+     "ALL",
+     2,
+     "b",
+     4,
+     9,
+     1
+    ],
+    [
+     "w1",
+     1,
+     "a",
+     5,
+     5,
+     0
+    ],
+    [
+     "w1",
+     2,
+     "b",
+     6,
+     5,
+     0
+    ],
+    [
+     null,
+     1,
+     "a",
+     1,
+     1,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "c=w1, step_no=2",
+      "problem": "reached(6) > eligible(5)",
+      "index": 3,
+      "rule": "numerator_le_denominator",
+      "column": "reached"
+     },
+     {
+      "row": "c=w1, step_no=2",
+      "problem": "reached (6) is more than the previous step's reached (5)",
+      "index": 3,
+      "rule": "reached_nonincreasing",
+      "column": "reached"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- c=w1, step_no=2: reached(6) > eligible(5)\n- c=w1, step_no=2: reached (6) is more than the previous step's reached (5)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.4,\"numerator\":4,\"denominator\":10,\"lowN\":true,\"label\":\"b / a\"}",
+     "value": "0.4"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "c",
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      "ALL",
+      1,
+      "a",
+      10,
+      10,
+      0
+     ],
+     [
+      "ALL",
+      2,
+      "b",
+      4,
+      9,
+      1
+     ],
+     [
+      "w1",
+      1,
+      "a",
+      5,
+      5,
+      0
+     ],
+     [
+      "w1",
+      2,
+      "b",
+      6,
+      5,
+      0
+     ],
+     [
+      null,
+      1,
+      "a",
+      1,
+      1,
+      0
+     ]
+    ]
+   },
+   "labels": [
+    "w1"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "cohort": "c"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "c",
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     "w1",
+     1,
+     "a",
+     5,
+     5,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "c",
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      "w1",
+      1,
+      "a",
+      5,
+      5,
+      0
+     ]
+    ]
+   },
+   "labels": [
+    "w1"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "cohort": "c",
+     "headline": {
+      "x": "w1"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "c",
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     "w1",
+     1,
+     "a",
+     5,
+     5,
+     0
+    ],
+    [
+     "w1",
+     2,
+     "b",
+     2,
+     5,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.4,\"numerator\":2,\"denominator\":5,\"lowN\":true,\"label\":\"b / a\"}",
+     "value": "0.4"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "c",
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      "w1",
+      1,
+      "a",
+      5,
+      5,
+      0
+     ],
+     [
+      "w1",
+      2,
+      "b",
+      2,
+      5,
+      0
+     ]
+    ]
+   },
+   "labels": [
+    "w1"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "funnel",
+     "cohort": "c",
+     "headline": {
+      "x": "w9"
+     }
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "c",
+    "step_no",
+    "step_name",
+    "reached",
+    "eligible",
+    "unknown"
+   ],
+   "rows": [
+    [
+     "w1",
+     1,
+     "a",
+     5,
+     5,
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": false,
+    "error": "headline cohort not in the result: w9"
+   },
+   "summaryResult": {
+    "columns": [
+     "c",
+     "step_no",
+     "step_name",
+     "reached",
+     "eligible",
+     "unknown"
+    ],
+    "rows": [
+     [
+      "w1",
+      1,
+      "a",
+      5,
+      5,
+      0
+     ]
+    ]
+   },
+   "labels": [
+    "w1"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "cohort",
+     "series": "s",
+     "deleted_n": "dn"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "cohort",
+    "period",
+    "numerator",
+    "denominator",
+    "s",
+    "dn"
+   ],
+   "rows": [
+    [
+     "a",
+     0,
+     5,
+     10,
+     "x",
+     0
+    ],
+    [
+     "a",
+     1,
+     4,
+     12,
+     "x",
+     1
+    ],
+    [
+     "a",
+     -1,
+     1,
+     1,
+     "x",
+     0
+    ],
+    [
+     "a",
+     "p",
+     1,
+     1,
+     "y",
+     0.5
+    ],
+    [
+     "b",
+     2,
+     1,
+     9,
+     "x",
+     0
+    ],
+    [
+     "b",
+     1,
+     1,
+     8,
+     "x",
+     0
+    ],
+    [
+     "b",
+     1,
+     1,
+     8,
+     "x",
+     0
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "cohort=a, s=y, period=p",
+      "problem": "dn must be an integer ≥ 0 (0.5)",
+      "index": 3,
+      "rule": "count_nonneg_int",
+      "column": "dn"
+     },
+     {
+      "row": "cohort=b, s=x, period=1",
+      "problem": "duplicate row key (same as row 6)",
+      "index": 6,
+      "rule": "unique_row_key",
+      "column": null
+     },
+     {
+      "row": "cohort=a, s=x, period=-1",
+      "problem": "period must be an integer ≥ 0 (-1)",
+      "index": 2,
+      "rule": "period_nonneg_int",
+      "column": "period"
+     },
+     {
+      "row": "cohort=a, s=y, period=p",
+      "problem": "period must be an integer ≥ 0 (p)",
+      "index": 3,
+      "rule": "period_nonneg_int",
+      "column": "period"
+     },
+     {
+      "row": "cohort=a, s=x, period=0",
+      "problem": "denominator grew as period grew (1 → 10, breaks the observability condition)",
+      "index": 0,
+      "rule": "denominator_nonincreasing",
+      "column": "denominator"
+     },
+     {
+      "row": "cohort=a, s=x, period=1",
+      "problem": "denominator grew as period grew (10 → 12, breaks the observability condition)",
+      "index": 1,
+      "rule": "denominator_nonincreasing",
+      "column": "denominator"
+     },
+     {
+      "row": "cohort=b, s=x, period=2",
+      "problem": "denominator grew as period grew (8 → 9, breaks the observability condition)",
+      "index": 4,
+      "rule": "denominator_nonincreasing",
+      "column": "denominator"
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- cohort=a, s=y, period=p: dn must be an integer ≥ 0 (0.5)\n- cohort=b, s=x, period=1: duplicate row key (same as row 6)\n- … and 5 more"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "cohort",
+     "period",
+     "numerator",
+     "denominator",
+     "s",
+     "dn"
+    ],
+    "rows": [
+     [
+      "a",
+      0,
+      5,
+      10,
+      "x",
+      0
+     ],
+     [
+      "a",
+      1,
+      4,
+      12,
+      "x",
+      1
+     ],
+     [
+      "a",
+      -1,
+      1,
+      1,
+      "x",
+      0
+     ],
+     [
+      "a",
+      "p",
+      1,
+      1,
+      "y",
+      0.5
+     ],
+     [
+      "b",
+      2,
+      1,
+      9,
+      "x",
+      0
+     ],
+     [
+      "b",
+      1,
+      1,
+      8,
+      "x",
+      0
+     ],
+     [
+      "b",
+      1,
+      1,
+      8,
+      "x",
+      0
+     ]
+    ]
+   },
+   "labels": [
+    "week -1",
+    "Week -1",
+    "week 0",
+    "Week 0",
+    "week 1",
+    "Week 1",
+    "week 2",
+    "Week 2",
+    "-1주 차",
+    "0주 차",
+    "1주 차",
+    "-1주차",
+    "2주 차",
+    "0주차",
+    "1주차",
+    "W-1",
+    "2주차",
+    "W0",
+    "W1",
+    "W2"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "cohort"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "cohort",
+    "period",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     0,
+     1,
+     2
+    ],
+    [
+     "1",
+     0,
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "cohort",
+     "period",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      0,
+      1,
+      2
+     ],
+     [
+      "1",
+      0,
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": [
+    "week 0",
+    "Week 0",
+    "0주 차",
+    "0주차",
+    "W0",
+    "1"
+   ]
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table",
+     "key": [
+      "a",
+      "b"
+     ]
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "rows": [
+    [
+     1,
+     "x",
+     0
+    ],
+    [
+     1,
+     "x",
+     1
+    ],
+    [
+     null,
+     null,
+     2
+    ],
+    [
+     null,
+     null,
+     3
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": [
+     {
+      "row": "a=1, b=x",
+      "problem": "duplicate row key (same as row 1)",
+      "index": 1,
+      "rule": "unique_row_key",
+      "column": null
+     },
+     {
+      "row": "a=NULL, b=NULL",
+      "problem": "duplicate row key (same as row 3)",
+      "index": 3,
+      "rule": "unique_row_key",
+      "column": null
+     }
+    ]
+   },
+   "formatted": {
+    "ok": true,
+    "value": "- a=1, b=x: duplicate row key (same as row 1)\n- a=NULL, b=NULL: duplicate row key (same as row 3)"
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "a",
+     "b",
+     "c"
+    ],
+    "rows": [
+     [
+      1,
+      "x",
+      0
+     ],
+     [
+      1,
+      "x",
+      1
+     ],
+     [
+      null,
+      null,
+      2
+     ],
+     [
+      null,
+      null,
+      3
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": "signups",
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "table"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [],
+    "answers": []
+   },
+   "columns": [
+    "a"
+   ],
+   "rows": [
+    [
+     1
+    ],
+    [
+     1
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": []
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": []
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "a"
+    ],
+    "rows": [
+     [
+      1
+     ],
+     [
+      1
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": null,
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "line",
+     "x": "k",
+     "series": "s"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     "already: This is an observational comparison, not a causal effect"
+    ],
+    "answers": []
+   },
+   "columns": [
+    "k",
+    "s",
+    "numerator",
+    "denominator"
+   ],
+   "rows": [
+    [
+     1,
+     "a",
+     1,
+     2
+    ],
+    [
+     1,
+     "b",
+     1,
+     2
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This panel uses a definition outside the metric dictionary",
+     "already: This is an observational comparison, not a causal effect"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "지표 사전에 없는 정의로 만든 패널이에요",
+     "관측 비교이며 인과효과가 아닙니다",
+     "already: This is an observational comparison, not a causal effect"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": {
+     "json": "{\"value\":0.5,\"numerator\":1,\"denominator\":2,\"lowN\":true,\"label\":\"1 · a\"}",
+     "value": "0.5"
+    }
+   },
+   "summaryResult": {
+    "columns": [
+     "k",
+     "s",
+     "numerator",
+     "denominator"
+    ],
+    "rows": [
+     [
+      1,
+      "a",
+      1,
+      2
+     ],
+     [
+      1,
+      "b",
+      1,
+      2
+     ]
+    ]
+   },
+   "labels": []
+  },
+  {
+   "spec": {
+    "metric": null,
+    "title": "Weekly signups",
+    "question": "How many signed up?",
+    "sql": "SELECT 1",
+    "display": {
+     "type": "cohort",
+     "series": "s"
+    },
+    "definition": [
+     [
+      "Population",
+      "Members"
+     ]
+    ],
+    "caveats": [
+     "지표 사전에 없는 정의로 만든 패널이에요 (engine)"
+    ],
+    "answers": []
+   },
+   "columns": [
+    "cohort",
+    "period",
+    "numerator",
+    "denominator",
+    "s"
+   ],
+   "rows": [
+    [
+     "a",
+     0,
+     1,
+     2,
+     "x"
+    ],
+    [
+     "a",
+     0,
+     1,
+     2,
+     null
+    ]
+   ],
+   "contract": {
+    "ok": true,
+    "value": null
+   },
+   "invariants": {
+    "ok": true,
+    "value": []
+   },
+   "formatted": {
+    "ok": true,
+    "value": ""
+   },
+   "caveats_en": {
+    "ok": true,
+    "value": [
+     "This panel uses a definition outside the metric dictionary",
+     "This is an observational comparison, not a causal effect",
+     "지표 사전에 없는 정의로 만든 패널이에요 (engine)"
+    ]
+   },
+   "caveats_ko": {
+    "ok": true,
+    "value": [
+     "관측 비교이며 인과효과가 아닙니다",
+     "지표 사전에 없는 정의로 만든 패널이에요 (engine)"
+    ]
+   },
+   "headline": {
+    "ok": true,
+    "value": null
+   },
+   "summaryResult": {
+    "columns": [
+     "cohort",
+     "period",
+     "numerator",
+     "denominator",
+     "s"
+    ],
+    "rows": [
+     [
+      "a",
+      0,
+      1,
+      2,
+      "x"
+     ],
+     [
+      "a",
+      0,
+      1,
+      2,
+      null
+     ]
+    ]
+   },
+   "labels": [
+    "week 0",
+    "Week 0",
+    "0주 차",
+    "0주차",
+    "W0"
+   ]
+  }
+ ],
+ "compare": [
+  {
+   "a": null,
+   "b": 1,
+   "out": -1
+  },
+  {
+   "a": 1,
+   "b": null,
+   "out": 1
+  },
+  {
+   "a": 1,
+   "b": "a",
+   "out": -1
+  },
+  {
+   "a": "a",
+   "b": 1,
+   "out": 1
+  },
+  {
+   "a": 2,
+   "b": 1,
+   "out": 1
+  },
+  {
+   "a": "b",
+   "b": "a",
+   "out": 1
+  },
+  {
+   "a": "a",
+   "b": "a",
+   "out": 0
+  },
+  {
+   "a": "😀",
+   "b": "￿",
+   "out": -1
+  },
+  {
+   "a": null,
+   "b": null,
+   "out": 0
+  }
+ ],
+ "big": {
+  "columns": [
+   "a",
+   "b",
+   "c"
+  ],
+  "rows": [
+   [
+    null,
+    "s0",
+    "x"
+   ],
+   [
+    1.5,
+    "s1",
+    -1
+   ],
+   [
+    3,
+    "s2",
+    -2
+   ],
+   [
+    4.5,
+    "s3",
+    "x"
+   ],
+   [
+    6,
+    "s4",
+    -4
+   ],
+   [
+    7.5,
+    "s5",
+    -5
+   ],
+   [
+    9,
+    "s6",
+    "x"
+   ],
+   [
+    null,
+    "s7",
+    -7
+   ],
+   [
+    12,
+    "s8",
+    -8
+   ],
+   [
+    13.5,
+    "s9",
+    "x"
+   ],
+   [
+    15,
+    "s10",
+    -10
+   ],
+   [
+    16.5,
+    "s11",
+    -11
+   ],
+   [
+    18,
+    "s12",
+    "x"
+   ],
+   [
+    19.5,
+    "s13",
+    -13
+   ],
+   [
+    null,
+    "s14",
+    -14
+   ],
+   [
+    22.5,
+    "s15",
+    "x"
+   ],
+   [
+    24,
+    "s16",
+    -16
+   ],
+   [
+    25.5,
+    "s17",
+    -17
+   ],
+   [
+    27,
+    "s18",
+    "x"
+   ],
+   [
+    28.5,
+    "s19",
+    -19
+   ],
+   [
+    30,
+    "s20",
+    -20
+   ],
+   [
+    null,
+    "s21",
+    "x"
+   ],
+   [
+    33,
+    "s22",
+    -22
+   ],
+   [
+    34.5,
+    "s23",
+    -23
+   ],
+   [
+    36,
+    "s24",
+    "x"
+   ],
+   [
+    37.5,
+    "s25",
+    -25
+   ],
+   [
+    39,
+    "s26",
+    -26
+   ],
+   [
+    40.5,
+    "s27",
+    "x"
+   ],
+   [
+    null,
+    "s28",
+    -28
+   ],
+   [
+    43.5,
+    "s29",
+    -29
+   ],
+   [
+    45,
+    "s30",
+    "x"
+   ],
+   [
+    46.5,
+    "s31",
+    -31
+   ],
+   [
+    48,
+    "s32",
+    -32
+   ],
+   [
+    49.5,
+    "s33",
+    "x"
+   ],
+   [
+    51,
+    "s34",
+    -34
+   ],
+   [
+    null,
+    "s35",
+    -35
+   ],
+   [
+    54,
+    "s36",
+    "x"
+   ],
+   [
+    55.5,
+    "s37",
+    -37
+   ],
+   [
+    57,
+    "s38",
+    -38
+   ],
+   [
+    58.5,
+    "s39",
+    "x"
+   ],
+   [
+    60,
+    "s40",
+    -40
+   ],
+   [
+    61.5,
+    "s41",
+    -41
+   ],
+   [
+    null,
+    "s42",
+    "x"
+   ],
+   [
+    64.5,
+    "s43",
+    -43
+   ],
+   [
+    66,
+    "s44",
+    -44
+   ],
+   [
+    67.5,
+    "s45",
+    "x"
+   ],
+   [
+    69,
+    "s46",
+    -46
+   ],
+   [
+    70.5,
+    "s47",
+    -47
+   ],
+   [
+    72,
+    "s48",
+    "x"
+   ],
+   [
+    null,
+    "s49",
+    -49
+   ],
+   [
+    75,
+    "s50",
+    -50
+   ],
+   [
+    76.5,
+    "s51",
+    "x"
+   ],
+   [
+    78,
+    "s52",
+    -52
+   ],
+   [
+    79.5,
+    "s53",
+    -53
+   ],
+   [
+    81,
+    "s54",
+    "x"
+   ],
+   [
+    82.5,
+    "s55",
+    -55
+   ],
+   [
+    null,
+    "s56",
+    -56
+   ],
+   [
+    85.5,
+    "s57",
+    "x"
+   ],
+   [
+    87,
+    "s58",
+    -58
+   ],
+   [
+    88.5,
+    "s59",
+    -59
+   ],
+   [
+    90,
+    "s60",
+    "x"
+   ],
+   [
+    91.5,
+    "s61",
+    -61
+   ],
+   [
+    93,
+    "s62",
+    -62
+   ],
+   [
+    null,
+    "s63",
+    "x"
+   ],
+   [
+    96,
+    "s64",
+    -64
+   ],
+   [
+    97.5,
+    "s65",
+    -65
+   ],
+   [
+    99,
+    "s66",
+    "x"
+   ],
+   [
+    100.5,
+    "s67",
+    -67
+   ],
+   [
+    102,
+    "s68",
+    -68
+   ],
+   [
+    103.5,
+    "s69",
+    "x"
+   ],
+   [
+    null,
+    "s70",
+    -70
+   ],
+   [
+    106.5,
+    "s71",
+    -71
+   ],
+   [
+    108,
+    "s72",
+    "x"
+   ],
+   [
+    109.5,
+    "s73",
+    -73
+   ],
+   [
+    111,
+    "s74",
+    -74
+   ],
+   [
+    112.5,
+    "s75",
+    "x"
+   ],
+   [
+    114,
+    "s76",
+    -76
+   ],
+   [
+    null,
+    "s77",
+    -77
+   ],
+   [
+    117,
+    "s78",
+    "x"
+   ],
+   [
+    118.5,
+    "s79",
+    -79
+   ],
+   [
+    120,
+    "s80",
+    -80
+   ],
+   [
+    121.5,
+    "s81",
+    "x"
+   ],
+   [
+    123,
+    "s82",
+    -82
+   ],
+   [
+    124.5,
+    "s83",
+    -83
+   ],
+   [
+    null,
+    "s84",
+    "x"
+   ],
+   [
+    127.5,
+    "s85",
+    -85
+   ],
+   [
+    129,
+    "s86",
+    -86
+   ],
+   [
+    130.5,
+    "s87",
+    "x"
+   ],
+   [
+    132,
+    "s88",
+    -88
+   ],
+   [
+    133.5,
+    "s89",
+    -89
+   ],
+   [
+    135,
+    "s90",
+    "x"
+   ],
+   [
+    null,
+    "s91",
+    -91
+   ],
+   [
+    138,
+    "s92",
+    -92
+   ],
+   [
+    139.5,
+    "s93",
+    "x"
+   ],
+   [
+    141,
+    "s94",
+    -94
+   ],
+   [
+    142.5,
+    "s95",
+    -95
+   ],
+   [
+    144,
+    "s96",
+    "x"
+   ],
+   [
+    145.5,
+    "s97",
+    -97
+   ],
+   [
+    null,
+    "s98",
+    -98
+   ],
+   [
+    148.5,
+    "s99",
+    "x"
+   ],
+   [
+    150,
+    "s100",
+    -100
+   ],
+   [
+    151.5,
+    "s101",
+    -101
+   ],
+   [
+    153,
+    "s102",
+    "x"
+   ],
+   [
+    154.5,
+    "s103",
+    -103
+   ],
+   [
+    156,
+    "s104",
+    -104
+   ],
+   [
+    null,
+    "s105",
+    "x"
+   ],
+   [
+    159,
+    "s106",
+    -106
+   ],
+   [
+    160.5,
+    "s107",
+    -107
+   ],
+   [
+    162,
+    "s108",
+    "x"
+   ],
+   [
+    163.5,
+    "s109",
+    -109
+   ],
+   [
+    165,
+    "s110",
+    -110
+   ],
+   [
+    166.5,
+    "s111",
+    "x"
+   ],
+   [
+    null,
+    "s112",
+    -112
+   ],
+   [
+    169.5,
+    "s113",
+    -113
+   ],
+   [
+    171,
+    "s114",
+    "x"
+   ],
+   [
+    172.5,
+    "s115",
+    -115
+   ],
+   [
+    174,
+    "s116",
+    -116
+   ],
+   [
+    175.5,
+    "s117",
+    "x"
+   ],
+   [
+    177,
+    "s118",
+    -118
+   ],
+   [
+    null,
+    "s119",
+    -119
+   ],
+   [
+    180,
+    "s120",
+    "x"
+   ],
+   [
+    181.5,
+    "s121",
+    -121
+   ],
+   [
+    183,
+    "s122",
+    -122
+   ],
+   [
+    184.5,
+    "s123",
+    "x"
+   ],
+   [
+    186,
+    "s124",
+    -124
+   ],
+   [
+    187.5,
+    "s125",
+    -125
+   ],
+   [
+    null,
+    "s126",
+    "x"
+   ],
+   [
+    190.5,
+    "s127",
+    -127
+   ],
+   [
+    192,
+    "s128",
+    -128
+   ],
+   [
+    193.5,
+    "s129",
+    "x"
+   ],
+   [
+    195,
+    "s130",
+    -130
+   ],
+   [
+    196.5,
+    "s131",
+    -131
+   ],
+   [
+    198,
+    "s132",
+    "x"
+   ],
+   [
+    null,
+    "s133",
+    -133
+   ],
+   [
+    201,
+    "s134",
+    -134
+   ],
+   [
+    202.5,
+    "s135",
+    "x"
+   ],
+   [
+    204,
+    "s136",
+    -136
+   ],
+   [
+    205.5,
+    "s137",
+    -137
+   ],
+   [
+    207,
+    "s138",
+    "x"
+   ],
+   [
+    208.5,
+    "s139",
+    -139
+   ],
+   [
+    null,
+    "s140",
+    -140
+   ],
+   [
+    211.5,
+    "s141",
+    "x"
+   ],
+   [
+    213,
+    "s142",
+    -142
+   ],
+   [
+    214.5,
+    "s143",
+    -143
+   ],
+   [
+    216,
+    "s144",
+    "x"
+   ],
+   [
+    217.5,
+    "s145",
+    -145
+   ],
+   [
+    219,
+    "s146",
+    -146
+   ],
+   [
+    null,
+    "s147",
+    "x"
+   ],
+   [
+    222,
+    "s148",
+    -148
+   ],
+   [
+    223.5,
+    "s149",
+    -149
+   ],
+   [
+    225,
+    "s150",
+    "x"
+   ],
+   [
+    226.5,
+    "s151",
+    -151
+   ],
+   [
+    228,
+    "s152",
+    -152
+   ],
+   [
+    229.5,
+    "s153",
+    "x"
+   ],
+   [
+    null,
+    "s154",
+    -154
+   ],
+   [
+    232.5,
+    "s155",
+    -155
+   ],
+   [
+    234,
+    "s156",
+    "x"
+   ],
+   [
+    235.5,
+    "s157",
+    -157
+   ],
+   [
+    237,
+    "s158",
+    -158
+   ],
+   [
+    238.5,
+    "s159",
+    "x"
+   ],
+   [
+    240,
+    "s160",
+    -160
+   ],
+   [
+    null,
+    "s161",
+    -161
+   ],
+   [
+    243,
+    "s162",
+    "x"
+   ],
+   [
+    244.5,
+    "s163",
+    -163
+   ],
+   [
+    246,
+    "s164",
+    -164
+   ],
+   [
+    247.5,
+    "s165",
+    "x"
+   ],
+   [
+    249,
+    "s166",
+    -166
+   ],
+   [
+    250.5,
+    "s167",
+    -167
+   ],
+   [
+    null,
+    "s168",
+    "x"
+   ],
+   [
+    253.5,
+    "s169",
+    -169
+   ],
+   [
+    255,
+    "s170",
+    -170
+   ],
+   [
+    256.5,
+    "s171",
+    "x"
+   ],
+   [
+    258,
+    "s172",
+    -172
+   ],
+   [
+    259.5,
+    "s173",
+    -173
+   ],
+   [
+    261,
+    "s174",
+    "x"
+   ],
+   [
+    null,
+    "s175",
+    -175
+   ],
+   [
+    264,
+    "s176",
+    -176
+   ],
+   [
+    265.5,
+    "s177",
+    "x"
+   ],
+   [
+    267,
+    "s178",
+    -178
+   ],
+   [
+    268.5,
+    "s179",
+    -179
+   ],
+   [
+    270,
+    "s180",
+    "x"
+   ],
+   [
+    271.5,
+    "s181",
+    -181
+   ],
+   [
+    null,
+    "s182",
+    -182
+   ],
+   [
+    274.5,
+    "s183",
+    "x"
+   ],
+   [
+    276,
+    "s184",
+    -184
+   ],
+   [
+    277.5,
+    "s185",
+    -185
+   ],
+   [
+    279,
+    "s186",
+    "x"
+   ],
+   [
+    280.5,
+    "s187",
+    -187
+   ],
+   [
+    282,
+    "s188",
+    -188
+   ],
+   [
+    null,
+    "s189",
+    "x"
+   ],
+   [
+    285,
+    "s190",
+    -190
+   ],
+   [
+    286.5,
+    "s191",
+    -191
+   ],
+   [
+    288,
+    "s192",
+    "x"
+   ],
+   [
+    289.5,
+    "s193",
+    -193
+   ],
+   [
+    291,
+    "s194",
+    -194
+   ],
+   [
+    292.5,
+    "s195",
+    "x"
+   ],
+   [
+    null,
+    "s196",
+    -196
+   ],
+   [
+    295.5,
+    "s197",
+    -197
+   ],
+   [
+    297,
+    "s198",
+    "x"
+   ],
+   [
+    298.5,
+    "s199",
+    -199
+   ],
+   [
+    300,
+    "s200",
+    -200
+   ],
+   [
+    301.5,
+    "s201",
+    "x"
+   ],
+   [
+    303,
+    "s202",
+    -202
+   ],
+   [
+    null,
+    "s203",
+    -203
+   ],
+   [
+    306,
+    "s204",
+    "x"
+   ],
+   [
+    307.5,
+    "s205",
+    -205
+   ],
+   [
+    309,
+    "s206",
+    -206
+   ],
+   [
+    310.5,
+    "s207",
+    "x"
+   ],
+   [
+    312,
+    "s208",
+    -208
+   ],
+   [
+    313.5,
+    "s209",
+    -209
+   ],
+   [
+    null,
+    "s210",
+    "x"
+   ],
+   [
+    316.5,
+    "s211",
+    -211
+   ],
+   [
+    318,
+    "s212",
+    -212
+   ],
+   [
+    319.5,
+    "s213",
+    "x"
+   ],
+   [
+    321,
+    "s214",
+    -214
+   ],
+   [
+    322.5,
+    "s215",
+    -215
+   ],
+   [
+    324,
+    "s216",
+    "x"
+   ],
+   [
+    null,
+    "s217",
+    -217
+   ],
+   [
+    327,
+    "s218",
+    -218
+   ],
+   [
+    328.5,
+    "s219",
+    "x"
+   ],
+   [
+    330,
+    "s220",
+    -220
+   ],
+   [
+    331.5,
+    "s221",
+    -221
+   ],
+   [
+    333,
+    "s222",
+    "x"
+   ],
+   [
+    334.5,
+    "s223",
+    -223
+   ],
+   [
+    null,
+    "s224",
+    -224
+   ],
+   [
+    337.5,
+    "s225",
+    "x"
+   ],
+   [
+    339,
+    "s226",
+    -226
+   ],
+   [
+    340.5,
+    "s227",
+    -227
+   ],
+   [
+    342,
+    "s228",
+    "x"
+   ],
+   [
+    343.5,
+    "s229",
+    -229
+   ]
+  ],
+  "out": {
+   "columns": [
+    "a",
+    "b",
+    "c"
+   ],
+   "row_count": 230,
+   "stats": [
+    {
+     "name": "a",
+     "min": 1.5,
+     "max": 343.5,
+     "sum": 33958.5
+    },
+    {
+     "name": "b"
+    },
+    {
+     "name": "c",
+     "min": -229,
+     "max": -1,
+     "sum": -17557
+    }
+   ],
+   "first_rows": [
+    [
+     null,
+     "s0",
+     "x"
+    ],
+    [
+     1.5,
+     "s1",
+     -1
+    ],
+    [
+     3,
+     "s2",
+     -2
+    ],
+    [
+     4.5,
+     "s3",
+     "x"
+    ],
+    [
+     6,
+     "s4",
+     -4
+    ],
+    [
+     7.5,
+     "s5",
+     -5
+    ],
+    [
+     9,
+     "s6",
+     "x"
+    ],
+    [
+     null,
+     "s7",
+     -7
+    ],
+    [
+     12,
+     "s8",
+     -8
+    ],
+    [
+     13.5,
+     "s9",
+     "x"
+    ],
+    [
+     15,
+     "s10",
+     -10
+    ],
+    [
+     16.5,
+     "s11",
+     -11
+    ],
+    [
+     18,
+     "s12",
+     "x"
+    ],
+    [
+     19.5,
+     "s13",
+     -13
+    ],
+    [
+     null,
+     "s14",
+     -14
+    ],
+    [
+     22.5,
+     "s15",
+     "x"
+    ],
+    [
+     24,
+     "s16",
+     -16
+    ],
+    [
+     25.5,
+     "s17",
+     -17
+    ],
+    [
+     27,
+     "s18",
+     "x"
+    ],
+    [
+     28.5,
+     "s19",
+     -19
+    ]
+   ],
+   "last_rows": [
+    [
+     null,
+     "s210",
+     "x"
+    ],
+    [
+     316.5,
+     "s211",
+     -211
+    ],
+    [
+     318,
+     "s212",
+     -212
+    ],
+    [
+     319.5,
+     "s213",
+     "x"
+    ],
+    [
+     321,
+     "s214",
+     -214
+    ],
+    [
+     322.5,
+     "s215",
+     -215
+    ],
+    [
+     324,
+     "s216",
+     "x"
+    ],
+    [
+     null,
+     "s217",
+     -217
+    ],
+    [
+     327,
+     "s218",
+     -218
+    ],
+    [
+     328.5,
+     "s219",
+     "x"
+    ],
+    [
+     330,
+     "s220",
+     -220
+    ],
+    [
+     331.5,
+     "s221",
+     -221
+    ],
+    [
+     333,
+     "s222",
+     "x"
+    ],
+    [
+     334.5,
+     "s223",
+     -223
+    ],
+    [
+     null,
+     "s224",
+     -224
+    ],
+    [
+     337.5,
+     "s225",
+     "x"
+    ],
+    [
+     339,
+     "s226",
+     -226
+    ],
+    [
+     340.5,
+     "s227",
+     -227
+    ],
+    [
+     342,
+     "s228",
+     "x"
+    ],
+    [
+     343.5,
+     "s229",
+     -229
+    ]
+   ]
+  }
+ }
+}

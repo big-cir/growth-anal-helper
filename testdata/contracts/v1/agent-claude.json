@@ -1,0 +1,386 @@
+{
+ "env": {
+  "input": {
+   "PATH": "/bin",
+   "HOME": "/h",
+   "ANTHROPIC_API_KEY": "k",
+   "CLAUDE_X": "1",
+   "MYSQL_PWD": "no",
+   "AWS_SECRET": "no",
+   "LANG": "C",
+   "GL_EXTRA_X": "y",
+   "NODE_EXTRA_CA_CERTS": "c",
+   "TERM": "xterm"
+  },
+  "extra": [
+   "GL_"
+  ],
+  "out": {
+   "PATH": "/bin",
+   "HOME": "/h",
+   "ANTHROPIC_API_KEY": "k",
+   "CLAUDE_X": "1",
+   "LANG": "C",
+   "GL_EXTRA_X": "y",
+   "NODE_EXTRA_CA_CERTS": "c",
+   "TERM": "xterm"
+  },
+  "plain": {
+   "PATH": "/bin",
+   "HOME": "/h",
+   "ANTHROPIC_API_KEY": "k",
+   "CLAUDE_X": "1",
+   "LANG": "C",
+   "NODE_EXTRA_CA_CERTS": "c",
+   "TERM": "xterm"
+  }
+ },
+ "args": [
+  {
+   "input": {
+    "input": "hello",
+    "systemPrompt": "sys",
+    "jsonSchema": "{}",
+    "budgetUsd": 0.5,
+    "timeoutMs": 1
+   },
+   "out": [
+    "-p",
+    "hello",
+    "--safe-mode",
+    "--strict-mcp-config",
+    "--tools",
+    "",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--json-schema",
+    "{}",
+    "--append-system-prompt",
+    "sys",
+    "--max-budget-usd",
+    "0.5000"
+   ]
+  },
+  {
+   "input": {
+    "input": "x",
+    "systemPrompt": "s",
+    "jsonSchema": "{\"a\":1}",
+    "budgetUsd": 0.123456,
+    "sessionId": "sess",
+    "model": "opus",
+    "timeoutMs": 1
+   },
+   "out": [
+    "-p",
+    "x",
+    "--safe-mode",
+    "--strict-mcp-config",
+    "--tools",
+    "",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--json-schema",
+    "{\"a\":1}",
+    "--append-system-prompt",
+    "s",
+    "--max-budget-usd",
+    "0.1235",
+    "--model",
+    "opus",
+    "--resume",
+    "sess"
+   ]
+  },
+  {
+   "input": {
+    "input": "",
+    "systemPrompt": "",
+    "jsonSchema": "",
+    "budgetUsd": 0.00005,
+    "timeoutMs": 1
+   },
+   "out": [
+    "-p",
+    "",
+    "--safe-mode",
+    "--strict-mcp-config",
+    "--tools",
+    "",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--json-schema",
+    "",
+    "--append-system-prompt",
+    "",
+    "--max-budget-usd",
+    "0.0001"
+   ]
+  },
+  {
+   "input": {
+    "input": "y",
+    "systemPrompt": "s",
+    "jsonSchema": "{}",
+    "budgetUsd": 1.99995,
+    "timeoutMs": 1
+   },
+   "out": [
+    "-p",
+    "y",
+    "--safe-mode",
+    "--strict-mcp-config",
+    "--tools",
+    "",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--json-schema",
+    "{}",
+    "--append-system-prompt",
+    "s",
+    "--max-budget-usd",
+    "1.9999"
+   ]
+  }
+ ],
+ "streams": [
+  {
+   "lines": [
+    "{\"type\":\"system\",\"subtype\":\"init\",\"session_id\":\"s\",\"tools\":[]}",
+    "not json",
+    "[1]",
+    "\"x\"",
+    "",
+    "   ",
+    "{\"type\":\"assistant\"}",
+    "{\"type\":\"result\",\"session_id\":\"s\"}"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init",
+    "session_id": "s",
+    "tools": []
+   },
+   "result": {
+    "type": "result",
+    "session_id": "s"
+   },
+   "nonJson": 3,
+   "violation": null
+  },
+  {
+   "lines": [
+    "{\"type\":\"assistant\"}",
+    "{\"type\":\"system\",\"subtype\":\"init\"}"
+   ],
+   "init": null,
+   "result": null,
+   "nonJson": 0,
+   "violation": "event before init"
+  },
+  {
+   "lines": [
+    "{\"type\":\"system\",\"subtype\":\"init\"}",
+    "{\"type\":\"system\",\"subtype\":\"init\"}"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init"
+   },
+   "result": null,
+   "nonJson": 0,
+   "violation": "duplicate init"
+  },
+  {
+   "lines": [
+    "{\"type\":\"system\",\"subtype\":\"init\"}",
+    "{\"type\":\"result\"}",
+    "{\"type\":\"assistant\"}"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init"
+   },
+   "result": {
+    "type": "result"
+   },
+   "nonJson": 0,
+   "violation": "event after result"
+  },
+  {
+   "lines": [
+    "{\"type\":\"system\",\"subtype\":\"init\"}",
+    "{\"type\":\"result\"}",
+    "garbage"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init"
+   },
+   "result": {
+    "type": "result"
+   },
+   "nonJson": 1,
+   "violation": null
+  },
+  {
+   "lines": [
+    "null",
+    "{\"type\":\"system\",\"subtype\":\"init\"}"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init"
+   },
+   "result": null,
+   "nonJson": 1,
+   "violation": null
+  }
+ ],
+ "isolation": [
+  {
+   "init": {
+    "tools": [
+     "StructuredOutput"
+    ],
+    "mcp_servers": []
+   },
+   "out": null
+  },
+  {
+   "init": {
+    "tools": [],
+    "mcp_servers": []
+   },
+   "out": null
+  },
+  {
+   "init": {
+    "tools": [
+     "Bash",
+     "StructuredOutput",
+     5,
+     null,
+     {
+      "a": 1
+     },
+     [
+      "x",
+      "y"
+     ]
+    ],
+    "mcp_servers": []
+   },
+   "out": "init event has tools that are not allowed: Bash, 5, null, [object Object], x,y"
+  },
+  {
+   "init": {
+    "tools": [
+     "StructuredOutput"
+    ],
+    "mcp_servers": [
+     {
+      "name": "x"
+     },
+     2
+    ]
+   },
+   "out": "init event has 2 mcp_servers"
+  },
+  {
+   "init": {
+    "mcp_servers": []
+   },
+   "out": "init event has no tools"
+  },
+  {
+   "init": {
+    "tools": []
+   },
+   "out": "init event has no mcp_servers"
+  },
+  {
+   "init": {
+    "tools": "StructuredOutput",
+    "mcp_servers": []
+   },
+   "out": "init event has no tools"
+  },
+  {
+   "init": {},
+   "out": "init event has no tools"
+  }
+ ],
+ "stats": [
+  {
+   "input": null,
+   "out": {}
+  },
+  {
+   "input": {},
+   "out": {}
+  },
+  {
+   "input": {
+    "usage": {
+     "input_tokens": 10,
+     "output_tokens": 2,
+     "cache_read_input_tokens": 5,
+     "cache_creation_input_tokens": 1
+    },
+    "duration_api_ms": 1200
+   },
+   "out": {
+    "usage": {
+     "input": 10,
+     "output": 2,
+     "cacheRead": 5,
+     "cacheWrite": 1
+    },
+    "apiMs": 1200
+   }
+  },
+  {
+   "input": {
+    "usage": {
+     "input_tokens": "x",
+     "output_tokens": null
+    }
+   },
+   "out": {
+    "usage": {
+     "input": 0,
+     "output": 0,
+     "cacheRead": 0,
+     "cacheWrite": 0
+    }
+   }
+  },
+  {
+   "input": {
+    "usage": 5,
+    "duration_api_ms": "3"
+   },
+   "out": {}
+  },
+  {
+   "input": {
+    "usage": [],
+    "duration_api_ms": 0.5
+   },
+   "out": {
+    "usage": {
+     "input": 0,
+     "output": 0,
+     "cacheRead": 0,
+     "cacheWrite": 0
+    },
+    "apiMs": 0.5
+   }
+  }
+ ]
+}

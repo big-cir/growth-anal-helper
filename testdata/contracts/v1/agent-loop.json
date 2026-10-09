@@ -1,0 +1,8663 @@
+{
+ "defaultProbe": {
+  "ok": true,
+  "ms": 3,
+  "more": true,
+  "truncatedCells": 1,
+  "tables": [
+   "r_m"
+  ],
+  "columns": [
+   {
+    "name": "id",
+    "table": "r_m",
+    "column": "id"
+   },
+   {
+    "name": "n",
+    "table": "r_m",
+    "column": "n"
+   },
+   {
+    "name": "c",
+    "table": null,
+    "column": null
+   },
+   {
+    "name": "s",
+    "table": "r_m",
+    "column": "secret"
+   }
+  ],
+  "rows": [
+   [
+    [
+     "i",
+     1000000123
+    ],
+    [
+     "i",
+     5
+    ],
+    [
+     "i",
+     2
+    ],
+    [
+     "s",
+     "x"
+    ]
+   ],
+   [
+    [
+     "i",
+     1000000456
+    ],
+    [
+     "n",
+     null
+    ],
+    [
+     "f",
+     9.5
+    ],
+    [
+     "n",
+     null
+    ]
+   ],
+   [
+    [
+     "i",
+     7
+    ],
+    [
+     "i",
+     -3
+    ],
+    [
+     "i",
+     0
+    ],
+    [
+     "s",
+     "😀"
+    ]
+   ]
+  ]
+ },
+ "defaultPanel": {
+  "ok": true,
+  "columns": [
+   {
+    "name": "numerator",
+    "table": null,
+    "column": null
+   },
+   {
+    "name": "denominator",
+    "table": "d_x",
+    "column": "d"
+   }
+  ],
+  "real": [
+   [
+    1,
+    2
+   ]
+  ],
+  "agent": [
+   [
+    1,
+    2
+   ]
+  ],
+  "ms": 1,
+  "tables": [
+   "d_x"
+  ]
+ },
+ "loops": [
+  {
+   "scenario": {
+    "name": "ask answer probe fix success",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "ask",
+        "questions": [
+         {
+          "id": "win",
+          "text": "Period?",
+          "options": [
+           {
+            "label": "7 days",
+            "is_default": true
+           },
+           {
+            "label": "14 days",
+            "is_default": false
+           }
+          ],
+          "allow_free_text": false
+         }
+        ]
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "probes": [
+     {
+      "ok": true,
+      "ms": 3,
+      "more": true,
+      "truncatedCells": 1,
+      "tables": [
+       "r_m"
+      ],
+      "columns": [
+       {
+        "name": "id",
+        "table": "r_m",
+        "column": "id"
+       },
+       {
+        "name": "n",
+        "table": "r_m",
+        "column": "n"
+       },
+       {
+        "name": "c",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "s",
+        "table": "r_m",
+        "column": "secret"
+       }
+      ],
+      "rows": [
+       [
+        [
+         "i",
+         1000000123
+        ],
+        [
+         "i",
+         5
+        ],
+        [
+         "i",
+         2
+        ],
+        [
+         "s",
+         "x"
+        ]
+       ],
+       [
+        [
+         "i",
+         1000000456
+        ],
+        [
+         "n",
+         null
+        ],
+        [
+         "f",
+         9.5
+        ],
+        [
+         "n",
+         null
+        ]
+       ],
+       [
+        [
+         "i",
+         7
+        ],
+        [
+         "i",
+         -3
+        ],
+        [
+         "i",
+         0
+        ],
+        [
+         "s",
+         "😀"
+        ]
+       ]
+      ]
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     },
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agent": [
+       [
+        1,
+        2
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     }
+    ],
+    "then": [
+     {
+      "op": "answer",
+      "turn": 99,
+      "given": {}
+     },
+     {
+      "op": "answer",
+      "turn": "current",
+      "given": {
+       "win": "14 days"
+      }
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "question",
+      "questions": [
+       {
+        "id": "win",
+        "text": "Period?",
+        "options": [
+         {
+          "label": "7 days",
+          "is_default": true
+         },
+         {
+          "label": "14 days",
+          "is_default": false
+         }
+        ],
+        "allow_free_text": false
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "answers",
+      "answers": [
+       {
+        "id": "win",
+        "answer": "14 days",
+        "defaulted": false
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 2
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "Panel check failed (invariant) → fixing",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 3
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 4
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 4
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 4
+     },
+     {
+      "type": "done",
+      "turnNo": 4
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Answers to your questions. Unanswered questions were set to their defaults.\n\nAnswers:\n```json\n[\n {\n  \"id\": \"win\",\n  \"answer\": \"14 days\",\n  \"defaulted\": false\n }\n]\n```",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows (more exist, first 50 only), 3ms.\n\nResult (pseudonymous IDs):\n```json\n{\"columns\":[\"id\",\"n\",\"c\",\"s\"],\"rows\":[[1000000123,5,2,\"x\"],[1000000456,null,9.5,null],[7,-3,0,\"😀\"]],\"more\":true,\"truncated_cells\":1}\n```\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Panel check failed — stage: invariants. Fixes left: 1.\ninvariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [
+     false,
+     true
+    ],
+    "state": "done",
+    "counts": {
+     "turns": 4,
+     "probes": 1,
+     "fixes": 1
+    },
+    "costTotal": 0.04,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "ask default answer",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "ask",
+        "questions": [
+         {
+          "id": "win",
+          "text": "Period?",
+          "options": [
+           {
+            "label": "7 days",
+            "is_default": true
+           },
+           {
+            "label": "14 days",
+            "is_default": false
+           }
+          ],
+          "allow_free_text": false
+         }
+        ]
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "then": [
+     {
+      "op": "answer",
+      "turn": "current",
+      "given": {
+       "win": "  "
+      }
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "question",
+      "questions": [
+       {
+        "id": "win",
+        "text": "Period?",
+        "options": [
+         {
+          "label": "7 days",
+          "is_default": true
+         },
+         {
+          "label": "14 days",
+          "is_default": false
+         }
+        ],
+        "allow_free_text": false
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "answers",
+      "answers": [
+       {
+        "id": "win",
+        "answer": "7 days",
+        "defaulted": true
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Answers to your questions. Unanswered questions were set to their defaults.\n\nAnswers:\n```json\n[\n {\n  \"id\": \"win\",\n  \"answer\": \"7 days\",\n  \"defaulted\": true\n }\n]\n```",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [
+     true
+    ],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "refuse",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "refuse",
+        "reason": "no",
+        "alternatives": [
+         "a",
+         "b"
+        ]
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "refused",
+      "reason": "no",
+      "alternatives": [
+       "a",
+       "b"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "done",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "zero once then accepted",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        0,
+        null
+       ]
+      ],
+      "agent": [
+       [
+        0,
+        null
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     },
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        0,
+        null
+       ]
+      ],
+      "agent": [
+       [
+        0,
+        null
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "All result numbers are 0 → asking to check the conditions",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        0,
+        null
+       ]
+      ],
+      "agentRows": [
+       [
+        0,
+        null
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Every number column in the panel result is 0 (or NULL). Check that the join and filter conditions really match. In particular, comparing a date string (YYYY-MM-DD) with a timestamp string (YYYY-MM-DD HH:MM:SS.ffffff) as-is matches no rows. Use a probe if needed, then send the fixed panel. If 0 is correct, send the same panel again and it will be accepted.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "zero then fixed",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        0,
+        null
+       ]
+      ],
+      "agent": [
+       [
+        0,
+        null
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     },
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agent": [
+       [
+        1,
+        2
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "All result numbers are 0 → asking to check the conditions",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Every number column in the panel result is 0 (or NULL). Check that the join and filter conditions really match. In particular, comparing a date string (YYYY-MM-DD) with a timestamp string (YYYY-MM-DD HH:MM:SS.ffffff) as-is matches no rows. Use a probe if needed, then send the fixed panel. If 0 is correct, send the same panel again and it will be accepted.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "offdict approve",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": null,
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "then": [
+     {
+      "op": "approve",
+      "turn": "current",
+      "approve": true
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "offdict",
+      "spec": {
+       "metric": null,
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "offdict_answer",
+      "approve": true,
+      "turnNo": 1
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": null,
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "done",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": null,
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [
+     true
+    ],
+    "state": "done",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "offdict reject",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": null,
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "then": [
+     {
+      "op": "approve",
+      "turn": 0,
+      "approve": true
+     },
+     {
+      "op": "approve",
+      "turn": "current",
+      "approve": false
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "offdict",
+      "spec": {
+       "metric": null,
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "offdict_answer",
+      "approve": false,
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "The user did not accept a panel built on a definition outside the metric dictionary. Rebuild it with one of the dictionary metrics (its id in metric). If no dictionary metric fits, refuse and give the reason and the closest dictionary metrics.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": null,
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [
+     false,
+     true
+    ],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "budget caps",
+    "limits": {
+     "callBudgetUsd": 0.5,
+     "requestBudgetUsd": 0.6
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.3,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.29,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 2
+     },
+     {
+      "type": "failed",
+      "reason": "request_budget",
+      "message": "Reached the request budget",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows (more exist, first 50 only), 3ms.\n\nResult (pseudonymous IDs):\n```json\n{\"columns\":[\"id\",\"n\",\"c\",\"s\"],\"rows\":[[1000000123,5,2,\"x\"],[1000000456,null,9.5,null],[7,-3,0,\"😀\"]],\"more\":true,\"truncated_cells\":1}\n```\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.3
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x",
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 2,
+     "fixes": 0
+    },
+    "costTotal": 0.59,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "turn limit",
+    "limits": {
+     "maxTurns": 2
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 2
+     },
+     {
+      "type": "failed",
+      "reason": "turn_limit",
+      "message": "Reached the call limit for one request (2)",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows (more exist, first 50 only), 3ms.\n\nResult (pseudonymous IDs):\n```json\n{\"columns\":[\"id\",\"n\",\"c\",\"s\"],\"rows\":[[1000000123,5,2,\"x\"],[1000000456,null,9.5,null],[7,-3,0,\"😀\"]],\"more\":true,\"truncated_cells\":1}\n```\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x",
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 2,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "probe limit",
+    "limits": {
+     "maxProbes": 1
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 2
+     },
+     {
+      "type": "failed",
+      "reason": "probe_limit",
+      "message": "Reached the probe limit (1)",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows (more exist, first 50 only), 3ms.\n\nResult (pseudonymous IDs):\n```json\n{\"columns\":[\"id\",\"n\",\"c\",\"s\"],\"rows\":[[1000000123,5,2,\"x\"],[1000000456,null,9.5,null],[7,-3,0,\"😀\"]],\"more\":true,\"truncated_cells\":1}\n```\n\nProbes left: 0.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 1,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "fix limit",
+    "limits": {
+     "maxFixes": 1
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     },
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     },
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "Panel check failed (invariant) → fixing",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "Panel check failed (invariant) → fixing",
+      "turnNo": 2
+     },
+     {
+      "type": "failed",
+      "reason": "fix_limit",
+      "message": "Reached the panel fix limit (1): invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Panel check failed — stage: invariants. Fixes left: 0.\ninvariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 1
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "fix counted when the call starts",
+    "limits": {
+     "maxFixes": 2,
+     "maxTurns": 1
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "Panel check failed (invariant) → fixing",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "turn_limit",
+      "message": "Reached the call limit for one request (1)",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "retryable error keeps session",
+    "calls": [
+     {
+      "ok": false,
+      "type": "error",
+      "message": "boom",
+      "sessionId": "sess-9",
+      "costUsd": 0.02,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-9",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-9",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Call failed (boom), retrying",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": "sess-9",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.03,
+    "sessionId": "sess-9",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "schema retried once",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s1",
+      "structured": {
+       "step": {
+        "action": "x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "s1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "s1",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Your last reply does not match the action schema: action must be one of ask|probe|panel|refuse|keep (got \"x\")\nSend one action (ask | probe | panel | refuse | keep) that matches the schema.",
+      "sessionId": "s1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "s1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "schema twice fails",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s1",
+      "structured": {
+       "nope": 1
+      },
+      "costUsd": 0.01,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "s1",
+      "structured": null,
+      "costUsd": 0.01,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "s1",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "schema",
+      "message": "The reply does not match the action schema: structured_output: must be an object",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Your last reply does not match the action schema: .nope: unknown key\nSend one action (ask | probe | panel | refuse | keep) that matches the schema.",
+      "sessionId": "s1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "s1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "structured missing",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s1",
+      "costUsd": 0.01,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "s1",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 2
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Your last reply does not match the action schema: structured_output: must be an object\nSend one action (ask | probe | panel | refuse | keep) that matches the schema.",
+      "sessionId": "s1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "process retried once",
+    "calls": [
+     {
+      "ok": false,
+      "type": "process",
+      "message": "empty output (exit code 0)",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Call failed (empty output (exit code 0)), retrying",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 2
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "process twice",
+    "calls": [
+     {
+      "ok": false,
+      "type": "process",
+      "message": "a",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "timeout",
+      "message": "call timed out (90000ms)",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Call failed (a), retrying",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "timeout",
+      "message": "call timed out (90000ms)",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "timeout twice",
+    "calls": [
+     {
+      "ok": false,
+      "type": "timeout",
+      "message": "x",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "timeout",
+      "message": "call timed out (5ms)",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Call failed (x), retrying",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "timeout",
+      "message": "call timed out (5ms)",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "error twice",
+    "calls": [
+     {
+      "ok": false,
+      "type": "error",
+      "message": "x",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "error",
+      "message": "result error: y",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Call failed (x), retrying",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "error",
+      "message": "result error: y",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "rate limit retries",
+    "calls": [
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "message": "r",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "message": "r",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "The API is busy. Retrying in 10s",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "The API is busy. Retrying in 30s",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 2
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 3
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 3
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 3
+     },
+     {
+      "type": "done",
+      "turnNo": 3
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 3,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "rate limit exhausted",
+    "lang": "ko",
+    "calls": [
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "message": "r",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "message": "r",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "rate_limit",
+      "message": "r",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "API가 바빠요. 10초 뒤 다시 시도",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "API가 바빠요. 30초 뒤 다시 시도",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 2
+     },
+     {
+      "type": "failed",
+      "reason": "rate_limit",
+      "message": "API 제한·과부하가 계속돼요. 잠시 뒤 다시 시도해 주세요",
+      "turnNo": 3
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 3,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "budget",
+    "calls": [
+     {
+      "ok": false,
+      "type": "budget",
+      "message": "call budget reached",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "failed",
+      "reason": "call_budget",
+      "message": "Reached the call budget",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "isolation",
+    "calls": [
+     {
+      "ok": false,
+      "type": "isolation",
+      "message": "agent isolation check failed: x",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "failed",
+      "reason": "isolation",
+      "message": "Agent isolation check failed: the agent has been turned off",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": true
+   }
+  },
+  {
+   "scenario": {
+    "name": "cancelled result",
+    "calls": [
+     {
+      "ok": false,
+      "type": "cancelled",
+      "message": "cancelled",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "calling",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "resume recovers",
+    "start": {
+     "text": "Show the connection rate by signup week",
+     "current": null,
+     "resumeSessionId": "old",
+     "recovery": "earlier summary"
+    },
+    "calls": [
+     {
+      "ok": false,
+      "type": "resume",
+      "message": "could not resume session",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "new",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Could not resume the earlier session, continuing in a new one",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "session",
+      "sessionId": "new",
+      "turnNo": 2
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": "old",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Summary of the earlier conversation (continuing in a new session):\nearlier summary\n\nUser request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "new",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "resume twice",
+    "start": {
+     "text": "Show the connection rate by signup week",
+     "current": null,
+     "resumeSessionId": "old",
+     "recovery": "r"
+    },
+    "calls": [
+     {
+      "ok": false,
+      "type": "resume",
+      "message": "x",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     },
+     {
+      "ok": false,
+      "type": "resume",
+      "message": "y",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "Could not resume the earlier session, continuing in a new one",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "resume",
+      "message": "Could not resume the session",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": "old",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Summary of the earlier conversation (continuing in a new session):\nr\n\nUser request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0,
+    "sessionId": null,
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "same session resumed",
+    "start": {
+     "text": "Show the connection rate by signup week",
+     "current": null,
+     "resumeSessionId": "sess-1",
+     "recovery": "ignored"
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "done",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "secret in output",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "p",
+        "purpose": "u",
+        "sql": "SELECT 'user@example.com'"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "sensitive",
+      "message": "This tool can't work with that data",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "secret in panel rows",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        "password=hunter2",
+        2
+       ]
+      ],
+      "agent": [
+       [
+        1,
+        2
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "sensitive",
+      "message": "This tool can't work with that data",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "sensitive probe",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "probes": [
+     {
+      "ok": false,
+      "kind": "sensitive",
+      "message": "This tool can't work with that data"
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "sensitive",
+      "message": "This tool can't work with that data",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 1,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "probe failure goes back",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "probes": [
+     {
+      "ok": false,
+      "kind": "sqlite",
+      "message": "no such table: x"
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: failed (no such table: x)",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query failed (sqlite): no such table: x\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 1,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "panel sensitive stage",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "sensitive",
+      "message": "x"
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "failed",
+      "reason": "sensitive",
+      "message": "This tool can't work with that data",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "failed",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "panel cancelled stage",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "cancelled",
+      "message": "cancelled"
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "checking",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "schema_only probe rows blocked",
+    "mode": "schema_only",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "probes": [
+     {
+      "ok": true,
+      "ms": 3,
+      "more": true,
+      "truncatedCells": 1,
+      "tables": [
+       "r_m"
+      ],
+      "columns": [
+       {
+        "name": "id",
+        "table": "r_m",
+        "column": "id"
+       },
+       {
+        "name": "n",
+        "table": "r_m",
+        "column": "n"
+       },
+       {
+        "name": "c",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "s",
+        "table": "r_m",
+        "column": "secret"
+       }
+      ],
+      "rows": [
+       [
+        [
+         "i",
+         1000000123
+        ],
+        [
+         "i",
+         5
+        ],
+        [
+         "i",
+         2
+        ],
+        [
+         "s",
+         "x"
+        ]
+       ],
+       [
+        [
+         "i",
+         1000000456
+        ],
+        [
+         "n",
+         null
+        ],
+        [
+         "f",
+         9.5
+        ],
+        [
+         "n",
+         null
+        ]
+       ],
+       [
+        [
+         "i",
+         7
+        ],
+        [
+         "i",
+         -3
+        ],
+        [
+         "i",
+         0
+        ],
+        [
+         "s",
+         "😀"
+        ]
+       ]
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "Running probe query: cohort size",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3+ rows",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows (more exist, first 50 only), 3ms.\n\nResult statistics (values not sent):\n```json\n{\"row_count\":3,\"more\":true,\"columns\":[{\"name\":\"id\",\"nulls\":0,\"min\":null,\"max\":null,\"identifier\":true},{\"name\":\"n\",\"nulls\":1,\"min\":-3,\"max\":5,\"identifier\":false},{\"name\":\"c\",\"nulls\":0,\"min\":0,\"max\":9.5,\"identifier\":false},{\"name\":\"s\",\"nulls\":1,\"min\":null,\"max\":null,\"identifier\":true}]}\n```\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 1,
+     "fixes": 0
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "schema_only invariant",
+    "mode": "schema_only",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     },
+     {
+      "ok": true,
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "real": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agent": [
+       [
+        1,
+        2
+       ]
+      ],
+      "ms": 1,
+      "tables": [
+       "d_x"
+      ]
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "Panel check failed (invariant) → fixing",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 2
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 2
+     },
+     {
+      "type": "done",
+      "turnNo": 2
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Panel check failed — stage: invariants. Fixes left: 1.\n\nViolations (invariant):\n```json\n[{\"rule\":\"numerator_le_denominator\",\"index\":0,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":null,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":2,\"column\":null},{\"rule\":\"numerator_le_denominator\",\"index\":3,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":4,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":5,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":6,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":7,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":8,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":9,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":10,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":11,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":12,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":13,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":14,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":15,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":16,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":17,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":18,\"column\":\"numerator\"},{\"rule\":\"numerator_le_denominator\",\"index\":19,\"column\":\"numerator\"}]\n```",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 2,
+     "probes": 0,
+     "fixes": 1
+    },
+    "costTotal": 0.02,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "korean",
+    "lang": "ko",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "ask",
+        "questions": [
+         {
+          "id": "win",
+          "text": "Period?",
+          "options": [
+           {
+            "label": "7 days",
+            "is_default": true
+           },
+           {
+            "label": "14 days",
+            "is_default": false
+           }
+          ],
+          "allow_free_text": false
+         }
+        ]
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "probe",
+        "plan": "check counts",
+        "purpose": "cohort size",
+        "sql": "SELECT count(*) FROM d_x"
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     },
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ],
+    "probes": [
+     {
+      "ok": true,
+      "ms": 3,
+      "more": false,
+      "truncatedCells": 1,
+      "tables": [
+       "r_m"
+      ],
+      "columns": [
+       {
+        "name": "id",
+        "table": "r_m",
+        "column": "id"
+       },
+       {
+        "name": "n",
+        "table": "r_m",
+        "column": "n"
+       },
+       {
+        "name": "c",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "s",
+        "table": "r_m",
+        "column": "secret"
+       }
+      ],
+      "rows": [
+       [
+        [
+         "i",
+         1000000123
+        ],
+        [
+         "i",
+         5
+        ],
+        [
+         "i",
+         2
+        ],
+        [
+         "s",
+         "x"
+        ]
+       ],
+       [
+        [
+         "i",
+         1000000456
+        ],
+        [
+         "n",
+         null
+        ],
+        [
+         "f",
+         9.5
+        ],
+        [
+         "n",
+         null
+        ]
+       ],
+       [
+        [
+         "i",
+         7
+        ],
+        [
+         "i",
+         -3
+        ],
+        [
+         "i",
+         0
+        ],
+        [
+         "s",
+         "😀"
+        ]
+       ]
+      ]
+     }
+    ],
+    "panels": [
+     {
+      "ok": false,
+      "stage": "invariant",
+      "message": "invariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "violations": [
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 0,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": null,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 2,
+        "rule": "numerator_le_denominator",
+        "column": null
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 3,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 4,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 5,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 6,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 7,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 8,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 9,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 10,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 11,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 12,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 13,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 14,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 15,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 16,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 17,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 18,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 19,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 20,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 21,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       },
+       {
+        "row": "x=SECRET",
+        "problem": "p",
+        "index": 22,
+        "rule": "numerator_le_denominator",
+        "column": "numerator"
+       }
+      ]
+     }
+    ],
+    "then": [
+     {
+      "op": "answer",
+      "turn": "current",
+      "given": {}
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "question",
+      "questions": [
+       {
+        "id": "win",
+        "text": "Period?",
+        "options": [
+         {
+          "label": "7 days",
+          "is_default": true
+         },
+         {
+          "label": "14 days",
+          "is_default": false
+         }
+        ],
+        "allow_free_text": false
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "answers",
+      "answers": [
+       {
+        "id": "win",
+        "answer": "7 days",
+        "defaulted": true
+       }
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "check counts",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "querying",
+      "text": "탐색 쿼리 실행: cohort size",
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "query_done",
+      "text": "cohort size: 3 행",
+      "ms": 3,
+      "rows": 3,
+      "turnNo": 2
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 2
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "패널 검사·실행",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "check_failed",
+      "text": "패널 검사 실패(invariant) → 수정 중",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 3
+     },
+     {
+      "type": "step",
+      "kind": "retry",
+      "text": "호출 실패(script ended), 다시 시도",
+      "turnNo": 4
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "에이전트가 생각하는 중",
+      "turnNo": 4
+     },
+     {
+      "type": "failed",
+      "reason": "error",
+      "message": "script ended",
+      "turnNo": 5
+     }
+    ],
+    "calls": [
+     {
+      "input": "User request: Show the connection rate by signup week",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Answers to your questions. Unanswered questions were set to their defaults.\n\nAnswers:\n```json\n[\n {\n  \"id\": \"win\",\n  \"answer\": \"7 days\",\n  \"defaulted\": true\n }\n]\n```",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Probe query result: 3 rows, 3ms.\n\nResult (pseudonymous IDs):\n```json\n{\"columns\":[\"id\",\"n\",\"c\",\"s\"],\"rows\":[[1000000123,5,2,\"x\"],[1000000456,null,9.5,null],[7,-3,0,\"😀\"]],\"more\":false,\"truncated_cells\":1}\n```\n\nProbes left: 3.",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Panel check failed — stage: invariants. Fixes left: 1.\ninvariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     },
+     {
+      "input": "Panel check failed — stage: invariants. Fixes left: 1.\ninvariant violations:\n- x=SECRET: numerator(11) > denominator(10)",
+      "sessionId": "sess-1",
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [
+     "SELECT count(*) FROM d_x"
+    ],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [
+     true
+    ],
+    "state": "failed",
+    "counts": {
+     "turns": 5,
+     "probes": 1,
+     "fixes": 1
+    },
+    "costTotal": 0.03,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  },
+  {
+   "scenario": {
+    "name": "current spec in request",
+    "start": {
+     "text": "Show the connection rate by signup week",
+     "current": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "numerator": "numerator",
+       "denominator": "denominator"
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     },
+     "resumeSessionId": null,
+     "recovery": "x"
+    },
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "sess-1",
+      "structured": {
+       "step": {
+        "action": "panel",
+        "plan": "counted",
+        "panel": {
+         "metric": "demo_metric",
+         "title": "t",
+         "question": "q",
+         "sql": "SELECT 1 AS numerator, 2 AS denominator",
+         "display": {
+          "type": "number",
+          "x": null,
+          "numerator": "numerator",
+          "denominator": "denominator",
+          "series": null,
+          "headline": null
+         },
+         "definition": [
+          [
+           "Population",
+           "x"
+          ]
+         ],
+         "caveats": [],
+         "answers": []
+        }
+       }
+      },
+      "costUsd": 0.01,
+      "ms": 5
+     }
+    ]
+   },
+   "result": {
+    "events": [
+     {
+      "type": "request_started",
+      "turnNo": 0
+     },
+     {
+      "type": "step",
+      "kind": "calling",
+      "text": "The agent is thinking",
+      "turnNo": 0
+     },
+     {
+      "type": "session",
+      "sessionId": "sess-1",
+      "turnNo": 1
+     },
+     {
+      "type": "plan",
+      "text": "counted",
+      "turnNo": 1
+     },
+     {
+      "type": "step",
+      "kind": "checking",
+      "text": "Checking and running the panel",
+      "turnNo": 1
+     },
+     {
+      "type": "preview",
+      "spec": {
+       "metric": "demo_metric",
+       "title": "t",
+       "question": "q",
+       "sql": "SELECT 1 AS numerator, 2 AS denominator",
+       "display": {
+        "type": "number",
+        "columns": {
+         "numerator": "numerator",
+         "denominator": "denominator",
+         "value": null,
+         "label": null
+        },
+        "extra": [],
+        "key": [],
+        "headline": null
+       },
+       "definition": [
+        [
+         "Population",
+         "x"
+        ]
+       ],
+       "caveats": [],
+       "answers": []
+      },
+      "columns": [
+       {
+        "name": "numerator",
+        "table": null,
+        "column": null
+       },
+       {
+        "name": "denominator",
+        "table": "d_x",
+        "column": "d"
+       }
+      ],
+      "rows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "agentRows": [
+       [
+        1,
+        2
+       ]
+      ],
+      "tables": [
+       "d_x"
+      ],
+      "turnNo": 1
+     },
+     {
+      "type": "done",
+      "turnNo": 1
+     }
+    ],
+    "calls": [
+     {
+      "input": "Summary of the earlier conversation (continuing in a new session):\nx\n\nUser request: Show the connection rate by signup week\n\nCurrent preview panel spec (if this is a change request, edit this one; if it already answers the request, send keep):\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```",
+      "sessionId": null,
+      "budgetUsd": 0.5
+     }
+    ],
+    "probes": [],
+    "panels": [
+     {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    ],
+    "accepted": [],
+    "state": "done",
+    "counts": {
+     "turns": 1,
+     "probes": 0,
+     "fixes": 0
+    },
+    "costTotal": 0.01,
+    "sessionId": "sess-1",
+    "disabled": false
+   }
+  }
+ ],
+ "summaries": [
+  {
+   "scenario": {
+    "name": "ok",
+    "lang": "en",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "The rate is {c1}.",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "25.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     }
+    ],
+    "out": {
+     "status": "ok",
+     "text": "The rate is 25.0%."
+    }
+   }
+  },
+  {
+   "scenario": {
+    "name": "retry then ok",
+    "lang": "en",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "The rate is {c1} and 7 more.",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "25.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "The rate is {c1}.",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "25.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     },
+     {
+      "input": "Your last description failed the check. Fix it and send it again.\n- the text has numbers outside claims, or labels not in the result or definition: 7",
+      "sessionId": "s"
+     }
+    ],
+    "out": {
+     "status": "ok",
+     "text": "The rate is 25.0%."
+    }
+   }
+  },
+  {
+   "scenario": {
+    "name": "bad twice",
+    "lang": "ko",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "nope": 1
+      },
+      "costUsd": 0,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "{c9}",
+       "claims": []
+      },
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     },
+     {
+      "input": "Your last description failed the check. Fix it and send it again.\n- prose is empty",
+      "sessionId": "s"
+     }
+    ],
+    "out": {
+     "status": "failed",
+     "message": "설명 검사 실패: no claim for {c9} in the text"
+    }
+   }
+  },
+  {
+   "scenario": {
+    "name": "call fails",
+    "lang": "en",
+    "calls": [
+     {
+      "ok": false,
+      "type": "error",
+      "message": "boom",
+      "sessionId": null,
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     }
+    ],
+    "out": {
+     "status": "failed",
+     "message": "boom"
+    }
+   }
+  },
+  {
+   "scenario": {
+    "name": "secret",
+    "lang": "en",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "Mail user@example.com: {c1}",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "25.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     }
+    ],
+    "out": {
+     "status": "failed",
+     "message": "The description looked like it contained a secret, so it was discarded"
+    }
+   }
+  },
+  {
+   "scenario": {
+    "name": "wrong number",
+    "lang": "en",
+    "calls": [
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "Rate {c1}",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "26.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     },
+     {
+      "ok": true,
+      "sessionId": "s",
+      "structured": {
+       "prose": "Rate {c1}",
+       "claims": [
+        {
+         "id": "c1",
+         "op": "rate",
+         "refs": [
+          {
+           "row": [],
+           "column": "numerator"
+          },
+          {
+           "row": [],
+           "column": "denominator"
+          }
+         ],
+         "display": "25.0%"
+        }
+       ]
+      },
+      "costUsd": 0,
+      "ms": 1
+     }
+    ]
+   },
+   "result": {
+    "calls": [
+     {
+      "input": "Write \"what this panel tells you\" for the panel below.\n\nPanel spec:\n```json\n{\n \"metric\": \"demo_metric\",\n \"title\": \"t\",\n \"question\": \"q\",\n \"sql\": \"SELECT 1 AS numerator, 2 AS denominator\",\n \"display\": {\n  \"type\": \"number\",\n  \"numerator\": \"numerator\",\n  \"denominator\": \"denominator\"\n },\n \"definition\": [\n  [\n   \"Population\",\n   \"x\"\n  ]\n ],\n \"caveats\": [],\n \"answers\": []\n}\n```\n\nPanel result (pseudonymous IDs):\n```json\n{\"columns\":[\"numerator\",\"denominator\"],\"rows\":[[30,120]]}\n```",
+      "sessionId": null
+     },
+     {
+      "input": "Your last description failed the check. Fix it and send it again.\n- c1: display 26.0% does not match the computed value 25.0%",
+      "sessionId": "s"
+     }
+    ],
+    "out": {
+     "status": "ok",
+     "text": "Rate 25.0%"
+    }
+   }
+  }
+ ]
+}

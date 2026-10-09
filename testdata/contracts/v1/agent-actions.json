@@ -1,0 +1,1511 @@
+{
+ "actions": [
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "win",
+       "text": "Period?",
+       "options": [
+        {
+         "label": "7 days",
+         "is_default": true
+        },
+        {
+         "label": "14 days",
+         "is_default": false
+        }
+       ],
+       "allow_free_text": true
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "win",
+       "text": "Period?",
+       "options": [
+        {
+         "label": "7 days",
+         "is_default": true
+        },
+        {
+         "label": "14 days",
+         "is_default": false
+        }
+       ],
+       "allow_free_text": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "p",
+     "purpose": "u",
+     "sql": "SELECT 1"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "probe",
+     "plan": "p",
+     "purpose": "u",
+     "sql": "SELECT 1"
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "x": null,
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null,
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": null,
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "line",
+       "x": "w",
+       "numerator": "n",
+       "denominator": "d",
+       "series": null,
+       "headline": {
+        "x": "2024-01-01"
+       }
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": null,
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "line",
+       "columns": {
+        "x": "w",
+        "numerator": "n",
+        "denominator": "d",
+        "series": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": {
+        "x": "2024-01-01"
+       }
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": [
+      "a"
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": [
+      "a"
+     ]
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": []
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": []
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": []
+    },
+    "extra": 1
+   },
+   "out": {
+    "ok": false,
+    "error": ".extra: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "action": "refuse",
+    "reason": "r",
+    "alternatives": []
+   },
+   "out": {
+    "ok": false,
+    "error": ".action: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": null,
+   "out": {
+    "ok": false,
+    "error": "structured_output: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": [],
+   "out": {
+    "ok": false,
+    "error": "structured_output: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": "x",
+   "out": {
+    "ok": false,
+    "error": "structured_output: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": 5,
+   "out": {
+    "ok": false,
+    "error": "structured_output: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {},
+   "out": {
+    "ok": false,
+    "error": ".step: required",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": null
+   },
+   "out": {
+    "ok": false,
+    "error": ".step: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": []
+   },
+   "out": {
+    "ok": false,
+    "error": ".step: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {}
+   },
+   "out": {
+    "ok": false,
+    "error": "action must be one of ask|probe|panel|refuse|keep (got undefined)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "run"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "action must be one of ask|probe|panel|refuse|keep (got \"run\")",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": 5
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "action must be one of ask|probe|panel|refuse|keep (got 5)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": null
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "action must be one of ask|probe|panel|refuse|keep (got null)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": {
+      "a": 1
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "action must be one of ask|probe|panel|refuse|keep (got {\"a\":1})",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": false
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options: exactly one default (is_default: true)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        },
+        {
+         "label": "y",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options: exactly one default (is_default: true)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      },
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[1].id: duplicate in this request",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "Bad-Id",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].id: ^[a-z_]{1,32}$",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": 5,
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].id: ^[a-z_]{1,32}$",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].id: ^[a-z_]{1,32}$",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].text: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "   ",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].text: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].text: at most 200 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].text: at most 200 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": "yes"
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].allow_free_text: true/false",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options: must be an array of 1–4 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        },
+        {
+         "label": "b",
+         "is_default": false
+        },
+        {
+         "label": "c",
+         "is_default": false
+        },
+        {
+         "label": "d",
+         "is_default": false
+        },
+        {
+         "label": "e",
+         "is_default": false
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options: must be an array of 1–4 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": "true"
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options[0].is_default: true/false",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options[0].label: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true,
+         "z": 1
+        }
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options[0].z: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        null
+       ],
+       "allow_free_text": false
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].options[0]: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      {
+       "id": "a",
+       "text": "t",
+       "options": [
+        {
+         "label": "x",
+         "is_default": true
+        }
+       ],
+       "allow_free_text": false,
+       "extra": 1
+      }
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0].extra: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": []
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions: must be an array of 1–4 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": "x"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions: must be an array of 1–4 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions: required",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "ask",
+     "questions": [
+      1
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".questions[0]: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "p",
+     "purpose": "u",
+     "sql": "SELECT 1",
+     "extra": 1
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".extra: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "p",
+     "sql": "SELECT 1"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".purpose: required",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp",
+     "purpose": "u",
+     "sql": "S"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".plan: at most 200 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "p",
+     "purpose": "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu",
+     "sql": "S"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".purpose: at most 100 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": "p",
+     "purpose": "u",
+     "sql": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".sql: at most 8000 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "probe",
+     "plan": 7,
+     "purpose": "u",
+     "sql": "S"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".plan: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "x": null,
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null,
+       "headline": null
+      },
+      "definition": [],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.definition: must have 1–10 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "x": null,
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null,
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".panel.metric: required (metric dictionary id or null)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": null
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".panel.metric: required (metric dictionary id or null)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": []
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".panel.metric: required (metric dictionary id or null)",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "x": null,
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null,
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".plan: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": [],
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display.type: number|table|line|bar|funnel|cohort",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": "x",
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.display: must be an object",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "numerator": "numerator",
+       "denominator": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "t",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "columns": {
+        "numerator": "numerator",
+        "denominator": "denominator",
+        "value": null,
+        "label": null
+       },
+       "extra": [],
+       "key": [],
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p",
+     "panel": {
+      "metric": "demo_metric",
+      "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "question": "q",
+      "sql": "SELECT 1 AS numerator, 2 AS denominator",
+      "display": {
+       "type": "number",
+       "x": null,
+       "numerator": "numerator",
+       "denominator": "denominator",
+       "series": null,
+       "headline": null
+      },
+      "definition": [
+       [
+        "Population",
+        "x"
+       ]
+      ],
+      "caveats": [],
+      "answers": []
+     }
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": "panel.title: at most 60 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "panel",
+     "plan": "p"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".panel: required",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": [
+      "a",
+      "b",
+      "c",
+      "d"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".alternatives: must be an array of 0–3 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": [
+      ""
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".alternatives[0]: must be a non-empty string",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": "a"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".alternatives: must be an array of 0–3 items",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+     "alternatives": []
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".reason: at most 300 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "refuse",
+     "reason": "r",
+     "alternatives": [
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     ]
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".alternatives[0]: at most 100 characters",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "keep",
+     "plan": "same question"
+    }
+   },
+   "out": {
+    "ok": true,
+    "value": {
+     "action": "keep",
+     "plan": "same question"
+    }
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "keep",
+     "plan": "p",
+     "panel": {}
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".panel: unknown key",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  },
+  {
+   "input": {
+    "step": {
+     "action": "keep"
+    }
+   },
+   "out": {
+    "ok": false,
+    "error": ".plan: required",
+    "kind": "ActionError",
+    "actionError": true
+   }
+  }
+ ]
+}

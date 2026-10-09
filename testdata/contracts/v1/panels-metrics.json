@@ -1,0 +1,534 @@
+{
+ "parse": [
+  {
+   "text": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dimension_tables": [
+      "d_calendar_week"
+     ],
+     "metrics": [
+      {
+       "id": "signups",
+       "name": "Signups",
+       "asks": [
+        "How many?"
+       ],
+       "tables": [
+        "d_member"
+       ],
+       "definition": [
+        [
+         "Population",
+         "All"
+        ]
+       ],
+       "seed_panel": "weekly"
+      }
+     ]
+    }
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dimension_tables": [],
+     "metrics": []
+    }
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics: must be an array of 0–30 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[],\"other\":1}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.other: unknown key"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "[]",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: must be an object"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "5",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: must be an object"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: JSON error: "
+   },
+   "jsonError": true
+  },
+  {
+   "text": "{",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: JSON error: "
+   },
+   "jsonError": true
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: at most 12000 characters"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":\"x\",\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.dimension_tables: must be an array of 0–8 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":[\"d_a\",\"d_a\",\"d_a\",\"d_a\",\"d_a\",\"d_a\",\"d_a\",\"d_a\",\"d_a\"],\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.dimension_tables: must be an array of 0–8 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":[\"r_x\"],\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.dimension_tables[0]: must be a panel table (d_): r_x"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":[\"r_x\"],\"metrics\":[]}",
+   "prefixes": [
+    "d_",
+    "r_"
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dimension_tables": [
+      "r_x"
+     ],
+     "metrics": []
+    }
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":[\"1x\"],\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.dimension_tables[0]: must be a table name"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[5]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0]: must be an object"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"extra\":1}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].extra: unknown key"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"A\"}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].id: ^[a-z][a-z0-9_]{0,47}$"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[\"q\"],\"tables\":[\"d_a\"],\"definition\":[[\"x\",\"y\"]]},{\"id\":\"a\"}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[1].id: duplicate: a"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"tables\":[]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].tables: must be an array of 1–8 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"dimension_tables\":[\"d_w\"],\"metrics\":[{\"id\":\"a\",\"tables\":[\"d_w\"]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].tables: also in dimension_tables: d_w"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"\",\"tables\":[\"d_a\"]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].name: must be a non-empty string"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn\",\"tables\":[\"d_a\"]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].name: at most 40 characters"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[],\"tables\":[\"d_a\"]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].asks: must be an array of 1–6 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[\"qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\"],\"tables\":[\"d_a\"]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].asks[0]: at most 100 characters"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[\"q\"],\"tables\":[\"d_a\"],\"definition\":[[\"x\"]]}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].definition[0]: must be an [item, text] pair"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[\"q\"],\"tables\":[\"d_a\"],\"definition\":[[\"x\",\"y\"]],\"seed_panel\":null}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dimension_tables": [],
+     "metrics": [
+      {
+       "id": "a",
+       "name": "n",
+       "asks": [
+        "q"
+       ],
+       "tables": [
+        "d_a"
+       ],
+       "definition": [
+        [
+         "x",
+         "y"
+        ]
+       ],
+       "seed_panel": null
+      }
+     ]
+    }
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"a\",\"name\":\"n\",\"asks\":[\"q\"],\"tables\":[\"d_a\"],\"definition\":[[\"x\",\"y\"]],\"seed_panel\":\"\"}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics[0].seed_panel: must be a non-empty string"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"m0\"},{\"id\":\"m1\"},{\"id\":\"m2\"},{\"id\":\"m3\"},{\"id\":\"m4\"},{\"id\":\"m5\"},{\"id\":\"m6\"},{\"id\":\"m7\"},{\"id\":\"m8\"},{\"id\":\"m9\"},{\"id\":\"m10\"},{\"id\":\"m11\"},{\"id\":\"m12\"},{\"id\":\"m13\"},{\"id\":\"m14\"},{\"id\":\"m15\"},{\"id\":\"m16\"},{\"id\":\"m17\"},{\"id\":\"m18\"},{\"id\":\"m19\"},{\"id\":\"m20\"},{\"id\":\"m21\"},{\"id\":\"m22\"},{\"id\":\"m23\"},{\"id\":\"m24\"},{\"id\":\"m25\"},{\"id\":\"m26\"},{\"id\":\"m27\"},{\"id\":\"m28\"},{\"id\":\"m29\"},{\"id\":\"m30\"}]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json.metrics: must be an array of 0–30 items"
+   },
+   "jsonError": false
+  },
+  {
+   "text": "{\"metrics\":[],\"metrics\":[]}",
+   "prefixes": [
+    "d_"
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dimension_tables": [],
+     "metrics": []
+    }
+   },
+   "jsonError": false
+  }
+ ],
+ "seeds": [
+  {
+   "metrics": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "seeds": [
+    {
+     "id": "weekly",
+     "metric": "signups"
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dict": {
+      "dimension_tables": [
+       "d_calendar_week"
+      ],
+      "metrics": [
+       {
+        "id": "signups",
+        "name": "Signups",
+        "asks": [
+         "How many?"
+        ],
+        "tables": [
+         "d_member"
+        ],
+        "definition": [
+         [
+          "Population",
+          "All"
+         ]
+        ],
+        "seed_panel": "weekly"
+       }
+      ]
+     },
+     "text": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}"
+    }
+   }
+  },
+  {
+   "metrics": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "seeds": [
+    {
+     "id": "other",
+     "metric": null
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json(signups).seed_panel: no such seed panel: weekly"
+   }
+  },
+  {
+   "metrics": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "seeds": [
+    {
+     "id": "weekly",
+     "metric": null
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json(signups).seed_panel: seed panel weekly has a metric other than signups"
+   }
+  },
+  {
+   "metrics": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "seeds": [
+    {
+     "id": "weekly",
+     "metric": "signups"
+    },
+    {
+     "id": "x",
+     "metric": "ghost"
+    }
+   ],
+   "out": {
+    "ok": false,
+    "error": "metrics.json: seed panel x has a metric not in the dictionary: ghost"
+   }
+  },
+  {
+   "metrics": "",
+   "seeds": [
+    {
+     "id": "x",
+     "metric": "ghost"
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "dict": {
+      "dimension_tables": [],
+      "metrics": []
+     },
+     "text": ""
+    }
+   }
+  }
+ ],
+ "problems": [
+  {
+   "metric": "signups",
+   "tables": [
+    "d_member"
+   ],
+   "out": null
+  },
+  {
+   "metric": "signups",
+   "tables": [
+    "d_member",
+    "d_calendar_week"
+   ],
+   "out": null
+  },
+  {
+   "metric": "signups",
+   "tables": [
+    "d_calendar_week"
+   ],
+   "out": "metric signups (Signups) must read at least one of its tables (d_member)"
+  },
+  {
+   "metric": "signups",
+   "tables": [
+    "d_x",
+    "d_member",
+    "d_y"
+   ],
+   "out": "metric signups (Signups) may only use these tables: d_member, d_calendar_week. Outside tables: d_x, d_y"
+  },
+  {
+   "metric": "ghost",
+   "tables": [],
+   "out": "metric not in the dictionary: ghost (use a dictionary id, or null for a definition outside the dictionary)"
+  }
+ ],
+ "context": [
+  {
+   "text": "{\"dimension_tables\":[\"d_calendar_week\"],\"metrics\":[{\"id\":\"signups\",\"name\":\"Signups\",\"asks\":[\"How many?\"],\"tables\":[\"d_member\",\"d_member\"],\"definition\":[[\"Population\",\"All\"]],\"seed_panel\":\"weekly\"}]}",
+   "out": "Dimension tables (usable with every metric): d_calendar_week\n\n### signups: Signups\n- Questions like: How many?\n- Tables: d_member\n- Population: All\n- Example panel: weekly"
+  },
+  {
+   "text": "{\"metrics\":[]}",
+   "out": "(no metrics in the dictionary; every panel uses metric: null)"
+  },
+  {
+   "text": "{\"metrics\":[{\"id\":\"b\",\"name\":\"B\",\"asks\":[\"q1\",\"q2\"],\"tables\":[\"d_b\",\"d_c\"],\"definition\":[[\"k\",\"v\"],[\"k2\",\"v2\"]]}]}",
+   "out": "### b: B\n- Questions like: q1 / q2\n- Tables: d_b, d_c\n- k: v\n- k2: v2"
+  }
+ ]
+}

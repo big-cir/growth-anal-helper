@@ -1,9 +1,9 @@
-// SQLite 파일 소스.
+// SQLite file source.
 import { DatabaseSync } from 'node:sqlite';
 import type { RawValue, SelectResult, SourceAdapter } from './source.ts';
 
 export class SqliteSource implements SourceAdapter {
-  readonly wrapText = false;
+  readonly dialect = 'sqlite';
   private readonly path: string;
 
   constructor(path: string) {
@@ -51,5 +51,5 @@ function toRaw(v: unknown): RawValue {
   if (v === null || v === undefined) return null;
   if (typeof v === 'string') return v;
   if (typeof v === 'number' || typeof v === 'bigint') return String(v);
-  throw new Error(`소스 값 형식을 지원하지 않음: ${typeof v}`);
+  throw new Error(`unsupported source value type: ${typeof v}`);
 }

@@ -1,13 +1,26 @@
-// 소스 어댑터: 결과를 행 단위로 흘려준다.
+// Source adapter: streams results row by row.
 export type RawValue = string | null;
 
 export type SelectResult = { columns: string[]; rows: number; ms: number };
 
+export type Dialect = 'mysql' | 'postgres' | 'sqlite';
+
 export interface SourceAdapter {
-  /** text 칸에 's' 접두사를 붙여야 하는지 */
-  readonly wrapText: boolean;
+  readonly dialect: Dialect;
   now(): Promise<string>;
-  /** 첫 행 전에 onColumns, 행마다 onRow. 콜백이 던지면 멈춘다 */
+  /** onColumns before the first row, onRow per row. Stops if a callback throws */
   selectStream(sql: string, onRow: (values: RawValue[]) => void, onColumns?: (columns: string[]) => void): Promise<SelectResult>;
   abort(): void;
+}
+
+/** Single-row, single-column result */
+export async function singleValue(src: SourceAdapter, sql: string): Promise<string> {
+  let value: RawValue = null;
+  let rows = 0;
+  await src.selectStream(sql, (v) => {
+    if (++rows > 1) throw new Error(`more than one row: ${sql}`);
+    value = v[0];
+  });
+  if (value === null) throw new Error(`no value: ${sql}`);
+  return value;
 }

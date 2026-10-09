@@ -1,4 +1,4 @@
-// 수집: 테이블마다 소스 조회 한 번, 행을 흘려받아 임시 SQLite에 넣는다.
+// Collection: one source query per table; rows are streamed into a temporary SQLite file.
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,33 +15,27 @@ export class CollectError extends Error {}
 
 type Cell = number | string | null;
 
-function convert(c: ColumnSpec, v: RawValue, wrapText: boolean, where: string): Cell {
+function convert(c: ColumnSpec, v: RawValue, where: string): Cell {
   if (v === null) return null;
   switch (c.kind) {
     case 'int': {
-      if (!/^-?\d+$/.test(v)) throw new CollectError(`${where}: 정수가 아님`);
+      if (!/^-?\d+$/.test(v)) throw new CollectError(`${where}: not an integer`);
       const n = Number(v);
-      if (!Number.isSafeInteger(n)) throw new CollectError(`${where}: 안전 범위 밖 정수`);
+      if (!Number.isSafeInteger(n)) throw new CollectError(`${where}: integer outside the safe range`);
       return n;
     }
     case 'ts':
       try {
         return normalizeTs(v);
       } catch {
-        throw new CollectError(`${where}: 시각 형식이 아님`);
+        throw new CollectError(`${where}: not a timestamp`);
       }
     case 'bool':
       if (v === '0' || v === '1') return Number(v);
-      throw new CollectError(`${where}: bool(0/1)이 아님`);
-    case 'text': {
-      let s = v;
-      if (wrapText) {
-        if (!s.startsWith('s')) throw new CollectError(`${where}: text 접두사 없음`);
-        s = s.slice(1);
-      }
-      if ([...s].length > c.maxLength) throw new CollectError(`${where}: maxLength(${c.maxLength}) 초과`);
-      return s;
-    }
+      throw new CollectError(`${where}: not a bool (0/1)`);
+    case 'text':
+      if ([...v].length > c.maxLength) throw new CollectError(`${where}: exceeds maxLength (${c.maxLength})`);
+      return v;
   }
 }
 
@@ -58,7 +52,7 @@ export function localNow(): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(d.getMilliseconds(), 3)}000`;
 }
 
-/** 임시 스냅샷 파일을 만든다. 실패하면 임시 파일을 지운다 */
+/** Builds the temporary snapshot file. Deletes it on failure */
 export async function collect(o: {
   specs: TableSpec[];
   source: SourceAdapter;
@@ -83,18 +77,18 @@ export async function collect(o: {
       const expected = t.columns.map((c) => c.as);
       let sawHeader = false;
       db.exec('BEGIN');
-      const res = await o.source.selectStream(selectSql(t, o.source.wrapText), (raw) => {
-        if (raw.length !== t.columns.length) throw new CollectError(`${t.target}: 열 개수 불일치`);
-        const row = t.columns.map((c, i) => convert(c, raw[i], o.source.wrapText, `${t.target}.${c.as} (행 ${n + 1})`));
+      const res = await o.source.selectStream(selectSql(t, o.source.dialect), (raw) => {
+        if (raw.length !== t.columns.length) throw new CollectError(`${t.target}: column count mismatch`);
+        const row = t.columns.map((c, i) => convert(c, raw[i], `${t.target}.${c.as} (row ${n + 1})`));
         const key = keyIdx.map((i) => row[i]);
-        if (key.some((v) => v === null)) throw new CollectError(`${t.target}: 키가 NULL (행 ${n + 1})`);
+        if (key.some((v) => v === null)) throw new CollectError(`${t.target}: key is NULL (row ${n + 1})`);
         const k = key as number[];
-        if (prevKey && !keyGreater(k, prevKey)) throw new CollectError(`${t.target}: 키 순서 위반 (행 ${n + 1}) — ORDER BY가 지켜지지 않음`);
+        if (prevKey && !keyGreater(k, prevKey)) throw new CollectError(`${t.target}: key order violation (row ${n + 1}): ORDER BY not respected`);
         prevKey = k;
         try {
           ins.run(...row);
         } catch (e) {
-          throw new CollectError(`${t.target}: 삽입 실패 (행 ${n + 1}): ${(e as Error).message}`);
+          throw new CollectError(`${t.target}: insert failed (row ${n + 1}): ${(e as Error).message}`);
         }
         n++;
         if (n % COMMIT_EVERY === 0) {
@@ -103,12 +97,12 @@ export async function collect(o: {
         }
       }, (cols) => {
         sawHeader = true;
-        if (cols.join('\t') !== expected.join('\t')) throw new CollectError(`${t.target}: 헤더 불일치 (${cols.join(',')} ≠ ${expected.join(',')})`);
+        if (cols.join('\t') !== expected.join('\t')) throw new CollectError(`${t.target}: header mismatch (${cols.join(',')} ≠ ${expected.join(',')})`);
       });
       db.exec('COMMIT');
-      if (!sawHeader && res.rows > 0) throw new CollectError(`${t.target}: 헤더 없이 행이 옴`);
+      if (!sawHeader && res.rows > 0) throw new CollectError(`${t.target}: rows arrived without a header`);
       db.prepare('INSERT INTO r_collect_log (table_name, rows, ms, collected_at) VALUES (?, ?, ?, ?)').run(t.target, n, res.ms, localNow());
-      log(`${t.target}: ${n}행 ${res.ms}ms`);
+      log(`${t.target}: ${n} rows ${res.ms}ms`);
     }
     db.close();
     return { tmpPath, cutoff, startedAt, finishedAt: localNow() };

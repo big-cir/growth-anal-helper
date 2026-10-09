@@ -1,21 +1,18 @@
-// 워크스페이스 위치와 workspace.json 검증.
+// Workspace location and workspace.json validation.
 import { readFileSync, existsSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { normalizeTs } from './time.ts';
+import type { Language } from './i18n.ts';
+import { parseConnection, type Ga4Connection } from './collect/ga4/config.ts';
 
-export type CommandSource = {
-  type: 'command';
-  dialect: 'mysql';
-  localCommand: string[];
-  preamble: string[];
-  nowQuery: string | null;
-  ignoreStderrPattern: string | null;
-};
-export type SqliteSource = { type: 'sqlite'; path: string };
+export type ServerDatasource = { kind: 'mysql' | 'postgres'; host: string; port: number; user: string; password: string; database: string };
+export type Datasource = ServerDatasource | { kind: 'sqlite'; path: string };
 
 export type AgentConfig = {
+  /** claude-code: `claude -p`. anthropic, openai: API (openai covers any OpenAI-compatible server) */
+  provider: 'claude-code' | 'anthropic' | 'openai';
   bin: string;
   model: string | null;
   callBudgetUsd: number;
@@ -26,25 +23,36 @@ export type AgentConfig = {
   callTimeoutMs: number;
   concurrency: number;
   dataMode: 'pseudonymized' | 'schema_only';
+  apiKey: string;
+  baseUrl: string | null;
+  /** Dollars per million tokens. Without it, cost caps do not apply to API calls */
+  pricing: { inputPerMTok: number; outputPerMTok: number } | null;
+  /** Response length limit for anthropic */
+  maxOutputTokens: number;
 };
 
 export type WorkspaceConfig = {
   name: string;
-  source: CommandSource | SqliteSource;
-  /** panelReadablePrefixes: 패널 SQL이 읽을 수 있는 표(탐색은 readablePrefixes) */
+  /** Language of the web UI, server messages and agent-written text */
+  language: Language;
+  datasource: Datasource;
+  /** panelReadablePrefixes: tables panel SQL may read (exploration uses readablePrefixes) */
   policy: { readablePrefixes: string[]; panelReadablePrefixes: string[] };
   params: Record<string, string | number | string[]>;
   agent: AgentConfig;
   run: { heapLimitMb: number };
-  /** publicOrigin이 있으면 외부 운영 모드(HTTPS 프록시 뒤) */
-  server: { port: number; publicOrigin: string | null; proxyHops: number; auditRetentionDays: number };
-  /** 산출물 위치. 기본은 워크스페이스 자체 */
+  /** publicOrigin set: external mode (behind an HTTPS proxy). auth false: no sign-in, everyone is admin `local` */
+  server: { port: number; auth: boolean; publicOrigin: string | null; proxyHops: number; auditRetentionDays: number };
+  /** Output location. Defaults to the workspace itself */
   outDir: string;
+  /** Null: GA4 is not used */
+  ga4: Ga4Connection | null;
 };
 
 export type Workspace = { dir: string; config: WorkspaceConfig };
 
 const AGENT_DEFAULTS: AgentConfig = {
+  provider: 'claude-code',
   bin: 'claude',
   model: null,
   callBudgetUsd: 0.5,
@@ -55,9 +63,13 @@ const AGENT_DEFAULTS: AgentConfig = {
   callTimeoutMs: 90_000,
   concurrency: 2,
   dataMode: 'pseudonymized',
+  apiKey: '',
+  baseUrl: null,
+  pricing: null,
+  maxOutputTokens: 8192,
 };
 
-/** 워크스페이스 위치: 환경변수 GROWTH_LAB_WORKSPACE → ./workspace */
+/** Workspace location: GROWTH_LAB_WORKSPACE env var, then ./workspace */
 export function findWorkspaceDir(env: NodeJS.ProcessEnv = process.env, cwd = process.cwd()): string {
   const fromEnv = env.GROWTH_LAB_WORKSPACE;
   return fromEnv ? resolve(cwd, fromEnv) : resolve(cwd, 'workspace');
@@ -65,18 +77,18 @@ export function findWorkspaceDir(env: NodeJS.ProcessEnv = process.env, cwd = pro
 
 export class ConfigError extends Error {}
 
-const SECRET_KEY_RE = /pass(word|wd)?|secret|token|api[_-]?key|credential/i;
+const DEFAULT_PORTS = { mysql: 3306, postgres: 5432 };
 const IDENT_PREFIX_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
-/** 시각 또는 "시각~시각"만 */
+/** Timestamp or "timestamp~timestamp" only */
 function paramValue(v: string, path: string): string {
   const parts = v.split('~').map((x) => x.trim());
-  if (parts.length > 2) fail(path, '수, 시각, "시각~시각"만 쓸 수 있음');
+  if (parts.length > 2) fail(path, 'only numbers, timestamps or "timestamp~timestamp"');
   for (const p of parts) {
     try {
       normalizeTs(p);
     } catch {
-      fail(path, '수, 시각, "시각~시각"만 쓸 수 있음(자유 문자열 금지)');
+      fail(path, 'only numbers, timestamps or "timestamp~timestamp" (no free text)');
     }
   }
   return v;
@@ -86,44 +98,33 @@ function fail(path: string, msg: string): never {
   throw new ConfigError(`workspace.json ${path}: ${msg}`);
 }
 
-function rejectSecretKeys(value: unknown, path: string): void {
-  if (Array.isArray(value)) {
-    value.forEach((v, i) => rejectSecretKeys(v, `${path}[${i}]`));
-  } else if (value && typeof value === 'object') {
-    for (const [k, v] of Object.entries(value)) {
-      if (SECRET_KEY_RE.test(k)) fail(`${path}.${k}`, '비밀값 키는 설정에 둘 수 없음 (mysql 옵션 파일을 쓰세요)');
-      rejectSecretKeys(v, `${path}.${k}`);
-    }
-  }
-}
-
 function obj(v: unknown, path: string): Record<string, unknown> {
-  if (!v || typeof v !== 'object' || Array.isArray(v)) fail(path, '객체여야 함');
+  if (!v || typeof v !== 'object' || Array.isArray(v)) fail(path, 'must be an object');
   return v as Record<string, unknown>;
 }
 function str(v: unknown, path: string): string {
-  if (typeof v !== 'string' || v.length === 0) fail(path, '비어 있지 않은 문자열이어야 함');
+  if (typeof v !== 'string' || v.length === 0) fail(path, 'must be a non-empty string');
   return v;
 }
 function optStr(v: unknown, path: string): string | null {
   return v === undefined || v === null ? null : str(v, path);
 }
 function strArray(v: unknown, path: string, { nonEmpty = false } = {}): string[] {
-  if (!Array.isArray(v) || v.some((x) => typeof x !== 'string')) fail(path, '문자열 배열이어야 함');
-  if (nonEmpty && v.length === 0) fail(path, '비어 있으면 안 됨');
+  if (!Array.isArray(v) || v.some((x) => typeof x !== 'string')) fail(path, 'must be an array of strings');
+  if (nonEmpty && v.length === 0) fail(path, 'must not be empty');
   return v as string[];
 }
 function num(v: unknown, path: string, { int = false, min = 0, exclusiveMin = false } = {}): number {
-  if (typeof v !== 'number' || !Number.isFinite(v)) fail(path, '숫자여야 함');
-  if (int && !Number.isInteger(v)) fail(path, '정수여야 함');
-  if (exclusiveMin ? v <= min : v < min) fail(path, `${exclusiveMin ? '>' : '>='} ${min} 이어야 함`);
+  if (typeof v !== 'number' || !Number.isFinite(v)) fail(path, 'must be a number');
+  if (int && !Number.isInteger(v)) fail(path, 'must be an integer');
+  if (exclusiveMin ? v <= min : v < min) fail(path, `must be ${exclusiveMin ? '>' : '>='} ${min}`);
   return v;
 }
 function onlyKeys(o: Record<string, unknown>, allowed: string[], path: string): void {
-  for (const k of Object.keys(o)) if (!allowed.includes(k)) fail(`${path}.${k}`, '알 수 없는 키');
+  for (const k of Object.keys(o)) if (!allowed.includes(k)) fail(`${path}.${k}`, 'unknown key');
 }
 
-/** argv 원소 앞의 `~/`, `=~/`를 홈 경로로 펼친다 */
+/** Expands a leading `~/` or `=~/` to the home directory */
 export function expandHome(arg: string, home = homedir()): string {
   if (arg.startsWith('~/')) return join(home, arg.slice(2));
   const i = arg.indexOf('=~/');
@@ -132,53 +133,29 @@ export function expandHome(arg: string, home = homedir()): string {
 }
 
 export function parseWorkspaceConfig(raw: unknown, dir: string, home = homedir()): WorkspaceConfig {
-  rejectSecretKeys(raw, '');
   const root = obj(raw, '(root)');
-  onlyKeys(root, ['name', 'source', 'policy', 'params', 'agent', 'run', 'server', 'outDir'], '');
+  onlyKeys(root, ['name', 'language', 'datasource', 'policy', 'params', 'agent', 'run', 'server', 'outDir', 'ga4'], '');
 
-  const src = obj(root.source, '.source');
-  let source: CommandSource | SqliteSource;
-  if (src.type === 'command') {
-    onlyKeys(src, ['type', 'dialect', 'localCommand', 'preamble', 'nowQuery', 'ignoreStderrPattern'], '.source');
-    if (src.dialect !== 'mysql') fail('.source.dialect', '"mysql"만 지원');
-    const pattern = optStr(src.ignoreStderrPattern, '.source.ignoreStderrPattern');
-    if (pattern !== null) {
-      try { new RegExp(pattern); } catch { fail('.source.ignoreStderrPattern', '정규식이 아님'); }
-    }
-    source = {
-      type: 'command',
-      dialect: 'mysql',
-      localCommand: strArray(src.localCommand, '.source.localCommand', { nonEmpty: true }).map((a) => expandHome(a, home)),
-      preamble: src.preamble === undefined ? [] : strArray(src.preamble, '.source.preamble'),
-      nowQuery: optStr(src.nowQuery, '.source.nowQuery'),
-      ignoreStderrPattern: pattern,
-    };
-  } else if (src.type === 'sqlite') {
-    onlyKeys(src, ['type', 'path'], '.source');
-    const p = expandHome(str(src.path, '.source.path'), home);
-    source = { type: 'sqlite', path: isAbsolute(p) ? p : resolve(dir, p) };
-  } else {
-    fail('.source.type', '"command" 또는 "sqlite"');
-  }
+  const datasource = parseDatasource(obj(root.datasource, '.datasource'), dir, home);
 
   const pol = obj(root.policy, '.policy');
   onlyKeys(pol, ['readablePrefixes', 'panelReadablePrefixes'], '.policy');
   const readablePrefixes = strArray(pol.readablePrefixes, '.policy.readablePrefixes', { nonEmpty: true });
   for (const p of readablePrefixes) {
-    if (!IDENT_PREFIX_RE.test(p)) fail('.policy.readablePrefixes', `식별자 접두사가 아님: ${JSON.stringify(p)}`);
-    if (p.toLowerCase().startsWith('sqlite_')) fail('.policy.readablePrefixes', 'sqlite_ 내부 테이블은 허용할 수 없음');
+    if (!IDENT_PREFIX_RE.test(p)) fail('.policy.readablePrefixes', `not an identifier prefix: ${JSON.stringify(p)}`);
+    if (p.toLowerCase().startsWith('sqlite_')) fail('.policy.readablePrefixes', 'sqlite_ internal tables are not allowed');
   }
   const panelReadablePrefixes = pol.panelReadablePrefixes === undefined ? ['d_'] : strArray(pol.panelReadablePrefixes, '.policy.panelReadablePrefixes', { nonEmpty: true });
   for (const p of panelReadablePrefixes) {
-    if (!IDENT_PREFIX_RE.test(p)) fail('.policy.panelReadablePrefixes', `식별자 접두사가 아님: ${JSON.stringify(p)}`);
-    if (!readablePrefixes.some((r) => p.startsWith(r))) fail('.policy.panelReadablePrefixes', `readablePrefixes보다 넓힐 수 없음: ${JSON.stringify(p)}`);
+    if (!IDENT_PREFIX_RE.test(p)) fail('.policy.panelReadablePrefixes', `not an identifier prefix: ${JSON.stringify(p)}`);
+    if (!readablePrefixes.some((r) => p.startsWith(r))) fail('.policy.panelReadablePrefixes', `cannot be wider than readablePrefixes: ${JSON.stringify(p)}`);
   }
 
   const params: Record<string, string | number | string[]> = {};
   for (const [k, v] of Object.entries(root.params === undefined ? {} : obj(root.params, '.params'))) {
-    if (!IDENT_PREFIX_RE.test(k)) fail(`.params.${k}`, '키는 식별자여야 함');
-    if (k === 'as_of') fail('.params.as_of', '엔진 예약어');
-    // 값은 수·시각·"시각~시각"과 그 배열만(자유 문자열 금지)
+    if (!IDENT_PREFIX_RE.test(k)) fail(`.params.${k}`, 'key must be an identifier');
+    if (k === 'as_of') fail('.params.as_of', 'reserved by the engine');
+    // Values: numbers, timestamps, "timestamp~timestamp" or arrays of those (no free text)
     if (typeof v === 'number' && Number.isFinite(v)) params[k] = v;
     else if (typeof v === 'string') params[k] = paramValue(v, `.params.${k}`);
     else params[k] = strArray(v, `.params.${k}`).map((x, i) => paramValue(x, `.params.${k}[${i}]`));
@@ -194,15 +171,46 @@ export function parseWorkspaceConfig(raw: unknown, dir: string, home = homedir()
   for (const k of ['maxTurns', 'maxProbes', 'maxFixes', 'callTimeoutMs', 'concurrency'] as const) {
     if (a[k] !== undefined) agent[k] = num(a[k], `.agent.${k}`, { int: true, min: k === 'maxFixes' || k === 'maxProbes' ? 0 : 1 });
   }
+  if (a.provider !== undefined) {
+    if (a.provider !== 'claude-code' && a.provider !== 'anthropic' && a.provider !== 'openai') fail('.agent.provider', '"claude-code", "anthropic", "openai"');
+    agent.provider = a.provider;
+  }
+  if (a.apiKey !== undefined) {
+    if (typeof a.apiKey !== 'string') fail('.agent.apiKey', 'must be a string');
+    agent.apiKey = a.apiKey;
+  }
+  if (a.baseUrl !== undefined) {
+    const raw = str(a.baseUrl, '.agent.baseUrl');
+    let u: URL;
+    try {
+      u = new URL(raw);
+    } catch {
+      fail('.agent.baseUrl', 'invalid URL');
+    }
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') fail('.agent.baseUrl', 'http(s) URLs only');
+    agent.baseUrl = raw;
+  }
+  if (a.pricing !== undefined) {
+    const p = obj(a.pricing, '.agent.pricing');
+    onlyKeys(p, ['inputPerMTok', 'outputPerMTok'], '.agent.pricing');
+    agent.pricing = { inputPerMTok: num(p.inputPerMTok, '.agent.pricing.inputPerMTok'), outputPerMTok: num(p.outputPerMTok, '.agent.pricing.outputPerMTok') };
+  }
+  if (a.maxOutputTokens !== undefined) agent.maxOutputTokens = num(a.maxOutputTokens, '.agent.maxOutputTokens', { int: true, min: 256 });
+  if (agent.provider !== 'claude-code') {
+    if (!agent.model) fail('.agent.model', 'a model name is required for API providers');
+    if (agent.provider === 'anthropic' && !agent.apiKey) fail('.agent.apiKey', 'anthropic requires an API key');
+  } else {
+    for (const k of ['apiKey', 'baseUrl', 'pricing', 'maxOutputTokens'] as const) if (a[k] !== undefined) fail(`.agent.${k}`, 'only for API providers (anthropic, openai)');
+  }
   if (a.dataMode !== undefined) {
-    if (a.dataMode !== 'pseudonymized' && a.dataMode !== 'schema_only') fail('.agent.dataMode', '"pseudonymized" 또는 "schema_only"');
+    if (a.dataMode !== 'pseudonymized' && a.dataMode !== 'schema_only') fail('.agent.dataMode', '"pseudonymized" or "schema_only"');
     agent.dataMode = a.dataMode;
   }
 
   const r = root.run === undefined ? {} : obj(root.run, '.run');
   onlyKeys(r, ['heapLimitMb'], '.run');
   const s = root.server === undefined ? {} : obj(root.server, '.server');
-  onlyKeys(s, ['port', 'publicOrigin', 'proxyHops', 'auditRetentionDays'], '.server');
+  onlyKeys(s, ['port', 'auth', 'publicOrigin', 'proxyHops', 'auditRetentionDays'], '.server');
   let publicOrigin: string | null = null;
   if (s.publicOrigin !== undefined) {
     const raw = str(s.publicOrigin, '.server.publicOrigin');
@@ -210,42 +218,95 @@ export function parseWorkspaceConfig(raw: unknown, dir: string, home = homedir()
     try {
       u = new URL(raw);
     } catch {
-      fail('.server.publicOrigin', 'URL 형식 오류');
+      fail('.server.publicOrigin', 'invalid URL');
     }
-    if (u.protocol !== 'https:' || u.username || u.password || (u.pathname !== '/' && u.pathname !== '') || u.search || u.hash) fail('.server.publicOrigin', 'https://호스트[:포트] 형식만');
+    if (u.protocol !== 'https:' || u.username || u.password || (u.pathname !== '/' && u.pathname !== '') || u.search || u.hash) fail('.server.publicOrigin', 'only https://host[:port]');
     publicOrigin = u.origin;
   }
-  if (s.proxyHops !== undefined && !publicOrigin) fail('.server.proxyHops', 'publicOrigin이 있을 때만');
+  if (s.proxyHops !== undefined && !publicOrigin) fail('.server.proxyHops', 'only with publicOrigin');
+  if (s.auth !== undefined && typeof s.auth !== 'boolean') fail('.server.auth', 'true or false');
+  const auth = s.auth === true;
+  if (publicOrigin && !auth) fail('.server.auth', 'must be true with publicOrigin');
 
   return {
     name: str(root.name, '.name'),
-    source,
+    language: parseLanguage(root.language),
+    datasource,
     policy: { readablePrefixes, panelReadablePrefixes },
     params,
     agent,
     run: { heapLimitMb: r.heapLimitMb === undefined ? 2048 : num(r.heapLimitMb, '.run.heapLimitMb', { int: true, min: 64 }) },
     server: {
       port: s.port === undefined ? 4170 : num(s.port, '.server.port', { int: true, min: 1 }),
+      auth,
       publicOrigin,
       proxyHops: s.proxyHops === undefined ? 1 : num(s.proxyHops, '.server.proxyHops', { int: true, min: 1 }),
       auditRetentionDays: s.auditRetentionDays === undefined ? 90 : num(s.auditRetentionDays, '.server.auditRetentionDays', { int: true, min: 1 }),
     },
     outDir: root.outDir === undefined ? dir : relativeOutDir(dir, str(root.outDir, '.outDir')),
+    ga4: root.ga4 === undefined ? null : parseGa4(root.ga4, dir, home),
   };
 }
 
+function parseLanguage(v: unknown): Language {
+  if (v === undefined) return 'en';
+  if (v !== 'en' && v !== 'ko') fail('.language', '"en" or "ko"');
+  return v;
+}
+
+/** host: `mysql://host[:port]`, `postgres://host[:port]` or `sqlite://file path` */
+function parseDatasource(o: Record<string, unknown>, dir: string, home: string): Datasource {
+  const host = str(o.host, '.datasource.host');
+  const m = /^(mysql|postgres|postgresql|sqlite):\/\/(.+)$/.exec(host);
+  if (!m) fail('.datasource.host', 'must start with mysql://, postgres:// or sqlite://');
+  if (m[1] === 'sqlite') {
+    onlyKeys(o, ['host'], '.datasource');
+    const p = expandHome(m[2], home);
+    return { kind: 'sqlite', path: isAbsolute(p) ? p : resolve(dir, p) };
+  }
+  onlyKeys(o, ['host', 'user', 'password', 'database'], '.datasource');
+  const kind = m[1] === 'mysql' ? 'mysql' : 'postgres';
+  let u: URL;
+  try {
+    u = new URL(`${kind}://${m[2]}`);
+  } catch {
+    fail('.datasource.host', 'invalid host[:port]');
+  }
+  if (!u.hostname || u.username || u.password || (u.pathname !== '' && u.pathname !== '/') || u.search || u.hash) fail('.datasource.host', 'host[:port] only (user and database go in their own keys)');
+  if (o.password !== undefined && typeof o.password !== 'string') fail('.datasource.password', 'must be a string');
+  return {
+    kind,
+    host: u.hostname.replace(/^\[(.*)\]$/, '$1'),
+    port: u.port ? Number(u.port) : DEFAULT_PORTS[kind],
+    user: str(o.user, '.datasource.user'),
+    password: (o.password as string | undefined) ?? '',
+    database: str(o.database, '.datasource.database'),
+  };
+}
+
+function parseGa4(v: unknown, dir: string, home: string): Ga4Connection {
+  try {
+    return parseConnection(v, (p) => {
+      const x = expandHome(p, home);
+      return isAbsolute(x) ? x : resolve(dir, x);
+    });
+  } catch (e) {
+    fail('.ga4', (e as Error).message);
+  }
+}
+
 function relativeOutDir(dir: string, v: string): string {
-  if (isAbsolute(v) || v.startsWith('~')) fail('.outDir', '워크스페이스 기준 상대 경로여야 함');
+  if (isAbsolute(v) || v.startsWith('~')) fail('.outDir', 'must be a path relative to the workspace');
   const out = resolve(dir, v);
   const rel = relative(dir, out);
-  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) fail('.outDir', '워크스페이스 안의 하위 폴더여야 함');
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) fail('.outDir', 'must be a subfolder of the workspace');
   return out;
 }
 
-/** 공개 예제 워크스페이스. 워크스페이스 경로 자체는 git 제외 검사에서 뺀다 */
+/** Public example workspace. Its own path is skipped by the git-ignore check */
 export const PUBLIC_EXAMPLE_DIR = resolve(import.meta.dirname, '..', 'examples', 'demo');
 
-/** git 제외 여부를 확인할 경로: 공개 예제가 아니면 워크스페이스 경로도 포함 */
+/** Paths that must be git-ignored: includes the workspace itself unless it is the public example */
 export function guardedPaths(ws: Workspace): string[] {
   const isPublicExample = realpathLoose(ws.dir) === realpathLoose(PUBLIC_EXAMPLE_DIR);
   return [...(isPublicExample ? [] : [ws.dir]), ...outputPaths(ws.dir, ws.config.outDir)];
@@ -253,19 +314,19 @@ export function guardedPaths(ws: Workspace): string[] {
 
 export function loadWorkspace(dir: string): Workspace {
   const file = join(dir, 'workspace.json');
-  if (!existsSync(file)) throw new ConfigError(`워크스페이스 설정이 없음: ${file}`);
+  if (!existsSync(file)) throw new ConfigError(`workspace config not found: ${file}`);
   let raw: unknown;
   try {
     raw = JSON.parse(readFileSync(file, 'utf8'));
   } catch (e) {
-    throw new ConfigError(`workspace.json을 읽지 못함: ${(e as Error).message}`);
+    throw new ConfigError(`cannot read workspace.json: ${(e as Error).message}`);
   }
   return { dir, config: parseWorkspaceConfig(raw, dir) };
 }
 
-/** 엔진이 쓰는 산출물 경로 */
+/** Output paths written by the engine */
 export function outputPaths(workspaceDir: string, outRoot = workspaceDir): string[] {
-  return [outRoot, ...['snapshots', 'panels', 'conversations', 'results', 'logs', '.agent-cwd'].map((d) => join(outRoot, d))];
+  return [outRoot, ...['snapshots', 'panels', 'conversations', 'results', 'logs', '.agent-cwd', 'agent-sessions'].map((d) => join(outRoot, d))];
 }
 
 export function gitRoot(cwd: string): string | null {
@@ -276,7 +337,7 @@ export function gitRoot(cwd: string): string | null {
   }
 }
 
-/** 아직 없는 경로도 가장 가까운 기존 조상 기준으로 realpath */
+/** realpath that also works for paths that do not exist yet (via the nearest existing ancestor) */
 function realpathLoose(p: string): string {
   const abs = resolve(p);
   if (existsSync(abs)) return realpathSync(abs);
@@ -284,7 +345,7 @@ function realpathLoose(p: string): string {
   return parent === abs ? abs : join(realpathLoose(parent), basename(abs));
 }
 
-/** 저장소 안에 있으면서 git에서 제외되지 않은 경로 목록 */
+/** Paths inside the repository that are not git-ignored */
 export function findUnignoredOutputs(paths: string[], cwd = process.cwd()): string[] {
   const root = gitRoot(cwd);
   if (!root) return [];
@@ -309,6 +370,6 @@ export function findUnignoredOutputs(paths: string[], cwd = process.cwd()): stri
 export function assertOutputsIgnored(paths: string[], cwd = process.cwd()): void {
   const bad = findUnignoredOutputs(paths, cwd);
   if (bad.length > 0) {
-    throw new ConfigError(`git에서 제외되지 않은 산출물 경로: ${bad.join(', ')} (.gitignore에 추가하거나 워크스페이스를 저장소 밖에 두세요)`);
+    throw new ConfigError(`output paths are not git-ignored: ${bad.join(', ')} (add them to .gitignore or keep the workspace outside the repository)`);
   }
 }

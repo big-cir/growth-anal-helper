@@ -1,4 +1,4 @@
-// 수집·확정·가명 사본·derive·test-derived.
+// Collect, finalize, pseudonymized copy, derive, test-derived.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
@@ -6,20 +6,21 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, writeFileSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseSpec, selectSql, specHash, SpecError } from '../src/collect/spec.ts';
-import { parseLine, unescapeField } from '../src/collect/sources/tsv.ts';
-import { CommandSourceAdapter } from '../src/collect/sources/command.ts';
+import { MysqlSource } from '../src/collect/sources/mysql.ts';
+import { PostgresSource } from '../src/collect/sources/postgres.ts';
 import { SqliteSource } from '../src/collect/sources/sqlite.ts';
+import type { SourceAdapter } from '../src/collect/sources/source.ts';
 import { collect } from '../src/collect/collector.ts';
 import { finalize, loadDerivedRoles } from '../src/collect/finalize.ts';
 import { pseudonymize, PseudonymizeError, PSEUDO_MAX, PSEUDO_MIN } from '../src/snapshot/pseudonymize.ts';
 import { readCurrent } from '../src/snapshot/store.ts';
 import { loadBuildInputs, runCollect, runDerive, runTestDerived } from '../src/snapshot/pipeline.ts';
-import { loadWorkspace, type CommandSource } from '../src/workspace.ts';
+import { loadWorkspace, type ServerDatasource } from '../src/workspace.ts';
+import { fakeMysql, fakePostgres, type Table } from './helpers/fake-db.ts';
 import { seedDemo } from '../examples/demo/seed.ts';
 
 const ROOT = join(import.meta.dirname, '..');
 const DEMO = join(ROOT, 'examples', 'demo');
-const FAKE = join(import.meta.dirname, 'fixtures', 'fake-mysql.ts');
 const ANCHOR = '2024-06-03 12:00:00';
 
 const col = (o: Record<string, unknown>) => ({ kind: 'int', role: 'ordinary', ...o });
@@ -30,16 +31,15 @@ const tableSpec = (cols: unknown[], extra: Record<string, unknown> = {}) => [{
 }];
 
 
-test('명세: 데모 tables.json은 통과', () => {
+test('spec: demo tables.json passes', () => {
   const specs = parseSpec(JSON.parse(readFileSync(join(DEMO, 'tables.json'), 'utf8')));
   assert.equal(specs.length, 6);
   const reply = specs.find((t) => t.target === 'r_reply')!;
-  assert.equal(selectSql(reply, false), 'SELECT id AS id, post_id AS post_id, member_id AS member_id, parent_reply_id IS NOT NULL AS is_nested, created_at AS created_at, deleted_at AS deleted_at FROM reply ORDER BY id');
-  const member = specs.find((t) => t.target === 'r_member')!;
-  assert.match(selectSql(member, true), /CONCAT\('s', country\) AS country/);
+  assert.equal(selectSql(reply, 'mysql'), 'SELECT id AS id, post_id AS post_id, member_id AS member_id, parent_reply_id IS NOT NULL AS is_nested, created_at AS created_at, deleted_at AS deleted_at FROM reply ORDER BY id');
+  assert.equal(selectSql(reply, 'postgres'), "SELECT id AS id, post_id AS post_id, member_id AS member_id, CAST(parent_reply_id IS NOT NULL AS int) AS is_nested, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS.US') AS created_at, to_char(deleted_at, 'YYYY-MM-DD HH24:MI:SS.US') AS deleted_at FROM reply ORDER BY id");
 });
 
-test('명세: 규칙 위반은 모두 거부', () => {
+test('spec: every rule violation is rejected', () => {
   const bad: unknown[] = [
     tableSpec([col({ expr: 'name; DROP TABLE x', as: 'name', kind: 'text' })]),
     tableSpec([col({ expr: 'lower(name)', as: 'name', kind: 'text' })]),
@@ -58,7 +58,7 @@ test('명세: 규칙 위반은 모두 거부', () => {
   for (const b of bad) assert.throws(() => parseSpec(b), SpecError, JSON.stringify(b));
 });
 
-test('명세 해시는 역할을 빼고 계산한다', () => {
+test('spec hash ignores roles', () => {
   const a = parseSpec(tableSpec([col({ expr: 'n', as: 'n' })]));
   const b = parseSpec(tableSpec([col({ expr: 'n', as: 'n', role: { identifier: 'other' } })]));
   const c = parseSpec(tableSpec([col({ expr: 'm', as: 'n' })]));
@@ -67,49 +67,90 @@ test('명세 해시는 역할을 빼고 계산한다', () => {
 });
 
 
-test('배치 형식: 이스케이프 되돌리기, NULL', () => {
-  assert.equal(unescapeField('a\\tb\\nc\\\\d\\0e'), 'a\tb\nc\\d\0e');
-  assert.throws(() => unescapeField('a\\q'));
-  assert.deepEqual(parseLine('1\tNULL\tsNULL\t'), ['1', null, 'sNULL', '']);
-});
+const TABLE: Table = { columns: ['id', 'name', 'note'], rows: [['1', 'Alice', 'NULL'], ['2', 'Tab\there', null], ['3', '한글\n줄바꿈\\x', '']] };
+const ds = (kind: 'mysql' | 'postgres', port: number, password: string): ServerDatasource => ({ kind, host: '127.0.0.1', port, user: 'ro', password, database: 'board' });
 
-function fakeSource(scenario: string, sqlLog?: string): CommandSourceAdapter {
-  const cfg: CommandSource = {
-    type: 'command', dialect: 'mysql',
-    localCommand: [process.execPath, FAKE, scenario, ...(sqlLog ? [sqlLog] : [])],
-    preamble: ['SET NAMES utf8mb4;'], nowQuery: null, ignoreStderrPattern: 'Using a password',
-  };
-  const logged: string[] = [];
-  const a = new CommandSourceAdapter(cfg, (l) => logged.push(l));
-  (a as unknown as { logged: string[] }).logged = logged;
-  return a;
+async function rowsOf(src: SourceAdapter, sql = 'SELECT id, name, note FROM t') {
+  const rows: (string | null)[][] = [];
+  const r = await src.selectStream(sql, (v) => rows.push(v));
+  return { columns: r.columns, rows };
 }
 
-test('명령 소스: SQL은 stdin으로(앞줄 포함), 값 이스케이프, stderr 거르기', async () => {
-  const sqlLog = join(mkdtempSync(join(tmpdir(), 'gl-cmd-')), 'sql.txt');
-  const src = fakeSource('rows', sqlLog);
-  const rows: (string | null)[][] = [];
-  const r = await src.selectStream('SELECT 1', (v) => rows.push(v));
-  assert.deepEqual(r.columns, ['id', 'name', 'note']);
-  assert.deepEqual(rows, [['1', 'sAlice', 'sNULL'], ['2', 'sTab\there', null], ['3', 'sLine\nBreak\\x', 'sok']]);
-  assert.equal(readFileSync(sqlLog, 'utf8'), 'SET NAMES utf8mb4;\nSELECT 1;\n');
-  assert.deepEqual((src as unknown as { logged: string[] }).logged, ['real diagnostic line']);
+for (const plugin of ['mysql_native_password', 'caching_sha2_password'] as const) {
+  for (const fullAuth of plugin === 'caching_sha2_password' ? [false, true] : [false]) {
+    test(`MySQL source (${plugin}${fullAuth ? ', full auth' : ''}): auth, read-only session, NULL vs string "NULL" vs special characters`, async () => {
+      const db = await fakeMysql({ user: 'ro', password: 'pw:한글', plugin, fullAuth, table: TABLE });
+      try {
+        const src = new MysqlSource(ds('mysql', db.port, 'pw:한글'));
+        assert.deepEqual(await rowsOf(src), TABLE);
+        assert.equal(await src.now(), '2024-03-20 12:00:00.123456');
+        assert.deepEqual(db.queries.slice(0, 2), ['SET SESSION TRANSACTION READ ONLY', 'SELECT id, name, note FROM t']);
+        assert.deepEqual(db.startup[0], { user: 'ro', database: 'board' });
+      } finally {
+        await db.close();
+      }
+    });
+  }
+}
+
+test('MySQL source: wrong password and SQL errors fail with the server message', async () => {
+  const db = await fakeMysql({ user: 'ro', password: 'right', table: TABLE });
+  try {
+    await assert.rejects(rowsOf(new MysqlSource(ds('mysql', db.port, 'wrong'))), /MySQL error 1064|Access denied/);
+    await assert.rejects(rowsOf(new MysqlSource(ds('mysql', db.port, 'right')), 'SELECT fail'), /Unknown column/);
+  } finally {
+    await db.close();
+  }
 });
 
-test('명령 소스: 종료 코드 실패, 열 개수 불일치', async () => {
-  await assert.rejects(fakeSource('fail').selectStream('x', () => {}), /종료 코드 1/);
-  await assert.rejects(fakeSource('shortrow').selectStream('x', () => {}), /열 개수 불일치/);
-  assert.equal(await fakeSource('now').now(), '2024-03-20 12:00:00.123456');
+for (const auth of ['scram', 'md5'] as const) {
+  test(`PostgreSQL source (${auth}): auth, read-only session option, NULL vs special characters`, async () => {
+    const db = await fakePostgres({ user: 'ro', password: 'pw:한글', auth, table: TABLE });
+    try {
+      const src = new PostgresSource(ds('postgres', db.port, 'pw:한글'));
+      assert.deepEqual(await rowsOf(src), TABLE);
+      assert.equal(await src.now(), '2024-03-20 12:00:00.123456');
+      assert.equal(db.startup[0].user, 'ro');
+      assert.equal(db.startup[0].database, 'board');
+      assert.equal(db.startup[0].options, '-c default_transaction_read_only=on');
+      await assert.rejects(rowsOf(src, 'SELECT fail'), /PostgreSQL error 28P01: column "x" does not exist/);
+      await assert.rejects(rowsOf(new PostgresSource(ds('postgres', db.port, 'wrong'))), /password authentication failed/);
+    } finally {
+      await db.close();
+    }
+  });
+}
+
+test('connection failure and cancel', async () => {
+  const db = await fakeMysql({ user: 'ro', password: 'pw', table: TABLE });
+  const port = db.port;
+  await db.close();
+  await assert.rejects(rowsOf(new MysqlSource(ds('mysql', port, 'pw'))), /cannot connect to the database \(127\.0\.0\.1:\d+\)/);
+  const live = await fakePostgres({ user: 'ro', password: 'pw', table: TABLE });
+  try {
+    const src = new PostgresSource(ds('postgres', live.port, 'pw'));
+    await assert.rejects(src.selectStream('SELECT 1', () => src.abort()), /cancelled/);
+    await assert.rejects(rowsOf(src), /cancelled/);
+  } finally {
+    await live.close();
+  }
 });
 
-test('수집: 헤더가 명세의 as 목록과 다르면 첫 행 전에 멈추고 임시 파일을 남기지 않는다', async () => {
+test('collect: a header that differs from the spec stops before the first row and leaves no temporary file', async () => {
   const specs = parseSpec([{
     source: 't', target: 'r_t', key: ['id'], cutoffColumn: 'ts',
     columns: [col({ expr: 'id', as: 'id' }), col({ expr: 'name', as: 'name', kind: 'text' }), col({ expr: 'ts', as: 'ts', kind: 'ts' })],
   }]);
   const dir = mkdtempSync(join(tmpdir(), 'gl-col-'));
-  const src = Object.assign(fakeSource('badheader'), { now: async () => '2024-03-20 12:00:00' });
-  await assert.rejects(collect({ specs, source: src, snapshotsDir: dir }), /헤더 불일치 \(id,WRONG,ts ≠ id,name,ts\)/);
+  const src: SourceAdapter = {
+    dialect: 'mysql', now: async () => '2024-03-20 12:00:00', abort: () => {},
+    selectStream: async (_sql, onRow, onColumns) => {
+      onColumns?.(['id', 'WRONG', 'ts']);
+      onRow(['1', 'x', '2024-01-01 00:00:00']);
+      return { columns: [], rows: 1, ms: 0 };
+    },
+  };
+  await assert.rejects(collect({ specs, source: src, snapshotsDir: dir }), /header mismatch \(id,WRONG,ts ≠ id,name,ts\)/);
   assert.deepEqual(readdirSync(dir), []);
 });
 
@@ -141,7 +182,7 @@ async function collectAt(wsDir: string, cutoff: string, failAt?: 'cutoff' | 'bui
   return finalize({ tmpPath: c.tmpPath, snapshotsDir: snaps, inputs, meta: { cutoff: c.cutoff, startedAt: c.startedAt, finishedAt: c.finishedAt }, applyCutoffFirst: true, failAt });
 }
 
-test('수집 → 확정: 세 파일과 current.json, 기준 시각 정리 기록, 같은 입력이면 같은 해시', async () => {
+test('collect → finalize: three files and current.json, cutoff log, same input gives the same hash', async () => {
   const ws = demoWorkspace();
   const r = await collectAt(ws, '2024-04-15 00:00:00');
   for (const p of Object.values(r.files)) assert.ok(existsSync(p), p);
@@ -165,7 +206,7 @@ test('수집 → 확정: 세 파일과 current.json, 기준 시각 정리 기록
   assert.ok(again.reused);
 });
 
-test('가명 사본: ID는 바뀌고, 집계·조인은 같고, 순열 표는 사본 안에 없다', async () => {
+test('pseudonymized copy: IDs change, aggregates and joins match, no mapping table inside', async () => {
   const r = await collectAt(demoWorkspace(), '2024-06-01 00:00:00');
   const real = new DatabaseSync(r.files.real, { readOnly: true });
   const agent = new DatabaseSync(r.files.agent, { readOnly: true });
@@ -187,7 +228,7 @@ test('가명 사본: ID는 바뀌고, 집계·조인은 같고, 순열 표는 �
   for (const db of [real, agent, map]) db.close();
 });
 
-test('확정 도중 실패: current.json은 이전 세트를 가리키고, 임시 파일이 남지 않는다', async () => {
+test('failure during finalize: current.json keeps the previous set and no temporary files remain', async () => {
   const ws = demoWorkspace();
   const first = await collectAt(ws, '2024-04-01 00:00:00');
   const snaps = join(ws, '.out', 'snapshots');
@@ -199,15 +240,15 @@ test('확정 도중 실패: current.json은 이전 세트를 가리키고, 임�
   }
 });
 
-test('같은 snapshot_id 세트의 일부가 없으면 덮어쓰지 않고 멈춘다', async () => {
+test('a partial set with the same snapshot_id stops instead of overwriting', async () => {
   const ws = demoWorkspace();
   const r = await collectAt(ws, '2024-04-01 00:00:00');
   const { rmSync } = await import('node:fs');
   rmSync(r.files.map);
-  await assert.rejects(collectAt(ws, '2024-04-01 00:00:00'), /사람이 확인/);
+  await assert.rejects(collectAt(ws, '2024-04-01 00:00:00'), /manual check/);
 });
 
-test('derive: 역할만 바꾸면 새 snapshot_id와 새 가명 사본, 역할 외 명세 변경은 거부', async () => {
+test('derive: role-only changes give a new snapshot_id and copy; other spec changes are rejected', async () => {
   const wsDir = demoWorkspace();
   const first = await collectAt(wsDir, '2024-04-01 00:00:00');
   const ws = () => loadWorkspace(wsDir);
@@ -231,23 +272,23 @@ test('derive: 역할만 바꾸면 새 snapshot_id와 새 가명 사본, 역할 �
   const spec = JSON.parse(readFileSync(specFile, 'utf8'));
   spec[0].columns.pop();
   writeFileSync(specFile, JSON.stringify(spec));
-  assert.throws(() => runDerive(ws()), /collect를 실행/);
+  assert.throws(() => runDerive(ws()), /run collect/);
 });
 
-test('역할 선언: 누락·없는 칸 선언이면 가명 사본을 만들지 않는다', async () => {
+test('role declarations: missing or extra declarations block the pseudonymized copy', async () => {
   const wsDir = demoWorkspace();
   const rolesFile = join(wsDir, 'derived-columns.json');
   const roles = JSON.parse(readFileSync(rolesFile, 'utf8'));
   delete roles['d_member.country'];
   writeFileSync(rolesFile, JSON.stringify(roles));
-  await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /역할 선언이 없는 칸: d_member\.country/);
+  await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /columns without a declared role: d_member\.country/);
   roles['d_member.country'] = 'ordinary';
   roles['d_member.nope'] = 'ordinary';
   writeFileSync(rolesFile, JSON.stringify(roles));
-  await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /없는 칸을 가리키는 선언: d_member\.nope/);
+  await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /declarations for missing columns: d_member\.nope/);
 });
 
-test('가명화 단위: 복합 PK·NULL·도메인이 다른 같은 숫자·값 교환에서도 충돌 없음', () => {
+test('pseudonymize unit: no collisions with composite PKs, NULLs, same numbers across domains or swapped values', () => {
   const dir = mkdtempSync(join(tmpdir(), 'gl-ps-'));
   const src = join(dir, 's.sqlite');
   const db = new DatabaseSync(src);
@@ -270,7 +311,7 @@ test('가명화 단위: 복합 PK·NULL·도메인이 다른 같은 숫자·값 
   assert.throws(() => pseudonymize({ srcPath: src, agentPath: join(dir, 'a2.sqlite'), mapPath: join(dir, 'm2.sqlite'), roles: new Map([...roles].slice(1)) }), PseudonymizeError);
 });
 
-test('test-derived: 데모 케이스 통과, 틀린 기대값은 차이를 보여 준다', () => {
+test('test-derived: demo cases pass; wrong expectations show the difference', () => {
   const wsDir = demoWorkspace();
   const ok = runTestDerived(loadWorkspace(wsDir));
   assert.deepEqual(ok.map((r) => [r.name, r.ok]), [['connected_window', true]]);
@@ -278,19 +319,19 @@ test('test-derived: 데모 케이스 통과, 틀린 기대값은 차이를 보�
   writeFileSync(exp, readFileSync(exp, 'utf8').replace('"connected_state": "reached"', '"connected_state": "not"'));
   const bad = runTestDerived(loadWorkspace(wsDir));
   assert.equal(bad[0].ok, false);
-  assert.match(bad[0].message!, /질의 1 불일치/);
+  assert.match(bad[0].message!, /query 1 mismatch/);
 });
 
-test('가명화 단계 방어: r_*·d_*·엔진 표가 아닌 테이블이 있으면 거부', () => {
+test('pseudonymize guard: rejects tables other than r_*, d_* and engine tables', () => {
   const dir = mkdtempSync(join(tmpdir(), 'gl-ps-'));
   const src = join(dir, 's.sqlite');
   const db = new DatabaseSync(src);
   db.exec('CREATE TABLE leak (id INTEGER); INSERT INTO leak VALUES (42);');
   db.close();
-  assert.throws(() => pseudonymize({ srcPath: src, agentPath: join(dir, 'a.sqlite'), mapPath: join(dir, 'm.sqlite'), roles: new Map() }), /엔진 표가 아닌 테이블.*leak/);
+  assert.throws(() => pseudonymize({ srcPath: src, agentPath: join(dir, 'a.sqlite'), mapPath: join(dir, 'm.sqlite'), roles: new Map() }), /engine tables are allowed.*leak/);
 });
 
-test('파생 SQL은 d_* 만 만들고 쓸 수 있다: 원본·엔진 표 변경, 임시 표, PRAGMA, ATTACH는 거부', async () => {
+test('derived SQL may only create and write d_*: rejects changes to raw or engine tables, temp tables, PRAGMA, ATTACH', async () => {
   const wsDir = demoWorkspace();
   const f = join(wsDir, 'derived.sql');
   const orig = readFileSync(f, 'utf8');
@@ -308,31 +349,31 @@ test('파생 SQL은 d_* 만 만들고 쓸 수 있다: 원본·엔진 표 변경,
     'CREATE VIEW d_v AS SELECT 1 AS n;',
   ]) {
     writeFileSync(f, `${orig}\n${bad}\n`);
-    await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /derived\.sql 실행 실패.*(not authorized|prohibited)/i, bad);
+    await assert.rejects(collectAt(wsDir, '2024-04-01 00:00:00'), /derived\.sql failed.*(not authorized|prohibited)/i, bad);
   }
   writeFileSync(f, `${orig}\nCREATE TABLE d_scratch AS SELECT 1 AS n; UPDATE d_scratch SET n = 2; DROP TABLE d_scratch;\n`);
   await collectAt(wsDir, '2024-04-01 00:00:00');
 });
 
-test('가명화 단계 방어: 엔진 표 칸 구성이 바뀌었으면 거부', () => {
+test('pseudonymize guard: rejects changed engine table columns', () => {
   const dir = mkdtempSync(join(tmpdir(), 'gl-ps-'));
   const src = join(dir, 's.sqlite');
   const db = new DatabaseSync(src);
   db.exec("CREATE TABLE snapshot_params (key TEXT, value TEXT, member_id INTEGER); INSERT INTO snapshot_params VALUES ('k', 'v', 42);");
   db.close();
-  assert.throws(() => pseudonymize({ srcPath: src, agentPath: join(dir, 'a.sqlite'), mapPath: join(dir, 'm.sqlite'), roles: new Map() }), /엔진 표 snapshot_params의 칸 구성이 바뀜/);
+  assert.throws(() => pseudonymize({ srcPath: src, agentPath: join(dir, 'a.sqlite'), mapPath: join(dir, 'm.sqlite'), roles: new Map() }), /columns of engine table snapshot_params changed/);
 });
 
-test('스냅샷 잠금: 잠금이 있으면(살아 있든 낡았든) 거부하고 임시 파일을 정리, 잠금을 지우면 진행', async () => {
+test('snapshot lock: a live or stale lock rejects and cleans up temporary files; removing it lets collect proceed', async () => {
   const wsDir = demoWorkspace();
   await collectAt(wsDir, '2024-04-01 00:00:00');
   const snaps = join(wsDir, '.out', 'snapshots');
   const before = readdirSync(snaps).sort();
   writeFileSync(join(snaps, '.lock'), String(process.pid));
-  await assert.rejects(collectAt(wsDir, '2024-05-01 00:00:00'), /다른 수집·파생이 진행 중/);
+  await assert.rejects(collectAt(wsDir, '2024-05-01 00:00:00'), /another collect or derive is running/);
   assert.deepEqual(readdirSync(snaps).sort(), [...before, '.lock'].sort());
   writeFileSync(join(snaps, '.lock'), '2147483646');
-  await assert.rejects(collectAt(wsDir, '2024-05-01 00:00:00'), /낡은 잠금이 남아 있음.*지우고 다시 실행/);
+  await assert.rejects(collectAt(wsDir, '2024-05-01 00:00:00'), /stale lock left behind.*delete .* and run again/);
   assert.deepEqual(readdirSync(snaps).sort(), [...before, '.lock'].sort());
   const { rmSync } = await import('node:fs');
   rmSync(join(snaps, '.lock'));
@@ -341,21 +382,21 @@ test('스냅샷 잠금: 잠금이 있으면(살아 있든 낡았든) 거부하�
   assert.ok(!existsSync(join(snaps, '.lock')));
 });
 
-test('runCollect: 저장소 안에서 git 제외되지 않은 산출물 위치면 거부', async () => {
+test('runCollect: rejects output locations inside the repo that are not git-ignored', async () => {
   const { execFileSync } = await import('node:child_process');
   const repo = mkdtempSync(join(tmpdir(), 'gl-repo-'));
   execFileSync('git', ['init', '-q'], { cwd: repo });
   const wsDir = join(repo, 'ws');
   cpSync(demoWorkspace(), wsDir, { recursive: true });
-  await assert.rejects(runCollect(loadWorkspace(wsDir)), /git에서 제외되지 않은 산출물 경로/);
+  await assert.rejects(runCollect(loadWorkspace(wsDir)), /output paths are not git-ignored/);
   writeFileSync(join(repo, '.gitignore'), 'ws/.out/\n');
-  await assert.rejects(runCollect(loadWorkspace(wsDir)), /git에서 제외되지 않은 산출물 경로: ws(,|$| )/);
+  await assert.rejects(runCollect(loadWorkspace(wsDir)), /output paths are not git-ignored: ws(,|$| )/);
   writeFileSync(join(repo, '.gitignore'), 'ws/\n');
   const r = await runCollect(loadWorkspace(wsDir));
   assert.ok(existsSync(r.files.real));
 });
 
-test('derived-columns.json 형식 오류', () => {
+test('derived-columns.json format errors', () => {
   const dir = mkdtempSync(join(tmpdir(), 'gl-dc-'));
   for (const bad of [{ 'r_x.a': 'ordinary' }, { 'd_x.a': 'secret' }, { 'd_x.a': { identifier: 1 } }]) {
     writeFileSync(join(dir, 'r.json'), JSON.stringify(bad));

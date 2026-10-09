@@ -1,4 +1,4 @@
-// 로그인 세션(메모리), 쿠키, 로그인 시도 제한.
+// Sign-in sessions (in memory), cookies, sign-in attempt limits.
 import { createHash, randomBytes } from 'node:crypto';
 import type { Role } from './accounts.ts';
 
@@ -20,7 +20,7 @@ export class SessionStore {
     this.now = now;
   }
 
-  /** 새 세션 ID(쿠키 값)를 돌려준다 */
+  /** Returns a new session ID (the cookie value) */
   create(user: User): string {
     const id = randomBytes(32).toString('base64url');
     const t = this.now();
@@ -28,7 +28,7 @@ export class SessionStore {
     return id;
   }
 
-  /** 만료면 지우고 null. 쓰면 마지막 사용 시각을 갱신 */
+  /** Deletes and returns null when expired; otherwise updates the last-used time */
   get(id: string | null, touch = true): Session | null {
     if (!id) return null;
     const k = keyOf(id);
@@ -95,7 +95,7 @@ export const LOGIN_LIMITS = { maxDelayMs: 30_000, concurrent: 4, perMinute: 60, 
 
 type Entry = { fails: number; until: number; at: number };
 
-/** 고정 잠금 없이 연속 실패마다 대기 시간을 늘린다(1, 2, 4 … 30초) */
+/** No hard lockout; the wait grows with each consecutive failure (1, 2, 4 … 30 s) */
 export class LoginLimiter {
   private readonly entries = new Map<string, Entry>();
   private recent: number[] = [];
@@ -106,7 +106,7 @@ export class LoginLimiter {
     this.now = now;
   }
 
-  /** 시도해도 되면 null, 아니면 기다릴 ms */
+  /** null if an attempt is allowed, otherwise the wait in ms */
   check(keys: string[]): number | null {
     const t = this.now();
     this.recent = this.recent.filter((x) => t - x < 60_000);
@@ -148,14 +148,14 @@ export class LoginLimiter {
   }
 }
 
-/** IPv4-mapped IPv6를 IPv4로 */
+/** IPv4-mapped IPv6 to IPv4 */
 export function normalizeIp(ip: string | undefined): string {
   const v = (ip ?? '').trim().toLowerCase();
   const m = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(v);
   return m ? m[1] : v || 'unknown';
 }
 
-/** X-Forwarded-For 오른쪽에서 hops번째 */
+/** The hops-th address from the right of X-Forwarded-For */
 export function clientIp(socketIp: string | undefined, xff: string | string[] | undefined, hops: number | null): string {
   if (hops === null || xff === undefined) return normalizeIp(socketIp);
   const list = (Array.isArray(xff) ? xff.join(',') : xff).split(',').map((x) => x.trim()).filter(Boolean);

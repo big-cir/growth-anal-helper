@@ -1,5 +1,5 @@
-// 공개 저장소에 들어가면 안 되는 내용 검사: 범용 규칙 + 워크스페이스 금지어 목록(public-denylist.txt).
-// 결과에는 걸린 원문을 찍지 않는다.
+// Checks for content that must not reach a public repository: generic rules plus the workspace denylist (public-denylist.txt).
+// Findings never print the matched text.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,13 +9,13 @@ export type Finding = { where: string; line: number | null; rule: string };
 type Rule = { id: string; test: (line: string) => boolean };
 
 const GENERIC_RULES: Rule[] = [
-  { id: 'G1 개인 키', test: (l) => /-{5}BEGIN [A-Z ]*PRIVATE KEY-{5}/.test(l) },
-  { id: 'G2 클라우드 키', test: (l) => /\b(AKIA|ASIA)[0-9A-Z]{16}\b/.test(l) || /\bgh[pousr]_[A-Za-z0-9]{36,}\b/.test(l) || /\bsk-[A-Za-z0-9_-]{20,}\b/.test(l) },
-  { id: 'G3 클라우드 호스트', test: (l) => /[A-Za-z0-9-]+\.(amazonaws|rds)\.com\b/i.test(l) || /\.rds\.[a-z]/i.test(l) || /\.(compute|ec2)\.internal\b/i.test(l) },
+  { id: 'G1 private key', test: (l) => /-{5}BEGIN [A-Z ]*PRIVATE KEY-{5}/.test(l) },
+  { id: 'G2 cloud key', test: (l) => /\b(AKIA|ASIA)[0-9A-Z]{16}\b/.test(l) || /\bgh[pousr]_[A-Za-z0-9]{36,}\b/.test(l) || /\bsk-[A-Za-z0-9_-]{20,}\b/.test(l) },
+  { id: 'G3 cloud host', test: (l) => /[A-Za-z0-9-]+\.(amazonaws|rds)\.com\b/i.test(l) || /\.rds\.[a-z]/i.test(l) || /\.(compute|ec2)\.internal\b/i.test(l) },
   { id: 'G4 IPv4', test: (l) => findIpv4(l) },
-  { id: 'G5 홈 절대 경로', test: (l) => /(^|[^A-Za-z0-9_.~])\/(Users|home)\/[^/\s'"`]+/.test(l) },
-  { id: 'G6 DB 접속 문자열', test: (l) => /\b(mysql|postgres(ql)?|mongodb(\+srv)?|redis)[:]\/\/[^\s'"`]+@/i.test(l) || /\bjdbc[:][a-z]/i.test(l) },
-  { id: 'G7 고엔트로피 토큰', test: (l) => findHighEntropy(l) },
+  { id: 'G5 absolute home path', test: (l) => /(^|[^A-Za-z0-9_.~])\/(Users|home)\/[^/\s'"`]+/.test(l) },
+  { id: 'G6 DB connection string', test: (l) => /\b(mysql|postgres(ql)?|mongodb(\+srv)?|redis)[:]\/\/[^\s'"`]+@/i.test(l) || /\bjdbc[:][a-z]/i.test(l) },
+  { id: 'G7 high-entropy token', test: (l) => findHighEntropy(l) },
 ];
 
 function findIpv4(line: string): boolean {
@@ -61,15 +61,15 @@ export function loadDenylist(file: string): string[] {
 
 export function makeRules(denylist: string[] | null): Rule[] {
   const rules = [...GENERIC_RULES];
-  denylist?.forEach((word, i) => rules.push({ id: `D${i + 1} 금지어`, test: (l) => l.toLowerCase().includes(word) }));
+  denylist?.forEach((word, i) => rules.push({ id: `D${i + 1} denylisted word`, test: (l) => l.toLowerCase().includes(word) }));
   return rules;
 }
 
-/** 줄 단위 검사. 바이너리는 제어 문자를 줄바꿈으로 바꿔 검사한다 */
+/** Line-by-line check. Binary content is checked with control characters turned into line breaks */
 export function scanText(where: string, text: string, rules: Rule[]): Finding[] {
   const binary = text.includes('\0');
   const body = binary ? text.replace(/[\x00-\x08\x0b-\x1f\x7f]+/g, '\n') : text;
-  const label = binary ? `${where} (바이너리)` : where;
+  const label = binary ? `${where} (binary)` : where;
   const out: Finding[] = [];
   body.split('\n').forEach((line, i) => {
     for (const r of rules) if (r.test(line)) out.push({ where: label, line: binary ? null : i + 1, rule: r.id });
@@ -78,7 +78,7 @@ export function scanText(where: string, text: string, rules: Rule[]): Finding[] 
 }
 
 export function scanPath(path: string, rules: Rule[]): Finding[] {
-  return rules.filter((r) => r.test(path)).map((r) => ({ where: `(경로) ${path}`, line: null, rule: r.id }));
+  return rules.filter((r) => r.test(path)).map((r) => ({ where: `(path) ${path}`, line: null, rule: r.id }));
 }
 
 function git(cwd: string, args: string[], input?: string): Buffer {
@@ -89,7 +89,7 @@ function nulList(buf: Buffer): string[] {
   return buf.toString('utf8').split('\0').filter(Boolean);
 }
 
-/** 추적·미추적 파일 내용, 스테이징된 내용, 경로 이름 */
+/** Tracked and untracked file contents, staged contents, path names */
 export function scanWorkingSet(repo: string, rules: Rule[]): Finding[] {
   const findings: Finding[] = [];
   const files = new Set([
@@ -103,12 +103,12 @@ export function scanWorkingSet(repo: string, rules: Rule[]): Finding[] {
   }
   for (const f of nulList(git(repo, ['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR']))) {
     findings.push(...scanPath(f, rules));
-    findings.push(...scanText(`(스테이징) ${f}`, git(repo, ['show', `:${f}`]).toString('utf8'), rules));
+    findings.push(...scanText(`(staged) ${f}`, git(repo, ['show', `:${f}`]).toString('utf8'), rules));
   }
   return findings;
 }
 
-/** 모든 커밋 메시지와 blob 내용·경로 */
+/** All commit messages and blob contents and paths */
 export function scanHistory(repo: string, rules: Rule[]): Finding[] {
   const findings: Finding[] = [];
   const commits = git(repo, ['rev-list', '--all']).toString('utf8').split('\n').filter(Boolean);
@@ -116,7 +116,7 @@ export function scanHistory(repo: string, rules: Rule[]): Finding[] {
 
   for (const sha of commits) {
     const msg = git(repo, ['log', '-1', '--format=%B', sha]).toString('utf8');
-    findings.push(...scanText(`(커밋 메시지) ${sha.slice(0, 10)}`, msg, rules));
+    findings.push(...scanText(`(commit message) ${sha.slice(0, 10)}`, msg, rules));
   }
 
   const allPaths = new Set(git(repo, ['log', '--all', '--format=', '--name-only', '-z', '--no-renames']).toString('utf8').split('\0').map((p) => p.trim()).filter(Boolean));
@@ -138,7 +138,7 @@ export function scanHistory(repo: string, rules: Rule[]): Finding[] {
     const size = Number(sizeStr);
     const body = out.subarray(nl + 1, nl + 1 + size);
     pos = nl + 1 + size + 1;
-    if (type === 'blob') findings.push(...scanText(`(이력) ${pathOf.get(sha) || sha.slice(0, 10)}`, body.toString('utf8'), rules));
+    if (type === 'blob') findings.push(...scanText(`(history) ${pathOf.get(sha) || sha.slice(0, 10)}`, body.toString('utf8'), rules));
   }
   return dedupe(findings);
 }
@@ -162,14 +162,14 @@ export function runPublicCheck(o: PublicCheckOptions): PublicCheckResult {
   if (existsSync(o.denylistFile)) {
     denylist = loadDenylist(o.denylistFile);
     if (denylist.length === 0) {
-      if (o.requireDenylist) return { findings: [], warnings: ['금지어 목록이 비어 있음 (훅에서는 항목이 하나 이상 필요)'], ok: false };
-      warnings.push('금지어 목록이 비어 있어 금지어 검사를 하지 않음');
+      if (o.requireDenylist) return { findings: [], warnings: ['Denylist is empty (the hook needs at least one entry)'], ok: false };
+      warnings.push('Denylist is empty, so the denylist check is skipped');
       denylist = null;
     }
   } else if (o.requireDenylist) {
-    return { findings: [], warnings: ['금지어 목록이 없음 (훅에서는 필수): 워크스페이스의 public-denylist.txt'], ok: false };
+    return { findings: [], warnings: ['No denylist (required for the hook): public-denylist.txt in the workspace'], ok: false };
   } else {
-    warnings.push('금지어 목록이 없어 금지어 검사를 하지 않음 (범용 검사만 함)');
+    warnings.push('No denylist, so only the generic checks run');
   }
   const rules = makeRules(denylist);
   const findings = dedupe(o.history ? [...scanWorkingSet(o.repo, rules), ...scanHistory(o.repo, rules)] : scanWorkingSet(o.repo, rules));

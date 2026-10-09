@@ -1,4 +1,4 @@
-// 인증·인가: 계정 파일, 로그인·세션, 역할, 소유권, 외부 운영 모드, 감사 기록.
+// Authentication and authorization: account file, sign-in and sessions, roles, ownership, external mode, audit log.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { chmodSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -26,11 +26,11 @@ before(async () => {
   const seed = demoSeedPanels()[0].spec;
   const store = new PanelStore(join(out, 'panels'));
   const snap = { id: 'snap', asOf: demo.asOf };
-  const common = { description: 'd', summary: '', summary_snapshot_id: null, prompt: '원래 요청 문구', spec: seed, generated_model: 'm', created_at: '2024-01-01T00:00:00Z', status: 'ok' as const, last_error: null,
+  const common = { description: 'd', summary: '', summary_snapshot_id: null, prompt: 'original request text', spec: seed, generated_model: 'm', created_at: '2024-01-01T00:00:00Z', status: 'ok' as const, last_error: null,
     versions: { snapshot_id: 'snap', schema_version: 'a', policy_version: 'b', docs_version: 'c', prompt_version: 'd', pattern_contract_version: 1, renderer_version: 2 },
     last_result: makeResult(seed, snap, 'preview', [{ name: 'n', table: null, column: null }], [[1]], ['d_member_first_week']) };
-  store.write({ ...common, id: 'pnleditor1aa', title: 'e1의 패널', preview_hash: 'a'.repeat(64), created_by: 'editor1' });
-  store.write({ ...common, id: 'pnllegacyaaa', title: '소유자 없음', preview_hash: 'b'.repeat(64) });
+  store.write({ ...common, id: 'pnleditor1aa', title: 'panel of e1', preview_hash: 'a'.repeat(64), created_by: 'editor1' });
+  store.write({ ...common, id: 'pnllegacyaaa', title: 'no owner', preview_hash: 'b'.repeat(64) });
   h = await startServer(new App(demo.ws), 0);
   base = `http://127.0.0.1:${h.port}`;
   for (const u of ['admin1', 'editor1', 'editor2', 'viewer1']) cookies[u] = await login(base, u);
@@ -45,21 +45,21 @@ async function call(method: string, path: string, who?: string, body: unknown = 
   return { status: res.status, body: await res.json().catch(() => null), headers: res.headers };
 }
 
-test('계정: scrypt 해시·비교, 비밀번호 길이, 중복', async () => {
+test('accounts: scrypt hash and verify, password length, duplicates', async () => {
   const hash = await hashPassword(TEST_PASSWORD);
   assert.match(hash, /^scrypt\$32768\$8\$1\$/);
   assert.ok(await verifyPassword(TEST_PASSWORD, hash));
   assert.ok(!(await verifyPassword('wrong-password-xx', hash)));
   assert.ok(!(await verifyPassword('x'.repeat(300), hash)));
-  await assert.rejects(hashPassword('short'), /12자 이상/);
+  await assert.rejects(hashPassword('short'), /at least 12 characters/);
   const out = mkdtempSync(join(tmpdir(), 'gl-acc-'));
   await addAccount(out, 'someone', 'viewer', TEST_PASSWORD);
-  await assert.rejects(addAccount(out, 'someone', 'viewer', TEST_PASSWORD), /이미 있는 계정/);
+  await assert.rejects(addAccount(out, 'someone', 'viewer', TEST_PASSWORD), /Account already exists/);
   await assert.rejects(addAccount(out, 'Bad Name', 'viewer', TEST_PASSWORD), AccountError);
-  assert.equal((readFileSync(accountsFile(out)).toString().match(/correct-horse/g) ?? []).length, 0, '비밀번호 원문 없음');
+  assert.equal((readFileSync(accountsFile(out)).toString().match(/correct-horse/g) ?? []).length, 0, 'no plain password');
 });
 
-test('계정 파일: 권한·심볼릭 링크·소유 디렉터리 검사, 죽은 잠금은 정리', async () => {
+test('account file: permission, symlink and directory ownership checks; stale lock cleanup', async () => {
   const out = mkdtempSync(join(tmpdir(), 'gl-acc-'));
   await addAccount(out, 'someone', 'viewer', TEST_PASSWORD);
   chmodSync(accountsFile(out), 0o644);
@@ -72,20 +72,41 @@ test('계정 파일: 권한·심볼릭 링크·소유 디렉터리 검사, 죽�
   const out2 = mkdtempSync(join(tmpdir(), 'gl-acc-'));
   mkdirSync(join(out2, 'auth'), { mode: 0o700 });
   symlinkSync(accountsFile(out), accountsFile(out2));
-  assert.throws(() => readAccounts(out2), /심볼릭 링크/);
+  assert.throws(() => readAccounts(out2), /symlink/);
 
   writeFileSync(join(out, 'auth', '.lock'), '999999 2024-01-01');
   updateAccounts(out, (l) => l);
   writeFileSync(join(out, 'auth', '.lock'), `${process.pid} now`);
-  assert.throws(() => updateAccounts(out, (l) => l), /다른 계정 변경이 진행 중/);
+  assert.throws(() => updateAccounts(out, (l) => l), /Another account change is in progress/);
 });
 
-test('계정이 없으면 서버가 시작하지 않는다', () => {
+test('server does not start without accounts', () => {
   const ws = { ...demo.ws, config: { ...demo.ws.config, outDir: mkdtempSync(join(tmpdir(), 'gl-noacc-')) } };
-  assert.throws(() => startServer(new App(ws), 0), /계정이 없어요/);
+  assert.throws(() => startServer(new App(ws), 0), /No accounts/);
 });
 
-test('로그인 전: 정적 화면만, 모든 API는 경로와 무관하게 401', async () => {
+test('auth off: starts without accounts, every request is admin local, sign-in refused, not allowed with publicOrigin', async () => {
+  const ws = { ...demo.ws, config: { ...demo.ws.config, server: { ...demo.ws.config.server, auth: false } } };
+  const noAccounts = await startServer(new App({ ...ws, config: { ...ws.config, outDir: mkdtempSync(join(tmpdir(), 'gl-open-')) } }), 0);
+  await noAccounts.close();
+  const open = await startServer(new App(ws), 0);
+  try {
+    const b = `http://127.0.0.1:${open.port}`;
+    assert.deepEqual(await (await fetch(`${b}/api/me`)).json(), { username: 'local', role: 'admin', auth: false });
+    assert.equal((await fetch(`${b}/api/quality`)).status, 200);
+    const r = await fetch(`${b}/api/login`, { method: 'POST', headers: { Origin: b, 'X-Growth-Lab': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ username: 'admin1', password: TEST_PASSWORD }) });
+    assert.equal(r.status, 400);
+  } finally {
+    await open.close();
+  }
+  const { parseWorkspaceConfig } = await import('../src/workspace.ts');
+  const raw = { name: 'x', datasource: { host: 'sqlite://s.sqlite' }, policy: { readablePrefixes: ['r_', 'd_'] } };
+  assert.equal(parseWorkspaceConfig(raw, '/ws').server.auth, false);
+  assert.throws(() => parseWorkspaceConfig({ ...raw, server: { publicOrigin: 'https://g.example.com' } }, '/ws'), /server\.auth/);
+  assert.equal(parseWorkspaceConfig({ ...raw, server: { auth: true, publicOrigin: 'https://g.example.com' } }, '/ws').server.auth, true);
+});
+
+test('before sign-in: static files only, every API path returns 401', async () => {
   assert.equal((await fetch(`${base}/`)).status, 200);
   for (const p of ['/api/state', '/api/panels', '/api/nope', '/api/quality', '/api/conversations/aaaaaaaaaaaa']) assert.equal((await call('GET', p)).status, 401, p);
   assert.equal((await call('POST', '/api/conversations')).status, 401);
@@ -93,12 +114,12 @@ test('로그인 전: 정적 화면만, 모든 API는 경로와 무관하게 401'
   assert.equal((await call('GET', '/api/state', 'viewer1')).status, 200);
 });
 
-test('로그인: 실패는 같은 응답, 쿠키 속성, 로그인도 Origin·헤더 검사, 로그아웃', async () => {
+test('sign-in: same response for failures, cookie attributes, Origin and header checks, sign-out', async () => {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const bad = await fetch(`${base}/api/login`, { method: 'POST', headers: H(), body: JSON.stringify({ username: 'editor1', password: 'wrong-password-12' }) });
   assert.equal(bad.status, 401);
   const soon = await fetch(`${base}/api/login`, { method: 'POST', headers: H(), body: JSON.stringify({ username: 'editor1', password: TEST_PASSWORD }) });
-  assert.equal(soon.status, 429, '실패 직후에는 맞는 비밀번호도 기다려야 함');
+  assert.equal(soon.status, 429, 'right after a failure even the correct password must wait');
   assert.equal(soon.headers.get('retry-after'), '1');
   await sleep(1100);
   const none = await fetch(`${base}/api/login`, { method: 'POST', headers: H(), body: JSON.stringify({ username: 'nobody', password: 'wrong-password-12' }) });
@@ -120,7 +141,7 @@ test('로그인: 실패는 같은 응답, 쿠키 속성, 로그인도 Origin·�
   assert.equal((await fetch(`${base}/api/me`, { headers: { Cookie: c } })).status, 401);
 });
 
-test('로그인 시도 제한: 연속 실패마다 대기가 늘고, 전역 상한', () => {
+test('sign-in limiter: wait grows per consecutive failure, global cap', () => {
   let t = 0;
   const l = new LoginLimiter(() => t);
   const keys = ['u:x', 'ip:1'];
@@ -135,10 +156,10 @@ test('로그인 시도 제한: 연속 실패마다 대기가 늘고, 전역 상�
   l.end(keys, true);
   assert.equal(l.check(keys), null);
   for (let i = 0; i < 60; i++) l.begin();
-  assert.equal(l.check(['u:y']), 1000, '분당·동시 상한');
+  assert.equal(l.check(['u:y']), 1000, 'per-minute and concurrency cap');
 });
 
-test('세션: 유휴·절대 만료, 사용자 단위 폐기', () => {
+test('sessions: idle and absolute expiry, per-user revoke', () => {
   let t = 0;
   const revoked: string[] = [];
   const s = new SessionStore((k) => revoked.push(k), () => t);
@@ -146,14 +167,14 @@ test('세션: 유휴·절대 만료, 사용자 단위 폐기', () => {
   t += 7 * 3600_000;
   assert.ok(s.get(id));
   t += 9 * 3600_000;
-  assert.equal(s.get(id), null, '유휴 8시간');
+  assert.equal(s.get(id), null, 'idle 8 hours');
   const id2 = s.create({ username: 'a', role: 'viewer' });
   assert.equal(s.revokeUser('a'), 1);
   assert.equal(s.get(id2), null);
   assert.equal(revoked.length, 2);
 });
 
-test('역할: viewer는 보기만, editor는 대화·저장, 품질은 admin만', async () => {
+test('roles: viewer reads only, editor converses and saves, quality is admin only', async () => {
   assert.equal((await call('GET', '/api/panels', 'viewer1')).status, 200);
   assert.equal((await call('POST', '/api/conversations', 'viewer1')).status, 403);
   assert.equal((await call('GET', '/api/quality', 'viewer1')).status, 403);
@@ -164,30 +185,42 @@ test('역할: viewer는 보기만, editor는 대화·저장, 품질은 admin만'
   assert.deepEqual(st.suggestions, []);
 });
 
-test('소유권: 남의 대화는 404, 남의 패널은 403, viewer에게는 SQL·처음 요청을 보내지 않음', async () => {
+test('ownership: others conversations 404, others panels 403, viewers get no SQL or original request', async () => {
   const conv = (await call('POST', '/api/conversations', 'editor1')).body.conversation_id;
   assert.equal((await call('GET', `/api/conversations/${conv}`, 'editor1')).status, 200);
   assert.equal((await call('GET', `/api/conversations/${conv}`, 'editor2')).status, 404);
-  assert.equal((await call('GET', `/api/conversations/${conv}`, 'admin1')).status, 404, 'admin도 남의 대화는 못 봄');
+  assert.equal((await call('GET', `/api/conversations/${conv}`, 'admin1')).status, 404, 'admin cannot see others conversations either');
   assert.equal((await call('POST', `/api/conversations/${conv}/messages`, 'editor2', { text: 'x' })).status, 404);
 
   const asViewer = (await call('GET', '/api/panels/pnleditor1aa', 'viewer1')).body.panel;
   assert.equal(asViewer.full, false);
   for (const k of ['sql', 'prompt', 'tables', 'answers', 'last_error', 'versions']) assert.ok(!(k in asViewer), k);
-  assert.ok(!JSON.stringify(asViewer).includes('원래 요청 문구'));
+  assert.ok(!JSON.stringify(asViewer).includes('original request text'));
   assert.ok(!('table' in asViewer.last_result.columns[0]));
   const asOwner = (await call('GET', '/api/panels/pnleditor1aa', 'editor1')).body.panel;
   assert.equal(asOwner.full, true);
-  assert.equal(asOwner.prompt, '원래 요청 문구');
+  assert.equal(asOwner.prompt, 'original request text');
   assert.equal((await call('GET', '/api/panels/pnleditor1aa', 'editor2')).body.panel.full, false);
 
   for (const [m, p] of [['DELETE', '/api/panels/pnleditor1aa'], ['POST', '/api/panels/pnleditor1aa/regenerate'], ['POST', '/api/panels/pnleditor1aa/resummarize'], ['POST', '/api/panels/pnllegacyaaa/regenerate']]) {
     assert.equal((await call(m, p, 'editor2')).status, 403, `${m} ${p}`);
   }
-  assert.equal((await call('DELETE', '/api/panels/pnllegacyaaa', 'admin1')).status, 200, '소유자 없는 이전 패널은 admin');
+  assert.equal((await call('DELETE', '/api/panels/pnllegacyaaa', 'admin1')).status, 200, 'ownerless legacy panels: admin');
 });
 
-test('계정을 끄면 세션과 열린 SSE가 바로 끊긴다', async () => {
+test('latest conversation after sign-in: only ones with input, never others', async () => {
+  assert.equal((await call('GET', '/api/conversations', 'viewer1')).status, 403);
+  const used = (await call('POST', '/api/conversations', 'editor2')).body.conversation_id;
+  assert.equal((await call('POST', `/api/conversations/${used}/messages`, 'editor2', { text: 'weekly signups' })).status, 202);
+  await call('POST', `/api/conversations/${used}/stop`, 'editor2');
+  const empty = (await call('POST', '/api/conversations', 'editor2')).body.conversation_id;
+  assert.notEqual(empty, used);
+  assert.equal((await call('GET', '/api/conversations', 'editor2')).body.conversation_id, used, 'empty conversations are skipped');
+  const others = (await call('GET', '/api/conversations', 'admin1')).body.conversation_id;
+  assert.notEqual(others, used, 'not even admin gets others conversations');
+});
+
+test('disabling an account drops its sessions and open SSE at once', async () => {
   const c = await login(base, 'editor2');
   const ac = new AbortController();
   const res = await fetch(`${base}/api/panels/events`, { headers: { Cookie: c }, signal: ac.signal });
@@ -198,14 +231,14 @@ test('계정을 끄면 세션과 열린 SSE가 바로 끊긴다', async () => {
   const t0 = Date.now();
   let done = false;
   while (!done && Date.now() - t0 < 3000) done = (await reader.read()).done;
-  assert.ok(done, 'SSE가 닫힘');
+  assert.ok(done, 'SSE closed');
   assert.equal((await fetch(`${base}/api/me`, { headers: { Cookie: c } })).status, 401);
   modifyAccount(demo.ws.config.outDir, 'editor2', { disabled: false });
   h.auth.reload();
   cookies.editor2 = await login(base, 'editor2');
 });
 
-test('감사 기록: 로그인·삭제가 남고 비밀번호·세션 값은 없음', () => {
+test('audit log: sign-ins and deletes recorded, no passwords or session values', () => {
   const dir = join(demo.ws.config.outDir, 'logs', 'audit');
   const text = readdirSync(dir).filter((f) => f.startsWith('audit-')).map((f) => readFileSync(join(dir, f), 'utf8')).join('');
   assert.match(text, /"event":"login_ok","user":"editor1"/);
@@ -216,20 +249,20 @@ test('감사 기록: 로그인·삭제가 남고 비밀번호·세션 값은 없
   assert.ok(!text.includes(cookies.editor1.split('=')[1]));
 });
 
-test('라우트 표 검사: 권한 누락·중복·public 남용은 시작 오류', () => {
+test('route table check: missing access, duplicates and public misuse fail at startup', () => {
   const h0 = () => {};
-  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, access: 'public', handler: h0 }] as never), /public 라우트는/);
-  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, handler: h0 }] as never), /권한 누락/);
-  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, access: 'viewer', handler: h0 }, { method: 'GET', pattern: /^\/api\/x$/, access: 'admin', handler: h0 }] as never), /중복/);
+  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, access: 'public', handler: h0 }] as never), /Only login\/logout\/me may be public/);
+  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, handler: h0 }] as never), /no access level/);
+  assert.throws(() => checkRoutes([{ method: 'GET', pattern: /^\/api\/x$/, access: 'viewer', handler: h0 }, { method: 'GET', pattern: /^\/api\/x$/, access: 'admin', handler: h0 }] as never), /Duplicate route/);
 });
 
-test('클라이언트 IP: 외부 모드에서만 X-Forwarded-For 오른쪽부터, IPv4-mapped 정규화', () => {
+test('client IP: X-Forwarded-For from the right in external mode only, IPv4-mapped normalized', () => {
   assert.equal(clientIp('::ffff:192.0.2.10', '192.0.2.11', null), '192.0.2.10');
   assert.equal(clientIp('127.0.0.1', 'spoof, 198.51.100.9', 1), '198.51.100.9');
   assert.equal(clientIp('127.0.0.1', 'a, 203.0.113.8, 198.51.100.9', 2), '203.0.113.8');
 });
 
-test('외부 운영 모드: publicOrigin 호스트·출처만, Secure 쿠키, HSTS', async () => {
+test('external mode: publicOrigin host and origin only, Secure cookie, HSTS', async () => {
   const ws = { ...demo.ws, config: { ...demo.ws.config, server: { ...demo.ws.config.server, publicOrigin: 'https://growth.example.com' } } };
   const hx = await startServer(new App(ws), 0);
   try {
@@ -242,7 +275,7 @@ test('외부 운영 모드: publicOrigin 호스트·출처만, Secure 쿠키, HS
       if (body) r.write(body);
       r.end();
     });
-    assert.equal((await go({ Host: `127.0.0.1:${hx.port}` })).status, 403, '루프백 Host 거부');
+    assert.equal((await go({ Host: `127.0.0.1:${hx.port}` })).status, 403, 'loopback Host refused');
     const page = await go({ Host: 'growth.example.com' });
     assert.equal(page.status, 200);
     assert.match(String(page.headers['strict-transport-security']), /max-age/);
@@ -260,13 +293,13 @@ test('외부 운영 모드: publicOrigin 호스트·출처만, Secure 쿠키, HS
       r.on('error', reject);
       r.end();
     });
-    assert.match(String(sseHeaders['strict-transport-security']), /max-age/, 'SSE에도 HSTS');
+    assert.match(String(sseHeaders['strict-transport-security']), /max-age/, 'HSTS on SSE too');
   } finally {
     await hx.close();
   }
 });
 
-test('DTO: viewer·남의 패널은 정해진 필드만, 소유자는 전체 필드', async () => {
+test('DTO: viewers and non-owners get fixed fields, owners get all', async () => {
   const short = ['created_at', 'created_by', 'definition', 'description', 'display', 'full', 'id', 'job_status', 'last_result', 'legacy', 'metric', 'status', 'summary', 'summary_snapshot_id', 'title'];
   const asViewer = (await call('GET', '/api/panels/pnleditor1aa', 'viewer1')).body.panel;
   assert.deepEqual(Object.keys(asViewer).sort(), short);
@@ -275,7 +308,7 @@ test('DTO: viewer·남의 패널은 정해진 필드만, 소유자는 전체 필
   assert.deepEqual(Object.keys(asOwner).sort(), [...short, 'answers', 'changed_rules', 'generated_model', 'last_error', 'prompt', 'sql', 'tables', 'versions'].sort());
 });
 
-test('패널 이벤트: 최소 상태만, 품질 이벤트는 admin에게만', async () => {
+test('panel events: minimal state, quality events for admin only', async () => {
   const read = async (who: string) => {
     const ac = new AbortController();
     const res = await fetch(`${base}/api/panels/events`, { headers: { Cookie: cookies[who] }, signal: ac.signal });
@@ -290,7 +323,7 @@ test('패널 이벤트: 최소 상태만, 품질 이벤트는 admin에게만', a
   for (const p of all.panels) assert.deepEqual(Object.keys(p).sort(), ['job_status', 'panel_id', 'status']);
 });
 
-test('로그아웃은 본문 없이도 되고, 감사 기록을 못 쓰면 변경을 거부한다', async () => {
+test('sign-out works without a body; changes are refused when the audit log cannot be written', async () => {
   const c = await login(base, 'viewer1');
   const out = await fetch(`${base}/api/logout`, { method: 'POST', headers: { Origin: base, 'X-Growth-Lab': '1', Cookie: c } });
   assert.equal(out.status, 200);
@@ -299,16 +332,16 @@ test('로그아웃은 본문 없이도 되고, 감사 기록을 못 쓰면 변�
   chmodSync(auditDir, 0o755);
   try {
     const conv = await call('POST', '/api/conversations', 'editor1');
-    const r = await call('POST', `/api/conversations/${conv.body.conversation_id}/messages`, 'editor1', { text: '감사 기록 실패 시험' });
+    const r = await call('POST', `/api/conversations/${conv.body.conversation_id}/messages`, 'editor1', { text: 'audit failure test' });
     assert.equal(r.status, 500);
-    assert.match(r.body.error, /감사 기록/);
+    assert.match(r.body.error, /audit log/);
     const st = await call('GET', `/api/conversations/${conv.body.conversation_id}`, 'editor1');
-    assert.equal(st.body.request, null, '요청이 시작되지 않음');
+    assert.equal(st.body.request, null, 'request not started');
     const li = await fetch(`${base}/api/login`, { method: 'POST', headers: H(), body: JSON.stringify({ username: 'viewer1', password: TEST_PASSWORD }) });
-    assert.equal(li.status, 500, '로그인 성공 기록을 못 쓰면 로그인도 거부');
+    assert.equal(li.status, 500, 'sign-in refused when its audit record cannot be written');
     assert.equal(li.headers.get('set-cookie'), null);
     const lo = await fetch(`${base}/api/logout`, { method: 'POST', headers: { Origin: base, 'X-Growth-Lab': '1', Cookie: cookies.viewer1 } });
-    assert.equal(lo.status, 500, '로그아웃 기록을 못 쓰면 세션 유지');
+    assert.equal(lo.status, 500, 'session kept when the sign-out record cannot be written');
     assert.equal(lo.headers.get('set-cookie'), null);
     assert.equal((await call('GET', '/api/me', 'viewer1')).status, 200);
   } finally {
@@ -316,7 +349,7 @@ test('로그아웃은 본문 없이도 되고, 감사 기록을 못 쓰면 변�
   }
 });
 
-test('계정 입력 파일: 적은 계정을 반영하고 비밀번호 칸을 비운다, 권한이 넓으면 거부', async () => {
+test('account input file: applies accounts and clears passwords, refuses loose permissions', async () => {
   const { importAccounts, pendingInputPasswords } = await import('../src/auth/cli.ts');
   const out = mkdtempSync(join(tmpdir(), 'gl-imp-'));
   const file = join(out, 'accounts.input.json');

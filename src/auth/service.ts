@@ -1,4 +1,4 @@
-// 인증: 계정 파일 감시, 로그인·로그아웃, 요청의 사용자 확인, 세션별 SSE 끊기.
+// Auth: account file watch, sign-in and sign-out, request user lookup, per-session SSE shutdown.
 import { statSync } from 'node:fs';
 import type { IncomingMessage } from 'node:http';
 import { accountsFile, AccountError, hashPassword, readAccounts, verifyPassword, type Account, type Role } from './accounts.ts';
@@ -22,13 +22,14 @@ export class AuthService {
   private dummyHash: Promise<string>;
   readonly proxyHops: number | null;
 
-  constructor(o: { outDir: string; audit: AuditLog; proxyHops: number | null }) {
+  /** requireAccounts: with auth on, the server needs at least one account to start */
+  constructor(o: { outDir: string; audit: AuditLog; proxyHops: number | null; requireAccounts?: boolean }) {
     this.outDir = o.outDir;
     this.audit = o.audit;
     this.proxyHops = o.proxyHops;
     this.sessions = new SessionStore((key) => this.closeStreams(key));
     this.reload();
-    if (this.accounts.size === 0) throw new AccountError('계정이 없어요. 먼저 `node src/cli.ts account add <이름> --role admin`으로 계정을 만드세요');
+    if (o.requireAccounts !== false && this.accounts.size === 0) throw new AccountError('No accounts. Create one first with `node src/cli.ts account add <name> --role admin`');
     this.dummyHash = hashPassword(`dummy-${Math.random()}-password`);
   }
 
@@ -37,7 +38,7 @@ export class AuthService {
       try {
         this.reload();
       } catch (e) {
-        console.error(`계정 파일을 다시 읽지 못함: ${(e as Error).message}`);
+        console.error(`Could not reload the account file: ${(e as Error).message}`);
       }
     }, pollMs);
     this.timer.unref();
@@ -47,7 +48,7 @@ export class AuthService {
     if (this.timer) clearInterval(this.timer);
   }
 
-  /** 계정 파일이 바뀌었으면 다시 읽고, 바뀐(삭제·비활성·역할·비밀번호) 사용자의 세션을 폐기 */
+  /** Reload a changed account file and revoke sessions of changed users (removed, disabled, role or password changed) */
   reload(): void {
     let stamp = 'none';
     try {
@@ -76,7 +77,7 @@ export class AuthService {
     return parseCookies(req.headers.cookie).get(COOKIE) ?? null;
   }
 
-  /** 세션과 현재 계정 상태(활성·역할)를 함께 확인 */
+  /** Check the session together with the current account state (enabled, role) */
   session(req: IncomingMessage): Session | null {
     const s = this.sessions.get(this.cookie(req));
     if (!s) return null;
@@ -121,14 +122,14 @@ export class AuthService {
     return { ok: true, sessionId: this.sessions.create(user), user };
   }
 
-  /** 감사 기록이 실패하면 예외(세션은 그대로) */
+  /** Throws if the audit write fails (the session is kept) */
   logout(req: IncomingMessage): boolean {
     const s = this.sessions.get(this.cookie(req), false);
     if (s) this.audit.write({ event: 'logout', user: s.username, ip: this.ip(req) });
     return this.sessions.destroy(this.cookie(req));
   }
 
-  /** SSE 연결을 세션에 묶는다. 세션이 폐기되면 close를 부른다 */
+  /** Bind an SSE connection to the session; close is called when the session is revoked */
   registerStream(key: string, close: () => void): () => void {
     const set = this.streams.get(key) ?? new Set();
     set.add(close);

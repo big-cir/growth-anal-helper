@@ -1,4 +1,4 @@
-// 로컬 HTTP 서버: 정적 파일, JSON API, SSE.
+// Local HTTP server: static files, JSON API, SSE.
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,14 +14,16 @@ import { secretAssignment, secretShape, sensitiveTopic } from '../agent/sensitiv
 import type { PanelSpec } from '../panels/spec.ts';
 import { PATTERN_CONTRACT_VERSION } from '../panels/contract.ts';
 import { RENDERER_VERSION } from '../panels/hash.ts';
+import { tr } from '../i18n.ts';
 
 const WEB_DIR = new URL('../../web/', import.meta.url).pathname;
-/** 로그인 없이 내려주는 화면 파일(이 목록만) */
+/** Screen files served without sign-in (this list only) */
 const STATIC: Record<string, { file: string; type: string }> = {
   '/': { file: 'index.html', type: 'text/html; charset=utf-8' },
   '/index.html': { file: 'index.html', type: 'text/html; charset=utf-8' },
   '/app.js': { file: 'app.js', type: 'text/javascript; charset=utf-8' },
   '/charts.js': { file: 'charts.js', type: 'text/javascript; charset=utf-8' },
+  '/i18n.js': { file: 'i18n.js', type: 'text/javascript; charset=utf-8' },
   '/styles.css': { file: 'styles.css', type: 'text/css; charset=utf-8' },
 };
 export const LIMITS = { bodyBytes: 64 * 1024, text: 2000, title: 60, description: 300, summary: 2000 };
@@ -46,48 +48,48 @@ function staticMap(): Map<string, { body: Buffer; type: string }> {
 
 async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
   const ct = (req.headers['content-type'] ?? '').split(';')[0].trim().toLowerCase();
-  if (ct !== 'application/json') throw new HttpError(415, 'Content-Type은 application/json이어야 함');
+  if (ct !== 'application/json') throw new HttpError(415, tr('Content-Type must be application/json', 'Content-Type은 application/json이어야 함'));
   const chunks: Buffer[] = [];
   let n = 0;
   for await (const c of req) {
     n += (c as Buffer).length;
-    if (n > LIMITS.bodyBytes) throw new HttpError(413, '본문이 64KB를 넘음');
+    if (n > LIMITS.bodyBytes) throw new HttpError(413, tr('Body is larger than 64KB', '본문이 64KB를 넘음'));
     chunks.push(c as Buffer);
   }
   let v: unknown;
   try {
     v = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
   } catch {
-    throw new HttpError(400, 'JSON 형식 오류');
+    throw new HttpError(400, tr('Invalid JSON', 'JSON 형식 오류'));
   }
-  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new HttpError(400, '본문은 JSON 객체여야 함');
+  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new HttpError(400, tr('Body must be a JSON object', '본문은 JSON 객체여야 함'));
   return v as Record<string, unknown>;
 }
 
 function str(v: unknown, name: string, max: number): string {
-  if (typeof v !== 'string' || v.trim() === '') throw new HttpError(400, `${name}: 비어 있지 않은 문자열`);
-  if ([...v].length > max) throw new HttpError(400, `${name}: ${max}자 이하`);
+  if (typeof v !== 'string' || v.trim() === '') throw new HttpError(400, tr(`${name}: must be a non-empty string`, `${name}: 비어 있지 않은 문자열`));
+  if ([...v].length > max) throw new HttpError(400, tr(`${name}: ${max} characters or fewer`, `${name}: ${max}자 이하`));
   return v;
 }
 
 function optStr(v: unknown, name: string, max: number): string {
   if (v === undefined || v === null) return '';
-  if (typeof v !== 'string') throw new HttpError(400, `${name}: 문자열`);
-  if ([...v].length > max) throw new HttpError(400, `${name}: ${max}자 이하`);
+  if (typeof v !== 'string') throw new HttpError(400, tr(`${name}: must be a string`, `${name}: 문자열`));
+  if ([...v].length > max) throw new HttpError(400, tr(`${name}: ${max} characters or fewer`, `${name}: ${max}자 이하`));
   return v.trim();
 }
 
 function idField(v: unknown, name: string): string {
-  if (typeof v !== 'string' || !ID_RE.test(v)) throw new HttpError(400, `${name} 형식 오류`);
+  if (typeof v !== 'string' || !ID_RE.test(v)) throw new HttpError(400, tr(`${name}: invalid format`, `${name} 형식 오류`));
   return v;
 }
 
 function hashField(v: unknown): string {
-  if (typeof v !== 'string' || !/^[0-9a-f]{64}$/.test(v)) throw new HttpError(400, 'preview_hash 형식 오류');
+  if (typeof v !== 'string' || !/^[0-9a-f]{64}$/.test(v)) throw new HttpError(400, tr('preview_hash: invalid format', 'preview_hash 형식 오류'));
   return v;
 }
 
-/** 화면에 보이거나 에이전트로 다시 보낼 문자열에 비밀처럼 생긴 값이 있는지 */
+/** Whether text shown on screen or sent back to the agent looks like a secret */
 const secretLike = (text: string) => secretShape(text) !== null || secretAssignment(text);
 const specSecretLike = (spec: PanelSpec) => secretLike(JSON.stringify(spec));
 
@@ -102,17 +104,19 @@ type Route =
   | { method: string; pattern: RegExp; access: Role; handler: (ctx: Ctx) => Promise<void> | void }
   | { method: string; pattern: RegExp; access: 'public'; handler: (ctx: PublicCtx) => Promise<void> | void };
 
-/** 시작 시 검사: access 필수, 같은 메서드·패턴 중복 금지, public은 login·logout·me만 */
+/** Startup check: access is required, no duplicate method+pattern, public only for login/logout/me */
 export function checkRoutes(routes: Route[]): void {
   const seen = new Set<string>();
   for (const r of routes) {
-    if (!['public', 'viewer', 'editor', 'admin'].includes(r.access)) throw new Error(`라우트 권한 누락: ${r.method} ${r.pattern}`);
+    if (!['public', 'viewer', 'editor', 'admin'].includes(r.access)) throw new Error(`Route has no access level: ${r.method} ${r.pattern}`);
     const k = `${r.method} ${r.pattern.source}`;
-    if (seen.has(k)) throw new Error(`라우트 중복: ${k}`);
+    if (seen.has(k)) throw new Error(`Duplicate route: ${k}`);
     seen.add(k);
-    if (r.access === 'public' && !/^\^\\\/api\\\/(login|logout|me)\$$/.test(r.pattern.source)) throw new Error(`public 라우트는 login·logout·me만: ${r.pattern}`);
+    if (r.access === 'public' && !/^\^\\\/api\\\/(login|logout|me)\$$/.test(r.pattern.source)) throw new Error(`Only login/logout/me may be public: ${r.pattern}`);
   }
 }
+
+const LOCAL_USER: Session = { username: 'local', role: 'admin', key: 'local', created: 0, lastSeen: 0 };
 
 export type ServerHandle = { server: Server; port: number; panels: PanelService; auth: AuthService; close(): Promise<void> };
 
@@ -120,13 +124,19 @@ export type ServerHandle = { server: Server; port: number; panels: PanelService;
 export function startServer(app: App, port: number): Promise<ServerHandle> {
   const cfg = app.ws.config;
   const files = staticMap();
+  for (const p of ['/', '/index.html']) {
+    const f = files.get(p);
+    if (f) f.body = Buffer.from(f.body.toString('utf8').replace('<html lang="ko">', `<html lang="${cfg.language}">`));
+  }
   const audit = new AuditLog(cfg.outDir);
   audit.prune(cfg.server.auditRetentionDays);
   app.audit = audit;
-  const auth = new AuthService({ outDir: cfg.outDir, audit, proxyHops: cfg.server.publicOrigin ? cfg.server.proxyHops : null });
+  const auth = new AuthService({ outDir: cfg.outDir, audit, proxyHops: cfg.server.publicOrigin ? cfg.server.proxyHops : null, requireAccounts: cfg.server.auth });
   const hub = new ConversationHub(app);
   const panels = new PanelService(app);
   const external = cfg.server.publicOrigin;
+  // With auth off, every request is the admin `local`
+  const sessionOf = (req: IncomingMessage): Session | null => (cfg.server.auth ? auth.session(req) : LOCAL_USER);
   const allowedHosts = new Set<string>();
   const allowedOrigins = new Set<string>();
   const allowLoopback = (p: number) => {
@@ -153,26 +163,26 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       return [];
     }
   };
-  /** 자기 대화만(소유자 없는 이전 대화는 admin). 아니면 존재해도 404 */
+  /** Own conversations only (ownerless legacy ones: admin). Otherwise 404 even if it exists */
   const ownedConversation = (user: Session, id: string): Conversation => {
     const c = hub.get(id);
-    if (!c || !(c.owner === user.username || (c.owner === null && user.role === 'admin'))) throw new HttpError(404, '없는 대화');
+    if (!c || !(c.owner === user.username || (c.owner === null && user.role === 'admin'))) throw new HttpError(404, tr('No such conversation', '없는 대화'));
     return c;
   };
   const canWritePanel = (user: Session, p: SavedPanel) => user.role === 'admin' || (user.role === 'editor' && p.created_by === user.username);
   const ownedPanelForWrite = (user: Session, id: string): SavedPanel => {
     const p = panels.mustGet(id);
-    if (!canWritePanel(user, p)) throw new HttpError(403, '자기가 저장한 패널만 바꿀 수 있어요');
+    if (!canWritePanel(user, p)) throw new HttpError(403, tr('You can only change panels you saved', '자기가 저장한 패널만 바꿀 수 있어요'));
     return p;
   };
   const panelView = (user: Session, p: SavedPanel) => panels.view(p, app.snapshot(), canWritePanel(user, p));
-  /** 변경 전에 감사 기록. 실패하면 변경하지 않는다 */
+  /** Write the audit record before the change; if that fails, do not change */
   const audited = async <T>(r: AuditRecord, fn: () => Promise<T> | T): Promise<T> => {
     try {
       audit.write(r);
     } catch (e) {
-      console.error(`감사 기록 실패: ${(e as Error).message}`);
-      throw new HttpError(500, '감사 기록을 남기지 못해 요청을 거부했어요');
+      console.error(`Audit log write failed: ${(e as Error).message}`);
+      throw new HttpError(500, tr('Request refused: the audit log could not be written', '감사 기록을 남기지 못해 요청을 거부했어요'));
     }
     try {
       return await fn();
@@ -181,7 +191,7 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       throw e;
     }
   };
-  /** SSE: 세션에 묶고, heartbeat마다 세션·권한을 다시 확인 */
+  /** SSE: bound to the session; session and role are rechecked on every heartbeat */
   const stream = (req: IncomingMessage, res: ServerResponse, user: Session, still: () => boolean, cleanup: () => void) => {
     sseHead(res, headers);
     let closed = false;
@@ -195,7 +205,7 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
     };
     const unregister = auth.registerStream(user.key, end);
     const hb = setInterval(() => {
-      if (!auth.stillValid(user.key) || !still()) return end();
+      if ((cfg.server.auth && !auth.stillValid(user.key)) || !still()) return end();
       res.write(': heartbeat\n\n');
     }, 15_000);
     req.on('close', end);
@@ -203,6 +213,7 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
 
   const routes: Route[] = [
     { method: 'POST', pattern: /^\/api\/login$/, access: 'public', handler: async ({ req, res, body }) => {
+      if (!cfg.server.auth) throw new HttpError(400, tr('Sign-in is turned off', '인증이 꺼져 있어요'));
       const b = await body();
       const username = typeof b.username === 'string' ? b.username : '';
       const password = typeof b.password === 'string' ? b.password : '';
@@ -210,12 +221,12 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       try {
         r = await auth.login(req, username, password);
       } catch (e) {
-        console.error(`로그인 처리 실패: ${(e as Error).message}`);
-        throw new HttpError(500, '감사 기록을 남기지 못해 로그인을 거부했어요');
+        console.error(`Sign-in failed: ${(e as Error).message}`);
+        throw new HttpError(500, tr('Sign-in refused: the audit log could not be written', '감사 기록을 남기지 못해 로그인을 거부했어요'));
       }
       if (!r.ok) {
-        if (r.status === 429) return sendJson(res, 429, { error: '잠시 뒤 다시 시도해 주세요' }, { 'Retry-After': String(Math.ceil((r.retryAfterMs ?? 1000) / 1000)) });
-        return sendJson(res, 401, { error: '아이디 또는 비밀번호가 맞지 않아요' });
+        if (r.status === 429) return sendJson(res, 429, { error: tr('Please try again in a moment', '잠시 뒤 다시 시도해 주세요') }, { 'Retry-After': String(Math.ceil((r.retryAfterMs ?? 1000) / 1000)) });
+        return sendJson(res, 401, { error: tr('Wrong username or password', '아이디 또는 비밀번호가 맞지 않아요') });
       }
       sendJson(res, 200, { username: r.user.username, role: r.user.role }, { 'Set-Cookie': sessionCookie(r.sessionId, !!external) });
     } },
@@ -223,15 +234,15 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       try {
         auth.logout(req);
       } catch (e) {
-        console.error(`감사 기록 실패: ${(e as Error).message}`);
-        throw new HttpError(500, '감사 기록을 남기지 못해 요청을 거부했어요');
+        console.error(`Audit log write failed: ${(e as Error).message}`);
+        throw new HttpError(500, tr('Request refused: the audit log could not be written', '감사 기록을 남기지 못해 요청을 거부했어요'));
       }
       sendJson(res, 200, { ok: true }, { 'Set-Cookie': clearCookie(!!external) });
     } },
     { method: 'GET', pattern: /^\/api\/me$/, access: 'public', handler: ({ req, res }) => {
-      const s = auth.session(req);
-      if (!s) return sendJson(res, 401, { error: '로그인이 필요해요' });
-      sendJson(res, 200, { username: s.username, role: s.role });
+      const s = sessionOf(req);
+      if (!s) return sendJson(res, 401, { error: tr('Sign-in required', '로그인이 필요해요') });
+      sendJson(res, 200, { username: s.username, role: s.role, auth: cfg.server.auth });
     } },
     { method: 'GET', pattern: /^\/api\/state$/, access: 'viewer', handler: ({ res, user }) => {
       const snap = app.snapshot();
@@ -250,6 +261,8 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       await body();
       sendJson(res, 201, { conversation_id: hub.create(user.username).id });
     } },
+    // My latest conversation to reopen after sign-in (null if none)
+    { method: 'GET', pattern: /^\/api\/conversations$/, access: 'editor', handler: ({ res, user }) => sendJson(res, 200, { conversation_id: hub.latestFor(user) }) },
     { method: 'GET', pattern: /^\/api\/conversations\/([^/]+)$/, access: 'editor', handler: ({ res, params, user }) => sendJson(res, 200, ownedConversation(user, params[0]).state()) },
     { method: 'POST', pattern: /^\/api\/conversations\/([^/]+)\/messages$/, access: 'editor', handler: async ({ res, params, body, user, ip }) => {
       const c = ownedConversation(user, params[0]);
@@ -267,26 +280,26 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       const c = ownedConversation(user, params[0]);
       const b = await body();
       const requestId = idField(b.request_id, 'request_id');
-      if (!Number.isInteger(b.turn_no)) throw new HttpError(400, 'turn_no는 정수');
+      if (!Number.isInteger(b.turn_no)) throw new HttpError(400, tr('turn_no must be an integer', 'turn_no는 정수'));
       const raw = b.answers;
-      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new HttpError(400, 'answers는 객체');
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new HttpError(400, tr('answers must be an object', 'answers는 객체'));
       const answers: Record<string, string> = {};
       for (const [k, v] of Object.entries(raw)) {
-        if (!/^[a-z_]{1,32}$/.test(k)) throw new HttpError(400, `answers 키 형식 오류: ${k}`);
+        if (!/^[a-z_]{1,32}$/.test(k)) throw new HttpError(400, tr(`Invalid answers key: ${k}`, `answers 키 형식 오류: ${k}`));
         if (v === null || v === undefined || v === '') continue;
         answers[k] = str(v, `answers.${k}`, 300);
       }
-      if (!c.answer(requestId, b.turn_no as number, answers)) throw new HttpError(409, '지금 받을 수 있는 답이 아님(이미 답했거나 다른 요청)');
+      if (!c.answer(requestId, b.turn_no as number, answers)) throw new HttpError(409, tr('Not expecting an answer now (already answered or another request)', '지금 받을 수 있는 답이 아님(이미 답했거나 다른 요청)'));
       sendJson(res, 202, { ok: true });
     } },
     { method: 'POST', pattern: /^\/api\/conversations\/([^/]+)\/offdict$/, access: 'editor', handler: async ({ res, params, body, user, ip }) => {
       const c = ownedConversation(user, params[0]);
       const b = await body();
-      if (!Number.isInteger(b.turn_no)) throw new HttpError(400, 'turn_no는 정수');
-      if (typeof b.approve !== 'boolean') throw new HttpError(400, 'approve는 true/false');
+      if (!Number.isInteger(b.turn_no)) throw new HttpError(400, tr('turn_no must be an integer', 'turn_no는 정수'));
+      if (typeof b.approve !== 'boolean') throw new HttpError(400, tr('approve must be true or false', 'approve는 true/false'));
       const requestId = idField(b.request_id, 'request_id');
       const run = () => {
-        if (!c.offdict(requestId, b.turn_no as number, b.approve as boolean)) throw new HttpError(409, '지금 받을 수 있는 승인이 아님(이미 답했거나 다른 요청)');
+        if (!c.offdict(requestId, b.turn_no as number, b.approve as boolean)) throw new HttpError(409, tr('Not expecting an approval now (already answered or another request)', '지금 받을 수 있는 승인이 아님(이미 답했거나 다른 요청)'));
       };
       if (b.approve) await audited({ event: 'offdict_approved', user: user.username, ip, target: c.id }, run);
       else run();
@@ -294,7 +307,7 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
     } },
     { method: 'GET', pattern: /^\/api\/conversations\/([^/]+)\/events$/, access: 'editor', handler: ({ req, res, params, user }) => {
       const c = ownedConversation(user, params[0]);
-      // Last-Event-ID 또는 ?since=N 이후 이벤트를 다시 보낸다
+      // Resend events after Last-Event-ID or ?since=N
       const header = req.headers['last-event-id'];
       const since = new URL(req.url ?? '', 'http://x').searchParams.get('since');
       const last = Number(header ?? since ?? NaN);
@@ -308,13 +321,13 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       const c = ownedConversation(user, params[0]);
       const b = await body();
       const hit = c.completedPreview(idField(b.request_id, 'request_id'), hashField(b.preview_hash));
-      if (!hit) throw new HttpError(409, '현재 미리보기가 아니에요(새 요청이 끝났거나 바뀜)');
+      if (!hit) throw new HttpError(409, tr('This is not the current preview (a newer request finished or changed it)', '현재 미리보기가 아니에요(새 요청이 끝났거나 바뀜)'));
       const s = hit.preview.spec;
-      if (specSecretLike(s)) throw new HttpError(409, '이 도구가 다룰 수 없는 데이터예요');
+      if (specSecretLike(s)) throw new HttpError(409, tr('This tool cannot handle this data', '이 도구가 다룰 수 없는 데이터예요'));
       const base = { title: s.title, description: [...s.question].slice(0, LIMITS.description).join('') };
       if (cfg.agent.dataMode === 'schema_only') return sendJson(res, 200, { ...base, summary: '', summary_status: 'disabled' });
-      if (!hit.agentRows) return sendJson(res, 200, { ...base, summary: '', summary_status: 'failed', message: '가명 결과가 없어 설명을 만들 수 없어요' });
-      if (c.drafting) throw new HttpError(409, '설명을 만드는 중이에요');
+      if (!hit.agentRows) return sendJson(res, 200, { ...base, summary: '', summary_status: 'failed', message: tr('No pseudonymized result, so no description can be written', '가명 결과가 없어 설명을 만들 수 없어요') });
+      if (c.drafting) throw new HttpError(409, tr('The description is being written', '설명을 만드는 중이에요'));
       c.drafting = true;
       try {
         const r = await app.summarize(s, hit.preview.columns, hit.agentRows);
@@ -340,12 +353,12 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       const b = await body();
       const c = ownedConversation(user, idField(b.conversation_id, 'conversation_id'));
       const hit = c.completedPreview(idField(b.request_id, 'request_id'), hashField(b.preview_hash));
-      if (!hit) throw new HttpError(409, '현재 미리보기가 아니에요(새 요청이 끝났거나 바뀜)');
+      if (!hit) throw new HttpError(409, tr('This is not the current preview (a newer request finished or changed it)', '현재 미리보기가 아니에요(새 요청이 끝났거나 바뀜)'));
       const p = hit.preview;
       const summary = optStr(b.summary, 'summary', LIMITS.summary);
       const title = str(b.title, 'title', LIMITS.title).trim();
       const description = optStr(b.description, 'description', LIMITS.description);
-      if (secretLike(`${title}\n${description}\n${summary}`) || specSecretLike(p.spec)) throw new HttpError(400, '비밀처럼 보이는 값이 있어 저장하지 않았어요');
+      if (secretLike(`${title}\n${description}\n${summary}`) || specSecretLike(p.spec)) throw new HttpError(400, tr('Not saved: something looks like a secret', '비밀처럼 보이는 값이 있어 저장하지 않았어요'));
       const { panel, created } = await audited({ event: 'panel_saved', user: user.username, ip, target: c.id }, () => panels.create({
         title, description, summary,
         summary_snapshot_id: summary ? p.snapshot_id : null,
@@ -383,13 +396,13 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       const answersText = p.spec.answers.map((a) => `${a.question} ${a.answer}`).join(' ');
       if (sensitiveTopic(`${p.prompt} ${answersText}`) !== null || secretLike(`${p.prompt}\n${answersText}`)) {
         audit.tryWrite({ event: 'sensitive_blocked', user: user.username, ip, target: p.id });
-        throw new HttpError(409, '이 도구는 인증 정보·토큰·연결 정보·설정·개인 연락처를 다루지 않아요');
+        throw new HttpError(409, tr('This tool does not handle credentials, tokens, connection details, settings or personal contacts', '이 도구는 인증 정보·토큰·연결 정보·설정·개인 연락처를 다루지 않아요'));
       }
       const id = await audited({ event: 'regenerate', user: user.username, ip, target: p.id }, () => {
         const c = hub.create(user.username);
         c.setOrigin(p.id, p.prompt);
         const defs = p.spec.answers.map((a) => `- ${a.question}: ${a.answer}`).join('\n');
-        const text = `${p.prompt}\n\n이전에 정한 정의를 기본값으로 다시 만들어 주세요.${defs ? `\n${defs}` : ''}`;
+        const text = `${p.prompt}\n\n${tr('Rebuild it using the previously chosen definitions as defaults.', '이전에 정한 정의를 기본값으로 다시 만들어 주세요.')}${defs ? `\n${defs}` : ''}`;
         c.submit([...text].slice(0, LIMITS.text).join(''));
         return c.id;
       });
@@ -398,8 +411,8 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
     { method: 'POST', pattern: /^\/api\/panels\/([^/]+)\/resummarize$/, access: 'editor', handler: async ({ res, params, body, user, ip }) => {
       await body();
       const p0 = ownedPanelForWrite(user, params[0]);
-      if (specSecretLike(p0.spec)) throw new HttpError(409, '이 도구가 다룰 수 없는 데이터예요');
-      if (cfg.agent.dataMode === 'schema_only') throw new HttpError(409, '결과 값을 보내지 않는 모드라 설명을 만들지 않아요');
+      if (specSecretLike(p0.spec)) throw new HttpError(409, tr('This tool cannot handle this data', '이 도구가 다룰 수 없는 데이터예요'));
+      if (cfg.agent.dataMode === 'schema_only') throw new HttpError(409, tr('No description in this mode: result values are not sent', '결과 값을 보내지 않는 모드라 설명을 만들지 않아요'));
       const out = await audited({ event: 'resummarize', user: user.username, ip, target: p0.id }, () => panels.exclusive(p0.id, async (p) => {
         const v = await panels.verifyLastResult(p);
         const r = await app.summarize(p.spec, v.columns, v.agentRows);
@@ -417,21 +430,21 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
 
   const server = createServer(async (req, res) => {
     try {
-      if (!allowedHosts.has(req.headers.host ?? '')) throw new HttpError(403, 'Host 거부');
+      if (!allowedHosts.has(req.headers.host ?? '')) throw new HttpError(403, tr('Host not allowed', 'Host 거부'));
       const method = req.method ?? 'GET';
       if (method !== 'GET' && method !== 'HEAD') {
-        if (!allowedOrigins.has(req.headers.origin ?? '') || req.headers['x-growth-lab'] !== '1') throw new HttpError(403, '같은 출처 요청이 아님');
+        if (!allowedOrigins.has(req.headers.origin ?? '') || req.headers['x-growth-lab'] !== '1') throw new HttpError(403, tr('Not a same-origin request', '같은 출처 요청이 아님'));
       }
       let path: string;
       try {
         path = new URL(req.url ?? '/', 'http://127.0.0.1').pathname;
       } catch {
-        throw new HttpError(400, '잘못된 경로');
+        throw new HttpError(400, tr('Bad path', '잘못된 경로'));
       }
       if (!path.startsWith('/api/')) {
         const f = files.get(path);
-        if (!f) throw new HttpError(404, '없는 경로');
-        if (method !== 'GET') throw new HttpError(405, '허용되지 않는 메서드');
+        if (!f) throw new HttpError(404, tr('No such path', '없는 경로'));
+        if (method !== 'GET') throw new HttpError(405, tr('Method not allowed', '허용되지 않는 메서드'));
         res.writeHead(200, { ...headers, 'Content-Type': f.type, 'Content-Length': f.body.length });
         res.end(f.body);
         return;
@@ -444,21 +457,21 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
         await (pub.handler as (c: PublicCtx) => Promise<void> | void)({ req, res, body, ip });
         return;
       }
-      // 여기부터는 로그인한 사용자만. 경로가 있는지는 로그인 뒤에야 알려 준다
-      const user = auth.session(req);
-      if (!user) throw new HttpError(401, '로그인이 필요해요');
+      // Signed-in users only from here; whether a path exists is revealed only after sign-in
+      const user = sessionOf(req);
+      if (!user) throw new HttpError(401, tr('Sign-in required', '로그인이 필요해요'));
       const matches = privateRoutes.map((r) => ({ r, m: r.pattern.exec(path) })).filter((x) => x.m);
-      if (matches.length === 0) throw new HttpError(404, '없는 경로');
+      if (matches.length === 0) throw new HttpError(404, tr('No such path', '없는 경로'));
       const hit = matches.find((x) => x.r.method === method);
-      if (!hit) throw new HttpError(405, '허용되지 않는 메서드');
-      if (!atLeast(user, hit.r.access)) throw new HttpError(403, '권한이 없어요');
+      if (!hit) throw new HttpError(405, tr('Method not allowed', '허용되지 않는 메서드'));
+      if (!atLeast(user, hit.r.access)) throw new HttpError(403, tr('Permission denied', '권한이 없어요'));
       let params: string[];
       try {
         params = hit.m!.slice(1).map(decodeURIComponent);
       } catch {
-        throw new HttpError(400, '잘못된 경로 인코딩');
+        throw new HttpError(400, tr('Bad path encoding', '잘못된 경로 인코딩'));
       }
-      for (const p of params) if (!ID_RE.test(p)) throw new HttpError(400, 'ID 형식 오류');
+      for (const p of params) if (!ID_RE.test(p)) throw new HttpError(400, tr('Invalid ID', 'ID 형식 오류'));
       await hit.r.handler({ req, res, params, body, user, ip });
     } catch (e) {
       if (res.headersSent) return res.end();
@@ -467,7 +480,7 @@ export function startServer(app: App, port: number): Promise<ServerHandle> {
       else if (e instanceof NotFound) sendJson(res, 404, { error: e.message });
       else {
         console.error(e);
-        sendJson(res, 500, { error: '서버 오류' });
+        sendJson(res, 500, { error: tr('Server error', '서버 오류') });
       }
     }
   });

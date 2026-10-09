@@ -1,4 +1,4 @@
-// 저장 패널 서비스: 저장·삭제, 백그라운드 재계산·품질 검사 대기열, 전역 이벤트.
+// Saved panel service: save and delete, background recompute and quality check queue, global events.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
@@ -14,6 +14,7 @@ import { runQuery, SlotCancelled, type SlotLease } from '../query/executor.ts';
 import type { ResultColumn } from '../query/worker.ts';
 import { builtinChecks, workspaceChecks, type QualityCheck } from '../quality/builtin.ts';
 import { loadSpec } from '../collect/spec.ts';
+import { tr } from '../i18n.ts';
 
 export type PanelEvent = { type: string; data: Record<string, unknown> };
 
@@ -45,7 +46,7 @@ export class PanelService {
   readonly store: PanelStore;
   private readonly app: App;
   private readonly jobs = new Map<string, JobStatus>();
-  /** 설명 다시 쓰기·삭제 중인 패널 */
+  /** Panels being rewritten or deleted */
   private readonly busy = new Set<string>();
   private readonly queue: Job[] = [];
   private running: Job | null = null;
@@ -54,7 +55,7 @@ export class PanelService {
   private lastSnapshotId: string | null = null;
   quality: QualityState = { status: 'idle', snapshot_id: null, computed_at: null, items: [], error: null };
   private stopped = false;
-  /** 품질 검사를 대기열에 넣은 스냅샷 */
+  /** Snapshot whose quality checks are queued */
   private qualityTarget: string | null = null;
 
   constructor(app: App) {
@@ -62,7 +63,7 @@ export class PanelService {
     this.store = new PanelStore(join(app.ws.config.outDir, 'panels'));
   }
 
-  /** 서버 시작 뒤: 재계산 판정, 품질 검사, 스냅샷 변경 감시 */
+  /** After server start: recompute decisions, quality checks, snapshot change watch */
   start(pollMs = 2000): void {
     this.lastSnapshotId = this.app.snapshot()?.id ?? null;
     this.scan();
@@ -98,7 +99,7 @@ export class PanelService {
     if (p) this.emit('panel_status', this.statusOf(p));
   }
 
-  /** 이벤트에는 최소 상태만 */
+  /** Events carry minimal state only */
   statusOf(p: SavedPanel) {
     return { panel_id: p.id, status: p.status, job_status: this.jobStatus(p.id) };
   }
@@ -113,7 +114,7 @@ export class PanelService {
     if (id === this.lastSnapshotId) return;
     this.lastSnapshotId = id;
     const snap = this.app.snapshot();
-    // 내용 없이 알리기만 한다(화면이 상태를 다시 읽음)
+    // Notify only, without content (the screen reloads the state)
     this.emit('snapshot_changed', {});
     this.scan();
   }
@@ -122,7 +123,7 @@ export class PanelService {
     return this.app.panelVersions(snap);
   }
 
-  /** 저장 패널마다 재계산 판정 후 대기열에 넣고, 품질 검사를 맨 뒤에 넣는다 */
+  /** Decide recompute for each saved panel and queue it; quality checks go last */
   scan(): void {
     const snap = this.app.snapshot();
     if (!snap || this.stopped) return;
@@ -162,7 +163,7 @@ export class PanelService {
 
   private async pump(): Promise<void> {
     if (this.running || this.stopped) return;
-    // 패널 재계산을 품질 검사보다 먼저
+    // Panel recomputes before quality checks
     let i = this.queue.findIndex((j) => j.kind === 'panel');
     if (i < 0) i = 0;
     const job = this.queue.splice(i, 1)[0];
@@ -179,7 +180,7 @@ export class PanelService {
     }
   }
 
-  /** 대기 중이면 바로 빼고, 실행 중이면 worker 종료를 기다린다 */
+  /** Remove if queued; if running, wait for the worker to stop */
   async cancel(id: string): Promise<JobStatus> {
     const s = this.jobStatus(id);
     if (s === 'queued') {
@@ -195,17 +196,17 @@ export class PanelService {
       while (this.running === job) await new Promise((r) => setTimeout(r, 20));
       return this.jobStatus(id);
     }
-    throw new Conflict('진행 중이거나 대기 중인 재계산이 없어요');
+    throw new Conflict(tr('No recompute is running or queued', '진행 중이거나 대기 중인 재계산이 없어요'));
   }
 
-  /** 원본·가명 사본에서 차례로 실행 */
+  /** Run on the real copy, then the pseudonymized copy */
   private runOn(spec: PanelSpec, snap: { real: string; agent: string; asOf: string }, kind: 'interactive' | 'background', signal?: AbortSignal): Promise<PanelRunResult> {
     const cfg = this.app.ws.config;
     return this.app.slots.run(kind, signal, (lease: SlotLease) => runPanel({
       spec, paths: { real: snap.real, agent: snap.agent }, asOf: snap.asOf, params: cfg.params,
       policy: cfg.policy, metrics: this.app.metrics().dict, blocked: this.app.blocked(), heapLimitMb: cfg.run.heapLimitMb, roles: this.app.roles, lease, signal,
     })).catch((e) => {
-      if (e instanceof SlotCancelled) return { ok: false, stage: 'cancelled', message: '취소됨' } as PanelRunResult;
+      if (e instanceof SlotCancelled) return { ok: false, stage: 'cancelled', message: tr('Cancelled', '취소됨') } as PanelRunResult;
       throw e;
     });
   }
@@ -244,18 +245,18 @@ export class PanelService {
     }
     this.store.write(next);
     this.setJob(job.id, 'idle');
-    // 실행 중에 스냅샷이 또 바뀌었으면 다시 판정한다
+    // Decide again if the snapshot changed while running
     if (this.app.snapshot()?.id !== snap.id) this.scan();
   }
 
-  /** [이 규칙으로 다시 계산]: 재검토·재계산 실패 패널만 */
+  /** [Recompute with these rules]: only panels in review or recompute_failed */
   recompute(id: string): JobStatus {
     const p = this.mustGet(id);
-    if (p.legacy) throw new Conflict('지표 사전 이전에 저장한 패널이라 다시 계산할 수 없어요. 에이전트로 재생성해 주세요');
-    if (p.status !== 'review' && p.status !== 'recompute_failed') throw new Conflict('재검토 필요·재계산 실패 패널만 다시 계산할 수 있어요');
-    if (this.busy.has(id)) throw new Conflict('이 패널에서 다른 작업이 진행 중이에요');
+    if (p.legacy) throw new Conflict(tr('This panel was saved before the metric dictionary and cannot be recomputed. Regenerate it with the agent', '지표 사전 이전에 저장한 패널이라 다시 계산할 수 없어요. 에이전트로 재생성해 주세요'));
+    if (p.status !== 'review' && p.status !== 'recompute_failed') throw new Conflict(tr('Only panels that need review or failed to recompute can be recomputed', '재검토 필요·재계산 실패 패널만 다시 계산할 수 있어요'));
+    if (this.busy.has(id)) throw new Conflict(tr('Another task is running on this panel', '이 패널에서 다른 작업이 진행 중이에요'));
     const s = this.jobStatus(id);
-    if (s === 'queued' || s === 'running' || s === 'cancelling') throw new Conflict('이미 재계산 중이에요');
+    if (s === 'queued' || s === 'running' || s === 'cancelling') throw new Conflict(tr('Already recomputing', '이미 재계산 중이에요'));
     this.queue.unshift({ kind: 'panel', id, mode: 'manual_rule', ac: new AbortController() });
     this.setJob(id, 'queued');
     void this.pump();
@@ -264,7 +265,7 @@ export class PanelService {
 
   mustGet(id: string): SavedPanel {
     const p = this.store.get(id);
-    if (!p) throw new NotFound('없는 패널');
+    if (!p) throw new NotFound(tr('No such panel', '없는 패널'));
     return p;
   }
 
@@ -274,7 +275,7 @@ export class PanelService {
     const panel: SavedPanel = { ...p, id: newId(), created_at: new Date().toISOString(), status: 'ok', last_error: null };
     this.store.write(panel);
     this.emit('panels_changed', {});
-    // 저장 사이에 스냅샷이 바뀌었으면 바로 판정한다
+    // Decide right away if the snapshot changed during the save
     const snap = this.app.snapshot();
     if (snap && decide(panel, this.currentVersions(snap)) !== 'none') this.scan();
     return { panel, created: true };
@@ -283,17 +284,17 @@ export class PanelService {
   delete(id: string): void {
     this.mustGet(id);
     const s = this.jobStatus(id);
-    if (s === 'queued' || s === 'running' || s === 'cancelling' || this.busy.has(id)) throw new Conflict('재계산이나 다른 작업이 진행 중이에요');
+    if (s === 'queued' || s === 'running' || s === 'cancelling' || this.busy.has(id)) throw new Conflict(tr('A recompute or another task is running', '재계산이나 다른 작업이 진행 중이에요'));
     this.store.delete(id);
     this.jobs.delete(id);
     this.emit('panels_changed', {});
   }
 
-  /** 설명 다시 쓰기·삭제를 한 번에 하나만 */
+  /** One rewrite or delete at a time */
   async exclusive<T>(id: string, fn: (p: SavedPanel) => Promise<T>): Promise<T> {
     const p = this.mustGet(id);
     const s = this.jobStatus(id);
-    if (this.busy.has(id) || s === 'queued' || s === 'running' || s === 'cancelling') throw new Conflict('이 패널에서 다른 작업이 진행 중이에요');
+    if (this.busy.has(id) || s === 'queued' || s === 'running' || s === 'cancelling') throw new Conflict(tr('Another task is running on this panel', '이 패널에서 다른 작업이 진행 중이에요'));
     this.busy.add(id);
     try {
       return await fn(p);
@@ -302,14 +303,14 @@ export class PanelService {
     }
   }
 
-  /** 마지막 결과를 계산한 스냅샷에서 다시 실행해 같은지 확인하고 가명 결과를 돌려준다 */
+  /** Rerun on the snapshot of the last result, check it matches, and return the pseudonymized result */
   async verifyLastResult(p: SavedPanel): Promise<{ columns: ResultColumn[]; agentRows: Row[] }> {
     const dir = snapshotsDir(this.app.ws.config.outDir);
     const f = snapshotFiles(dir, p.last_result.snapshot_id);
-    if (!existsSync(f.real) || !existsSync(f.agent)) throw new Conflict('마지막 결과를 계산한 스냅샷이 없어요. 다시 계산한 뒤에 시도해 주세요');
+    if (!existsSync(f.real) || !existsSync(f.agent)) throw new Conflict(tr('The snapshot of the last result is gone. Recompute first, then try again', '마지막 결과를 계산한 스냅샷이 없어요. 다시 계산한 뒤에 시도해 주세요'));
     const r = await this.runOn(p.spec, { real: f.real, agent: f.agent, asOf: p.last_result.as_of }, 'interactive');
-    if (!r.ok) throw new Conflict(`마지막 결과를 다시 확인하지 못했어요: ${r.message}`);
-    if (!isDeepStrictEqual(r.real, p.last_result.rows)) throw new Conflict('마지막 결과와 다시 실행한 결과가 달라요');
+    if (!r.ok) throw new Conflict(tr(`Could not recheck the last result: ${r.message}`, `마지막 결과를 다시 확인하지 못했어요: ${r.message}`));
+    if (!isDeepStrictEqual(r.real, p.last_result.rows)) throw new Conflict(tr('The rerun result differs from the last result', '마지막 결과와 다시 실행한 결과가 달라요'));
     return { columns: r.columns, agentRows: r.agent };
   }
 
@@ -320,10 +321,10 @@ export class PanelService {
     return next;
   }
 
-  // ── 품질 검사 ─────────────────────────────────────────
+  // ── Quality checks ─────────────────────────────────────
 
   qualityChecks(): QualityCheck[] {
-    return [...builtinChecks(loadSpec(join(this.app.ws.dir, 'tables.json')), this.app.ws.config.params), ...workspaceChecks(this.app.ws.dir)];
+    return [...builtinChecks(loadSpec(join(this.app.ws.dir, 'tables.json')), { ...this.app.ws.config.params, __ga4: this.app.ws.config.ga4 !== null }), ...workspaceChecks(this.app.ws.dir)];
   }
 
   private async runQuality(signal: AbortSignal): Promise<void> {
@@ -341,7 +342,7 @@ export class PanelService {
           lease, sql: c.sql, path: snap.real, mode: 'panel', asOf: snap.asOf, params: cfg.params,
           readablePrefixes: [...new Set([...cfg.policy.readablePrefixes, 'r_', 'snapshot_'])], blocked: { columns: this.app.blocked().columns, tables: [] }, heapLimitMb: cfg.run.heapLimitMb, signal,
         })).catch((e) => {
-          if (e instanceof SlotCancelled) return { ok: false as const, kind: 'cancelled' as const, message: '취소됨' };
+          if (e instanceof SlotCancelled) return { ok: false as const, kind: 'cancelled' as const, message: tr('Cancelled', '취소됨') };
           throw e;
         });
         if (!r.ok && r.kind === 'cancelled') break;
@@ -361,9 +362,9 @@ export class PanelService {
     this.emit('quality_status', { status: 'idle', snapshot_id: this.quality.snapshot_id });
   }
 
-  /** 시드 패널을 패널과 같은 규칙으로 실행한다. 실패한 시드는 컨텍스트에서 뺀다 */
+  /** Run seed panels with panel rules; failed seeds are left out of the context */
   private async seedCheck(snap: Snapshot, signal: AbortSignal): Promise<QualityItem> {
-    const base = { id: 'q_seed_panels', title: '시드 패널 검사', display: 'table' as const, builtin: true, columns: ['seed', 'metric', 'result', 'tables', 'message'] };
+    const base = { id: 'q_seed_panels', title: tr('Seed panel check', '시드 패널 검사'), display: 'table' as const, builtin: true, columns: ['seed', 'metric', 'result', 'tables', 'message'] };
     const t0 = performance.now();
     try {
       const rows: Row[] = [];
@@ -373,7 +374,7 @@ export class PanelService {
         const r = await this.runOn(s.spec, snap, 'background', signal);
         if (!r.ok && r.stage === 'cancelled') break;
         if (!r.ok) failed.add(s.id);
-        rows.push([s.id, s.spec.metric ?? '(사전 밖)', r.ok ? '통과' : `실패: ${r.stage}`, (r.ok ? r.tables : r.tables)?.join(', ') ?? null, r.ok ? null : r.message.slice(0, 300)]);
+        rows.push([s.id, s.spec.metric ?? tr('(not in dictionary)', '(사전 밖)'), r.ok ? tr('pass', '통과') : tr(`failed: ${r.stage}`, `실패: ${r.stage}`), (r.ok ? r.tables : r.tables)?.join(', ') ?? null, r.ok ? null : r.message.slice(0, 300)]);
       }
       if (!signal.aborted) this.app.excludedSeeds = failed;
       return { ...base, rows, error: null, ms: Math.round(performance.now() - t0) };
@@ -382,9 +383,9 @@ export class PanelService {
     }
   }
 
-  // ── 화면용 ───────────────────────────────────────────
+  // ── For the screen ─────────────────────────────────────
 
-  /** 역할·소유에 따라 필드를 명시적으로 고른다 */
+  /** Pick fields explicitly by role and ownership */
   view(p: SavedPanel, snap: Snapshot | null, full: boolean) {
     const r = p.last_result;
     const base = {

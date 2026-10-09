@@ -1,4 +1,4 @@
-// 계정 파일(<outDir>/auth/accounts.json): 권한 검사, scrypt 해시, 잠금 후 원자적 갱신.
+// Account file (<outDir>/auth/accounts.json): permission checks, scrypt hashes, atomic update under a lock.
 import { closeSync, constants, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeSync } from 'node:fs';
 import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto';
 import { join } from 'node:path';
@@ -21,8 +21,8 @@ function scrypt(password: string, salt: Buffer, N: number, r: number, p: number,
 }
 
 export function checkPassword(password: string): void {
-  if ([...password].length < PASSWORD_LIMITS.minChars) throw new AccountError(`비밀번호는 ${PASSWORD_LIMITS.minChars}자 이상`);
-  if (Buffer.byteLength(password) > PASSWORD_LIMITS.maxBytes) throw new AccountError(`비밀번호는 ${PASSWORD_LIMITS.maxBytes}바이트 이하`);
+  if ([...password].length < PASSWORD_LIMITS.minChars) throw new AccountError(`Password must be at least ${PASSWORD_LIMITS.minChars} characters`);
+  if (Buffer.byteLength(password) > PASSWORD_LIMITS.maxBytes) throw new AccountError(`Password must be at most ${PASSWORD_LIMITS.maxBytes} bytes`);
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -45,12 +45,12 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 const uid = () => (typeof process.getuid === 'function' ? process.getuid() : -1);
 
-/** auth/ 디렉터리: 심볼릭 링크가 아닌 디렉터리, 내 소유, 0700 */
+/** auth/ directory: a real directory (not a symlink), owned by me, 0700 */
 function checkDir(dir: string): void {
   const st = lstatSync(dir);
-  if (st.isSymbolicLink() || !st.isDirectory()) throw new AccountError(`${dir}: 디렉터리가 아님(심볼릭 링크 불가)`);
-  if (uid() >= 0 && st.uid !== uid()) throw new AccountError(`${dir}: 소유자가 현재 사용자가 아님`);
-  if ((st.mode & 0o077) !== 0) throw new AccountError(`${dir}: 권한은 0700이어야 함`);
+  if (st.isSymbolicLink() || !st.isDirectory()) throw new AccountError(`${dir}: not a directory (symlinks not allowed)`);
+  if (uid() >= 0 && st.uid !== uid()) throw new AccountError(`${dir}: not owned by the current user`);
+  if ((st.mode & 0o077) !== 0) throw new AccountError(`${dir}: permissions must be 0700`);
 }
 
 export function ensureAuthDir(outDir: string): string {
@@ -62,18 +62,18 @@ export function ensureAuthDir(outDir: string): string {
 
 function parseAccounts(text: string): Account[] {
   const raw = JSON.parse(text) as { version?: number; accounts?: unknown };
-  if (raw.version !== 1 || !Array.isArray(raw.accounts)) throw new AccountError('계정 파일 형식 오류');
+  if (raw.version !== 1 || !Array.isArray(raw.accounts)) throw new AccountError('Invalid account file');
   const seen = new Set<string>();
   return raw.accounts.map((a) => {
     const x = a as Account;
-    if (!USERNAME_RE.test(x.username) || !ROLES.includes(x.role) || typeof x.hash !== 'string' || typeof x.disabled !== 'boolean') throw new AccountError('계정 파일 항목 형식 오류');
-    if (seen.has(x.username)) throw new AccountError(`계정 중복: ${x.username}`);
+    if (!USERNAME_RE.test(x.username) || !ROLES.includes(x.role) || typeof x.hash !== 'string' || typeof x.disabled !== 'boolean') throw new AccountError('Invalid account file entry');
+    if (seen.has(x.username)) throw new AccountError(`Duplicate account: ${x.username}`);
     seen.add(x.username);
     return { username: x.username, role: x.role, hash: x.hash, disabled: x.disabled, created_at: String(x.created_at), changed_at: String(x.changed_at) };
   });
 }
 
-/** 파일이 없으면 빈 목록. O_NOFOLLOW로 열고 fstat으로 확인한 그 기술자로 읽는다 */
+/** Empty list if the file is missing. Opened with O_NOFOLLOW and read through the same fstat-checked descriptor */
 export function readAccounts(outDir: string): Account[] {
   const dir = authDir(outDir);
   if (!existsSync(dir)) return [];
@@ -85,14 +85,14 @@ export function readAccounts(outDir: string): Account[] {
   } catch (e) {
     const code = (e as NodeJS.ErrnoException).code;
     if (code === 'ENOENT') return [];
-    if (code === 'ELOOP') throw new AccountError(`${f}: 심볼릭 링크는 쓸 수 없음`);
+    if (code === 'ELOOP') throw new AccountError(`${f}: symlinks are not allowed`);
     throw e;
   }
   try {
     const st = fstatSync(fd);
-    if (!st.isFile()) throw new AccountError(`${f}: 일반 파일이 아님`);
-    if (uid() >= 0 && st.uid !== uid()) throw new AccountError(`${f}: 소유자가 현재 사용자가 아님`);
-    if ((st.mode & 0o077) !== 0) throw new AccountError(`${f}: 권한은 0600이어야 함`);
+    if (!st.isFile()) throw new AccountError(`${f}: not a regular file`);
+    if (uid() >= 0 && st.uid !== uid()) throw new AccountError(`${f}: not owned by the current user`);
+    if ((st.mode & 0o077) !== 0) throw new AccountError(`${f}: permissions must be 0600`);
     return parseAccounts(readFileSync(fd, 'utf8'));
   } finally {
     closeSync(fd);
@@ -108,7 +108,7 @@ function pidAlive(pid: number): boolean {
   }
 }
 
-/** 잠금(PID·시각) → 임시 파일 → fsync → rename → 디렉터리 fsync */
+/** Lock (PID, time) → temp file → fsync → rename → directory fsync */
 export function updateAccounts(outDir: string, change: (accounts: Account[]) => Account[]): Account[] {
   const dir = ensureAuthDir(outDir);
   const lock = join(dir, '.lock');
@@ -118,7 +118,7 @@ export function updateAccounts(outDir: string, change: (accounts: Account[]) => 
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw e;
     const pid = Number(String(readFileSync(lock, 'utf8')).split(' ')[0]);
-    if (Number.isInteger(pid) && pid > 0 && pidAlive(pid)) throw new AccountError('다른 계정 변경이 진행 중이에요');
+    if (Number.isInteger(pid) && pid > 0 && pidAlive(pid)) throw new AccountError('Another account change is in progress');
     rmSync(lock, { force: true });
     fd = openSync(lock, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
   }
@@ -149,21 +149,21 @@ export function updateAccounts(outDir: string, change: (accounts: Account[]) => 
 }
 
 export async function addAccount(outDir: string, username: string, role: Role, password: string): Promise<void> {
-  if (!USERNAME_RE.test(username)) throw new AccountError('이름은 ^[a-z][a-z0-9_.-]{2,31}$');
-  if (!ROLES.includes(role)) throw new AccountError(`역할은 ${ROLES.join('|')}`);
+  if (!USERNAME_RE.test(username)) throw new AccountError('Name must match ^[a-z][a-z0-9_.-]{2,31}$');
+  if (!ROLES.includes(role)) throw new AccountError(`Role must be ${ROLES.join('|')}`);
   const hash = await hashPassword(password);
   const now = new Date().toISOString();
   updateAccounts(outDir, (list) => {
-    if (list.some((a) => a.username === username)) throw new AccountError(`이미 있는 계정: ${username}`);
+    if (list.some((a) => a.username === username)) throw new AccountError(`Account already exists: ${username}`);
     return [...list, { username, role, hash, disabled: false, created_at: now, changed_at: now }];
   });
 }
 
 export function modifyAccount(outDir: string, username: string, patch: Partial<Pick<Account, 'role' | 'disabled' | 'hash'>>): void {
-  if (patch.role !== undefined && !ROLES.includes(patch.role)) throw new AccountError(`역할은 ${ROLES.join('|')}`);
+  if (patch.role !== undefined && !ROLES.includes(patch.role)) throw new AccountError(`Role must be ${ROLES.join('|')}`);
   updateAccounts(outDir, (list) => {
     const i = list.findIndex((a) => a.username === username);
-    if (i < 0) throw new AccountError(`없는 계정: ${username}`);
+    if (i < 0) throw new AccountError(`No such account: ${username}`);
     const next = [...list];
     next[i] = { ...next[i], ...patch, changed_at: new Date().toISOString() };
     return next;

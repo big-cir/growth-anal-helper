@@ -1,11 +1,11 @@
 #!/bin/sh
-# pre-commit·pre-push 훅 설치(금지어 목록이 있을 때만).
+# Install pre-commit and pre-push hooks (only when a denylist exists).
 set -eu
 root=$(git rev-parse --show-toplevel)
 cd "$root"
 ws="${GROWTH_LAB_WORKSPACE:-workspace}"
 if [ ! -f "$ws/public-denylist.txt" ]; then
-  echo "금지어 목록이 없어 훅을 설치하지 않음: $ws/public-denylist.txt" >&2
+  echo "No denylist, hooks not installed: $ws/public-denylist.txt" >&2
   exit 1
 fi
 hooks=$(git rev-parse --git-path hooks)
@@ -19,4 +19,4 @@ cat > "$hooks/pre-push" <<'HOOK'
 exec node src/cli.ts public-check --history --require-denylist
 HOOK
 chmod +x "$hooks/pre-commit" "$hooks/pre-push"
-echo "훅 설치: $hooks/pre-commit, $hooks/pre-push"
+echo "Hooks installed: $hooks/pre-commit, $hooks/pre-push"

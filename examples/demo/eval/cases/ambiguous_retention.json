@@ -1,0 +1,9 @@
+{
+  "id": "ambiguous_retention",
+  "kind": "ambiguous",
+  "question": "Are people sticking around lately?",
+  "expect": {
+    "action": "ask"
+  },
+  "note": "Period, cohort and what counts as staying are missing"
+}

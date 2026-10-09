@@ -1,0 +1,119 @@
+[
+ {
+  "options": {
+   "anchor": "2024-06-03 12:00:00"
+  },
+  "summary": "{\"members\":1800,\"boards\":532,\"boardMembers\":1502,\"posts\":8944,\"replies\":6037,\"reactions\":6281}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "532 5f6429cf65cc6883ef61797a235c79e95c7da74769df65dc4ec8a326f207d983",
+   "board_member": "1502 44813c114def7d1ca7304a0f251793d6fb328f3f78b7a48978fe4bfd7fd613a4",
+   "member": "1800 b74590708d888778afc83ffce1297393b1093c91433339223b188418a3166d54",
+   "post": "8944 1476740808b29a868f9f729ab3400203c18de8969dd03390fb64d051f377b54e",
+   "reaction": "6281 bf2363294dde29d1a0c6cfd45a4b8938dca5e7ac8128ce3b605d380d9db2f02a",
+   "reply": "6037 5225a61cd525123694bd83a91a34aba6ae408bb33c71eead44c12089f23e00c5"
+  }
+ },
+ {
+  "options": {
+   "anchor": "2024-06-03"
+  },
+  "summary": "{\"members\":1800,\"boards\":532,\"boardMembers\":1502,\"posts\":8944,\"replies\":6037,\"reactions\":6281}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "532 9dbc5ecbdabe42c06779bc930fa043ae43b544c75c304eea9864bab3b54ece28",
+   "board_member": "1502 9f177374d89a34bb696a44b9fab8ff1e255d6049ccc21661246a0f2e215d1c73",
+   "member": "1800 ec0af2d578d6a0e71f4388f41c033d9128b8e2a46dad42bb9048652de541485a",
+   "post": "8944 bf029be0e946c284862aeebb334384c95004c8f38b86a63f6d983a5a67e0a458",
+   "reaction": "6281 2cc0351d94dcf3184c264e8216cdc456dee7051b46c8c1811b9791ed1e21f2c5",
+   "reply": "6037 266afd8f0ec65c13d3a9252bb69d498ceaed254172f36197723f9fd9b90737a5"
+  }
+ },
+ {
+  "options": {
+   "anchor": "2026-10-09 09:30:15",
+   "seed": 7
+  },
+  "summary": "{\"members\":1800,\"boards\":490,\"boardMembers\":1502,\"posts\":8860,\"replies\":6626,\"reactions\":6899}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "490 1c75755cfa2fbbd42f5c0bcfc94b5aa2fec5d72384919f922547718832ec4e35",
+   "board_member": "1502 d09fd518d7d336b3838ba671ea29ea4d3b86e42f61bfe3d8d5ebec87ac7cf494",
+   "member": "1800 d2b39977a0759fca453139f4288d7c54276dabd05e24ee82b49ef583cd1f6d3d",
+   "post": "8860 91afcb6868e06022335af768ce9ae0cc23fd953ae1a5892721d36cc61db4cb7b",
+   "reaction": "6899 0ca835550cd720fd97fe6c9f6b58d3ce0acf63d3a3fe0caded8bf297baeef693",
+   "reply": "6626 b12d9a99bdcb88f712fe6f86378c4b8577a2ee74811257dd47ce303ca8126d48"
+  }
+ },
+ {
+  "options": {
+   "anchor": "2023-01-01 00:00:00",
+   "seed": 1,
+   "weeks": 8,
+   "members": 300
+  },
+  "summary": "{\"members\":300,\"boards\":80,\"boardMembers\":246,\"posts\":901,\"replies\":905,\"reactions\":952}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "80 3979491f47bef1a09b4769ad7be9af219091f4e5962aab01febbc51c616c43e1",
+   "board_member": "246 35875b39dcf0011f523c6b16b385c02ba2f2bf7c0bc87fdc0bb16bd0aa4a55c8",
+   "member": "300 e49dd99a3597bd75fd94010229c8ac056babbef6c0ac26cb567a7f98df3f950e",
+   "post": "901 85bf949a6cb6151960e30ddcebe9d89c0801529bdf0e5b4bfb3103e3cfd4b241",
+   "reaction": "952 2619cc9abc8b5de54e07fcd2e592fea04622ae76c88e969ea80c63df222c1146",
+   "reply": "905 3f24436c0d63859327fe015598d0c180ac23ce909f61a91513f95ce1d6ec40c7"
+  }
+ },
+ {
+  "options": {
+   "anchor": "2025-02-28 23:59:59",
+   "seed": 4294967301,
+   "weeks": 3,
+   "members": 50
+  },
+  "summary": "{\"members\":50,\"boards\":17,\"boardMembers\":38,\"posts\":60,\"replies\":31,\"reactions\":42}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "17 fc315c9fc5802e7a57dbc78bccc78bd246403270069466dcffd92b4c83587e08",
+   "board_member": "38 a0d71caec4c2696e4c6f0e32e5369d98329a45ec5e9507658fb581f8dbcb8355",
+   "member": "50 abfbcbd61c6cc6a7395da43ec910e509b7e70911dfdc676bcdd2e97d7b954f68",
+   "post": "60 0ef7e4d17f261671798f7e802098c1cca927cedbf01a4f9bbacd41f2225105e7",
+   "reaction": "42 014e15a43437fe7148d4eb2aadf9019bf66ae975e4d703f8cec9558db79cf5f1",
+   "reply": "31 7ea28aaa300b096bc9dff93afa2b9e69fb7956fe5380ddbb3e2a774fde932cd0"
+  }
+ },
+ {
+  "options": {
+   "anchor": "1969-12-25 10:00:00",
+   "seed": -5,
+   "weeks": 2,
+   "members": 40
+  },
+  "summary": "{\"members\":40,\"boards\":15,\"boardMembers\":25,\"posts\":31,\"replies\":5,\"reactions\":9}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "15 d704317441feb085dc9e2c6d1836a796e33884e6c963550d549978dcc48b7985",
+   "board_member": "25 a167d23b5e43018bad1c3dfafd9774a92c029279001c44f38b6c9ea3a5bf7188",
+   "member": "40 533baaeb9e5cc8cb9cc66f571eceb83ca15d44d8f76039a46a6c025cea2ca444",
+   "post": "31 adfd4a6f606524d27d616cd487598e6e5ac8504e1becc098dcd273bc8612c96a",
+   "reaction": "9 d81b45a6e2f64d9305c617e336c47dc42150be9109a05e11666694e25f44aab7",
+   "reply": "5 d0e3902a5acdc6b964e94d92acb0e0acc42d2c97b2434f527e2f44c8bd2123c6"
+  }
+ },
+ {
+  "options": {
+   "anchor": "0050-03-01 00:00:00",
+   "weeks": 1,
+   "members": 20
+  },
+  "summary": "{\"members\":20,\"boards\":4,\"boardMembers\":11,\"posts\":6,\"replies\":5,\"reactions\":2}",
+  "tables": {
+   "(schema)": "f5ac25d857c22bd9275a0804ccf7c11d343268cacaa7a3a2fbb7286f1f44d274",
+   "board": "4 0f88514cf0e28231b2cae02be61517c9092541725be1eb9e6a6972cda93a01c8",
+   "board_member": "11 e786f1a0e630507a97a060687e1b935d0e501ae9dc57781ca6b9fa8d9dc485a7",
+   "member": "20 b0a236fdaf84c1e240d7c34866aa3b88ee9820412e5da82206e142e1a51023e7",
+   "post": "6 37eac09a91f63bf04cc609f770697a549d851aceb9794acc3025e3c35c171298",
+   "reaction": "2 b33d577c532f61b32940206fca81c30f235ab1942b126394b299b84bfeb0ef2e",
+   "reply": "5 e16b83870b7bedd875fe3f8f92ecc277edbbf405f4eb6dea40d6dc938300d407"
+  }
+ }
+]

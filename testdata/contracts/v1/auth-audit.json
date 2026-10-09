@@ -1,0 +1,142 @@
+{
+ "lines": [
+  {
+   "record": {
+    "event": "login_ok",
+    "user": "alice",
+    "ip": "127.0.0.1"
+   },
+   "line": "{\"t\":\"<t>\",\"event\":\"login_ok\",\"user\":\"alice\",\"ip\":\"127.0.0.1\"}\n",
+   "files": [
+    "<today>"
+   ]
+  },
+  {
+   "record": {
+    "event": "logout"
+   },
+   "line": "{\"t\":\"<t>\",\"event\":\"logout\"}\n",
+   "files": [
+    "<today>"
+   ]
+  },
+  {
+   "record": {
+    "event": "panel_saved_failed",
+    "user": "bob",
+    "target": "p1"
+   },
+   "line": "{\"t\":\"<t>\",\"event\":\"panel_saved_failed\",\"user\":\"bob\",\"target\":\"p1\"}\n",
+   "files": [
+    "<today>"
+   ]
+  },
+  {
+   "record": {
+    "event": "account_changed",
+    "user": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "ip": "가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가",
+    "target": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx😀"
+   },
+   "line": "{\"t\":\"<t>\",\"event\":\"account_changed\",\"user\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"ip\":\"가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가가\",\"target\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\\ud83d\"}\n",
+   "files": [
+    "<today>"
+   ]
+  },
+  {
+   "record": {
+    "event": "agent_request",
+    "user": "",
+    "ip": "",
+    "target": "quote \" \\ \n \u0001 <&>  "
+   },
+   "line": "{\"t\":\"<t>\",\"event\":\"agent_request\",\"user\":\"\",\"ip\":\"\",\"target\":\"quote \\\" \\\\ \\n \\u0001 <&>  \"}\n",
+   "files": [
+    "<today>"
+   ]
+  }
+ ],
+ "auditDirs": [
+  {
+   "name": "missing (created)",
+   "out": {
+    "ok": true,
+    "value": null
+   }
+  },
+  {
+   "name": "0700",
+   "out": {
+    "ok": true,
+    "value": null
+   }
+  },
+  {
+   "name": "0750",
+   "out": {
+    "ok": false,
+    "error": "<out>/logs/audit: audit log directory must be owned by me with 0700"
+   }
+  },
+  {
+   "name": "0600",
+   "out": {
+    "ok": false,
+    "error": "<out>/logs/audit: audit log directory must be owned by me with 0700"
+   }
+  },
+  {
+   "name": "symlink",
+   "out": {
+    "ok": false,
+    "error": "<out>/logs/audit: audit log directory must be owned by me with 0700"
+   }
+  },
+  {
+   "name": "file 0644",
+   "out": {
+    "ok": false,
+    "error": "<out>/logs/audit/<today>: audit log file must be owned by me with 0600"
+   }
+  },
+  {
+   "name": "file symlink",
+   "out": {
+    "ok": false,
+    "error": "ELOOP: too many symbolic links encountered, open '<out>/logs/audit/<today>'"
+   }
+  }
+ ],
+ "prunes": [
+  {
+   "days": 90,
+   "left": [
+    "audit-2000-01-01.json",
+    "audit-2000-1-01.jsonl",
+    "audit-2999-01-01.jsonl",
+    "audit-today.jsonl",
+    "other.txt"
+   ]
+  },
+  {
+   "days": 1,
+   "left": [
+    "audit-2000-01-01.json",
+    "audit-2000-1-01.jsonl",
+    "audit-2999-01-01.jsonl",
+    "audit-today.jsonl",
+    "other.txt"
+   ]
+  },
+  {
+   "days": 0,
+   "left": [
+    "audit-2000-01-01.json",
+    "audit-2000-1-01.jsonl",
+    "audit-2999-01-01.jsonl",
+    "audit-today.jsonl",
+    "other.txt"
+   ]
+  }
+ ]
+}

@@ -272,6 +272,7 @@ function onEvent(ev) {
       if (d.kind === 'query_done') { stopRunning(); step('ok', '✓', `<b>${tr('Probe query', '탐색 쿼리')}</b> ${esc(d.text)}${d.ms !== null ? ` · ${(d.ms / 1000).toFixed(2)}${tr('s', '초')}` : ''} <div class="muted note-sm">${tr('The agent only sees results from the pseudonymized copy with replaced IDs', '에이전트에게는 ID를 바꾼 가명 사본의 결과만 전달됨')}</div>`); }
       else if (d.kind === 'check_failed') { stopRunning(); step('fail', '!', `<b>${tr('Panel check failed', '패널 검사 실패')}</b> ${esc(d.text)}`); }
       else if (d.kind === 'retry') { stopRunning(); step('run', '↻', esc(d.text)); }
+      else if (d.kind === 'kept') { stopRunning(); step('ok', '✓', esc(d.text)); }
       else setRunning(d.text);
       break;
     case 'plan':

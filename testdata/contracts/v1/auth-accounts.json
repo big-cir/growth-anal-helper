@@ -1,0 +1,708 @@
+{
+ "parse": [
+  {
+   "content": "{\"version\":1,\"accounts\":[]}",
+   "out": {
+    "ok": true,
+    "value": []
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"alice\",\"role\":\"admin\",\"hash\":\"h\",\"disabled\":false,\"created_at\":\"2024-01-01T00:00:00.000Z\",\"changed_at\":\"2024-01-02T00:00:00.000Z\"}]}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "alice",
+      "role": "admin",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "2024-01-01T00:00:00.000Z",
+      "changed_at": "2024-01-02T00:00:00.000Z"
+     }
+    ]
+   }
+  },
+  {
+   "content": "{\"accounts\":[{\"changed_at\":5,\"created_at\":null,\"disabled\":true,\"hash\":\"\",\"role\":\"viewer\",\"username\":\"bob\",\"extra\":1}],\"version\":1.0}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "bob",
+      "role": "viewer",
+      "hash": "",
+      "disabled": true,
+      "created_at": "null",
+      "changed_at": "5"
+     }
+    ]
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"carol\",\"role\":\"editor\",\"hash\":\"h\",\"disabled\":false,\"created_at\":[1,[2,null],\"x\"],\"changed_at\":{\"a\":1}}]}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "carol",
+      "role": "editor",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "1,2,,x",
+      "changed_at": "[object Object]"
+     }
+    ]
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"dave\",\"role\":\"editor\",\"hash\":\"h\",\"disabled\":false}]}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "dave",
+      "role": "editor",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "undefined",
+      "changed_at": "undefined"
+     }
+    ]
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"erin\",\"role\":\"editor\",\"hash\":\"h\",\"disabled\":false,\"created_at\":1e21,\"changed_at\":-0}]}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "erin",
+      "role": "editor",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "1e+21",
+      "changed_at": "0"
+     }
+    ]
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"al\",\"role\":\"admin\",\"hash\":\"h\",\"disabled\":false}]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"Alice\",\"role\":\"admin\",\"hash\":\"h\",\"disabled\":false}]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"alice\",\"role\":\"root\",\"hash\":\"h\",\"disabled\":false}]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"alice\",\"role\":\"admin\",\"hash\":1,\"disabled\":false}]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"alice\",\"role\":\"admin\",\"hash\":\"h\",\"disabled\":\"no\"}]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[{\"username\":\"alice\",\"role\":\"admin\",\"hash\":\"h\",\"disabled\":false},{\"username\":\"alice\",\"role\":\"viewer\",\"hash\":\"h\",\"disabled\":true}]}",
+   "out": {
+    "ok": false,
+    "error": "Duplicate account: alice"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[null]}",
+   "out": {
+    "ok": false,
+    "error": "Cannot read properties of null (reading 'username')"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[5]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file entry"
+   }
+  },
+  {
+   "content": "{\"version\":2,\"accounts\":[]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "{\"version\":\"1\",\"accounts\":[]}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "{\"version\":1}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":{}}",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "[]",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "5",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "\"x\"",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "null",
+   "out": {
+    "ok": false,
+    "error": "Cannot read properties of null (reading 'version')"
+   }
+  },
+  {
+   "content": "true",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  },
+  {
+   "content": "{\"version\":1,\"accounts\":[]",
+   "out": {
+    "ok": false,
+    "error": "Expected ',' or '}' after property value in JSON at position 26 (line 1 column 27)",
+    "syntax": true
+   }
+  },
+  {
+   "content": "",
+   "out": {
+    "ok": false,
+    "error": "Unexpected end of JSON input",
+    "syntax": true
+   }
+  },
+  {
+   "content": "not json",
+   "out": {
+    "ok": false,
+    "error": "Unexpected token 'o', \"not json\" is not valid JSON",
+    "syntax": true
+   }
+  },
+  {
+   "content": "{\"version\":1,\"version\":1,\"accounts\":[],\"accounts\":[{\"username\":\"zed\",\"role\":\"viewer\",\"hash\":\"h\",\"disabled\":false}]}",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "zed",
+      "role": "viewer",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "undefined",
+      "changed_at": "undefined"
+     }
+    ]
+   }
+  }
+ ],
+ "format": [
+  {
+   "list": [],
+   "text": "{\n \"version\": 1,\n \"accounts\": []\n}\n"
+  },
+  {
+   "list": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "scrypt$32768$8$1$c2FsdA==$a2V5",
+     "disabled": false,
+     "created_at": "2024-01-01T00:00:00.000Z",
+     "changed_at": "2024-01-02T00:00:00.000Z"
+    }
+   ],
+   "text": "{\n \"version\": 1,\n \"accounts\": [\n  {\n   \"username\": \"alice\",\n   \"role\": \"admin\",\n   \"hash\": \"scrypt$32768$8$1$c2FsdA==$a2V5\",\n   \"disabled\": false,\n   \"created_at\": \"2024-01-01T00:00:00.000Z\",\n   \"changed_at\": \"2024-01-02T00:00:00.000Z\"\n  }\n ]\n}\n"
+  },
+  {
+   "list": [
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "h\"q\\",
+     "disabled": true,
+     "created_at": "undefined",
+     "changed_at": "한글 <&>"
+    },
+    {
+     "username": "carol",
+     "role": "editor",
+     "hash": "",
+     "disabled": false,
+     "created_at": "",
+     "changed_at": " "
+    }
+   ],
+   "text": "{\n \"version\": 1,\n \"accounts\": [\n  {\n   \"username\": \"bob\",\n   \"role\": \"viewer\",\n   \"hash\": \"h\\\"q\\\\\",\n   \"disabled\": true,\n   \"created_at\": \"undefined\",\n   \"changed_at\": \"한글 <&>\"\n  },\n  {\n   \"username\": \"carol\",\n   \"role\": \"editor\",\n   \"hash\": \"\",\n   \"disabled\": false,\n   \"created_at\": \"\",\n   \"changed_at\": \" \"\n  }\n ]\n}\n"
+  }
+ ],
+ "fs": [
+  {
+   "name": "no auth dir",
+   "out": {
+    "ok": true,
+    "value": []
+   }
+  },
+  {
+   "name": "empty auth dir",
+   "out": {
+    "ok": true,
+    "value": []
+   }
+  },
+  {
+   "name": "valid file",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "alice",
+      "role": "admin",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "a",
+      "changed_at": "b"
+     }
+    ]
+   }
+  },
+  {
+   "name": "dir group-readable",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth: permissions must be 0700"
+   }
+  },
+  {
+   "name": "dir 0701",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth: permissions must be 0700"
+   }
+  },
+  {
+   "name": "file group-readable",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth/accounts.json: permissions must be 0600"
+   }
+  },
+  {
+   "name": "file 0400",
+   "out": {
+    "ok": true,
+    "value": [
+     {
+      "username": "alice",
+      "role": "admin",
+      "hash": "h",
+      "disabled": false,
+      "created_at": "a",
+      "changed_at": "b"
+     }
+    ]
+   }
+  },
+  {
+   "name": "file is a directory",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth/accounts.json: not a regular file"
+   }
+  },
+  {
+   "name": "file is a symlink",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth/accounts.json: symlinks are not allowed"
+   }
+  },
+  {
+   "name": "dir is a symlink",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth: not a directory (symlinks not allowed)"
+   }
+  },
+  {
+   "name": "auth is a file",
+   "out": {
+    "ok": false,
+    "error": "<out>/auth: not a directory (symlinks not allowed)"
+   }
+  },
+  {
+   "name": "invalid content",
+   "out": {
+    "ok": false,
+    "error": "Invalid account file"
+   }
+  }
+ ],
+ "locks": [
+  {
+   "state": "none",
+   "out": {
+    "ok": true,
+    "value": 0
+   },
+   "lockLeft": false
+  },
+  {
+   "state": "self",
+   "out": {
+    "ok": false,
+    "error": "Another account change is in progress"
+   },
+   "lockLeft": true
+  },
+  {
+   "state": "dead",
+   "out": {
+    "ok": true,
+    "value": 0
+   },
+   "lockLeft": false
+  },
+  {
+   "state": "garbage",
+   "out": {
+    "ok": true,
+    "value": 0
+   },
+   "lockLeft": false
+  },
+  {
+   "state": "empty",
+   "out": {
+    "ok": true,
+    "value": 0
+   },
+   "lockLeft": false
+  },
+  {
+   "state": "hex-dead",
+   "out": {
+    "ok": true,
+    "value": 0
+   },
+   "lockLeft": false
+  }
+ ],
+ "ops": [
+  {
+   "label": "add alice admin",
+   "out": {
+    "ok": true
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "add bob viewer",
+   "out": {
+    "ok": true
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "add alice again",
+   "out": {
+    "ok": false,
+    "error": "Account already exists: alice"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "add bad name",
+   "out": {
+    "ok": false,
+    "error": "Name must match ^[a-z][a-z0-9_.-]{2,31}$"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "add bad role",
+   "out": {
+    "ok": false,
+    "error": "Role must be viewer|editor|admin"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "add short password",
+   "out": {
+    "ok": false,
+    "error": "Password must be at least 12 characters"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "viewer",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "modify bob role",
+   "out": {
+    "ok": true
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "editor",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "modify bob disabled",
+   "out": {
+    "ok": true
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "editor",
+     "hash": "<hash>",
+     "disabled": true,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "modify nobody",
+   "out": {
+    "ok": false,
+    "error": "No such account: nobody"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "editor",
+     "hash": "<hash>",
+     "disabled": true,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "modify bad role",
+   "out": {
+    "ok": false,
+    "error": "Role must be viewer|editor|admin"
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "<hash>",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "editor",
+     "hash": "<hash>",
+     "disabled": true,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  },
+  {
+   "label": "modify hash",
+   "out": {
+    "ok": true
+   },
+   "accounts": [
+    {
+     "username": "alice",
+     "role": "admin",
+     "hash": "scrypt$1$1$1$AA$AA",
+     "disabled": false,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    },
+    {
+     "username": "bob",
+     "role": "editor",
+     "hash": "<hash>",
+     "disabled": true,
+     "created_at": "<ts>",
+     "changed_at": "<ts>"
+    }
+   ]
+  }
+ ]
+}

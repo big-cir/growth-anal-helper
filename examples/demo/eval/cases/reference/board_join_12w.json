@@ -1,0 +1,27 @@
+{
+  "metric": "first_week_activation",
+  "title": "7-day board join rate, last 12 signup weeks",
+  "question": "What share of members joined a board within 7 days, for each of the last 12 complete signup weeks?",
+  "sql": "SELECT signup_week AS x,\n       sum(board_state = 'reached') AS numerator,\n       count(*) AS denominator\nFROM d_member_first_week\n-- Signup week W is complete when W + 14 days ≤ cutoff: every signup in it has a full 7-day window\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\nGROUP BY signup_week\nORDER BY signup_week",
+  "display": {
+    "type": "line"
+  },
+  "definition": [
+    [
+      "Population",
+      "Members who signed up in the last 12 complete signup weeks (starting Monday), where every signup has had 7 days"
+    ],
+    [
+      "Numerator",
+      "Members who created or joined a board within 7 days of signup"
+    ]
+  ],
+  "caveats": [],
+  "answers": [
+    {
+      "question": "Period",
+      "answer": "Last 12 weeks",
+      "defaulted": false
+    }
+  ]
+}

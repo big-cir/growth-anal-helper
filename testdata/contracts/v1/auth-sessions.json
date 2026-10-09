@@ -1,0 +1,3975 @@
+{
+ "cookies": [
+  {
+   "header": "",
+   "pairs": []
+  },
+  {
+   "header": "gl_session=abc",
+   "pairs": [
+    [
+     "gl_session",
+     "abc"
+    ]
+   ]
+  },
+  {
+   "header": "a=1; a=2",
+   "pairs": [
+    [
+     "a",
+     "1"
+    ]
+   ]
+  },
+  {
+   "header": "=x; b=2",
+   "pairs": [
+    [
+     "b",
+     "2"
+    ]
+   ]
+  },
+  {
+   "header": " b = 2 ;c",
+   "pairs": [
+    [
+     "b",
+     "2"
+    ]
+   ]
+  },
+  {
+   "header": "d=",
+   "pairs": [
+    [
+     "d",
+     ""
+    ]
+   ]
+  },
+  {
+   "header": "e==f",
+   "pairs": [
+    [
+     "e",
+     "=f"
+    ]
+   ]
+  },
+  {
+   "header": " g =　x　",
+   "pairs": [
+    [
+     "g",
+     "x"
+    ]
+   ]
+  },
+  {
+   "header": "h=1;;i=2",
+   "pairs": [
+    [
+     "h",
+     "1"
+    ],
+    [
+     "i",
+     "2"
+    ]
+   ]
+  },
+  {
+   "header": "j=a=b; k",
+   "pairs": [
+    [
+     "j",
+     "a=b"
+    ]
+   ]
+  },
+  {
+   "header": "  ;  ;",
+   "pairs": []
+  },
+  {
+   "header": "gl_session=; gl_session=late",
+   "pairs": [
+    [
+     "gl_session",
+     ""
+    ]
+   ]
+  },
+  {
+   "header": "semi=1;space =2",
+   "pairs": [
+    [
+     "semi",
+     "1"
+    ],
+    [
+     "space",
+     "2"
+    ]
+   ]
+  },
+  {
+   "header": "﻿bom=1",
+   "pairs": [
+    [
+     "bom",
+     "1"
+    ]
+   ]
+  },
+  {
+   "header": "nel=2; x=y",
+   "pairs": [
+    [
+     "nel",
+     "2"
+    ],
+    [
+     "x",
+     "y"
+    ]
+   ]
+  }
+ ],
+ "undefinedHeader": [],
+ "setCookies": [
+  {
+   "secure": true,
+   "session": "gl_session=abc-_; HttpOnly; SameSite=Strict; Path=/; Secure",
+   "clear": "gl_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0; Secure"
+  },
+  {
+   "secure": false,
+   "session": "gl_session=abc-_; HttpOnly; SameSite=Strict; Path=/",
+   "clear": "gl_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"
+  }
+ ],
+ "ips": [
+  {
+   "input": "127.0.0.1",
+   "out": "127.0.0.1"
+  },
+  {
+   "input": "::ffff:192.0.2.1",
+   "out": "192.0.2.1"
+  },
+  {
+   "input": "::FFFF:192.0.2.1",
+   "out": "192.0.2.1"
+  },
+  {
+   "input": " ::1 ",
+   "out": "::1"
+  },
+  {
+   "input": "",
+   "out": "unknown"
+  },
+  {
+   "input": "FE80::1",
+   "out": "fe80::1"
+  },
+  {
+   "input": "::ffff:192.0.2",
+   "out": "::ffff:192.0.2"
+  },
+  {
+   "input": " x ",
+   "out": "x"
+  }
+ ],
+ "clientIps": [
+  {
+   "socket": "192.0.2.1",
+   "xff": null,
+   "hops": 1,
+   "out": "192.0.2.1"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": "198.51.100.1",
+   "hops": null,
+   "out": "192.0.2.1"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": "198.51.100.1, 203.0.113.2",
+   "hops": 1,
+   "out": "203.0.113.2"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": "198.51.100.1, 203.0.113.2",
+   "hops": 2,
+   "out": "198.51.100.1"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": "198.51.100.1, 203.0.113.2",
+   "hops": 3,
+   "out": "192.0.2.1"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": "198.51.100.1, 203.0.113.2",
+   "hops": 0,
+   "out": "192.0.2.1"
+  },
+  {
+   "socket": "::ffff:192.0.2.1",
+   "xff": " , ,",
+   "hops": 1,
+   "out": "192.0.2.1"
+  },
+  {
+   "socket": "192.0.2.1",
+   "xff": [
+    "198.51.100.1",
+    "::ffff:203.0.113.3,203.0.113.4"
+   ],
+   "hops": 2,
+   "out": "203.0.113.3"
+  },
+  {
+   "socket": "",
+   "xff": "",
+   "hops": 1,
+   "out": "unknown"
+  }
+ ],
+ "stores": [
+  {
+   "script": [
+    [
+     "now",
+     1000
+    ],
+    [
+     "create",
+     "alice",
+     "admin"
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ],
+    [
+     "now",
+     28801000
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ],
+    [
+     "now",
+     57602000
+    ],
+    [
+     "get",
+     "id0",
+     false
+    ],
+    [
+     "now",
+     57603000
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ]
+   ],
+   "results": [
+    {
+     "op": [
+      "now",
+      1000
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "alice",
+      "admin"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": {
+      "username": "alice",
+      "role": "admin",
+      "key": "key(id0)",
+      "created": 1000,
+      "lastSeen": 1000
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "now",
+      28801000
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": {
+      "username": "alice",
+      "role": "admin",
+      "key": "key(id0)",
+      "created": 1000,
+      "lastSeen": 28801000
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "now",
+      57602000
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      false
+     ],
+     "value": null,
+     "revoked": [
+      "key(id0)"
+     ]
+    },
+    {
+     "op": [
+      "now",
+      57603000
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": null,
+     "revoked": []
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "create",
+     "a",
+     "viewer"
+    ],
+    [
+     "create",
+     "b",
+     "editor"
+    ],
+    [
+     "create",
+     "a",
+     "admin"
+    ],
+    [
+     "revokeUser",
+     "a"
+    ],
+    [
+     "get",
+     "id1",
+     true
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ],
+    [
+     "destroy",
+     "id1"
+    ],
+    [
+     "destroy",
+     "id1"
+    ],
+    [
+     "destroy",
+     null
+    ],
+    [
+     "get",
+     null,
+     true
+    ],
+    [
+     "get",
+     "nope",
+     true
+    ]
+   ],
+   "results": [
+    {
+     "op": [
+      "now",
+      0
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "a",
+      "viewer"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "b",
+      "editor"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "a",
+      "admin"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "revokeUser",
+      "a"
+     ],
+     "value": 2,
+     "revoked": [
+      "key(id0)",
+      "key(id2)"
+     ]
+    },
+    {
+     "op": [
+      "get",
+      "id1",
+      true
+     ],
+     "value": {
+      "username": "b",
+      "role": "editor",
+      "key": "key(id1)",
+      "created": 0,
+      "lastSeen": 0
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "destroy",
+      "id1"
+     ],
+     "value": true,
+     "revoked": [
+      "key(id1)"
+     ]
+    },
+    {
+     "op": [
+      "destroy",
+      "id1"
+     ],
+     "value": false,
+     "revoked": []
+    },
+    {
+     "op": [
+      "destroy",
+      null
+     ],
+     "value": false,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      null,
+      true
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "nope",
+      true
+     ],
+     "value": null,
+     "revoked": []
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "create",
+     "a",
+     "viewer"
+    ],
+    [
+     "validKey",
+     "key(id0)"
+    ],
+    [
+     "now",
+     604800000
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ],
+    [
+     "now",
+     604800001
+    ],
+    [
+     "validKey",
+     "key(id0)"
+    ],
+    [
+     "get",
+     "id0",
+     true
+    ]
+   ],
+   "results": [
+    {
+     "op": [
+      "now",
+      0
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "a",
+      "viewer"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "validKey",
+      "key(id0)"
+     ],
+     "value": {
+      "username": "a",
+      "role": "viewer",
+      "key": "key(id0)",
+      "created": 0,
+      "lastSeen": 0
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "now",
+      604800000
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": null,
+     "revoked": [
+      "key(id0)"
+     ]
+    },
+    {
+     "op": [
+      "now",
+      604800001
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "validKey",
+      "key(id0)"
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "get",
+      "id0",
+      true
+     ],
+     "value": null,
+     "revoked": []
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     5
+    ],
+    [
+     "create",
+     "a",
+     "viewer"
+    ],
+    [
+     "now",
+     28800006
+    ],
+    [
+     "validKey",
+     "key(id0)"
+    ],
+    [
+     "validKey",
+     "key(id0)"
+    ]
+   ],
+   "results": [
+    {
+     "op": [
+      "now",
+      5
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "create",
+      "a",
+      "viewer"
+     ],
+     "value": {
+      "idLength": 43,
+      "base64url": true
+     },
+     "revoked": []
+    },
+    {
+     "op": [
+      "now",
+      28800006
+     ],
+     "value": null,
+     "revoked": []
+    },
+    {
+     "op": [
+      "validKey",
+      "key(id0)"
+     ],
+     "value": null,
+     "revoked": [
+      "key(id0)"
+     ]
+    },
+    {
+     "op": [
+      "validKey",
+      "key(id0)"
+     ],
+     "value": null,
+     "revoked": []
+    }
+   ]
+  }
+ ],
+ "limiters": [
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "check",
+     [
+      "u:a",
+      "ip:1"
+     ]
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a",
+      "ip:1"
+     ],
+     false
+    ],
+    [
+     "check",
+     [
+      "u:a"
+     ]
+    ],
+    [
+     "check",
+     [
+      "ip:1",
+      "x"
+     ]
+    ],
+    [
+     "now",
+     999
+    ],
+    [
+     "check",
+     [
+      "u:a"
+     ]
+    ],
+    [
+     "now",
+     1000
+    ],
+    [
+     "check",
+     [
+      "u:a"
+     ]
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "check",
+     [
+      "u:a",
+      "ip:1"
+     ]
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     false
+    ],
+    [
+     "check",
+     [
+      "u:a"
+     ]
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "u:a"
+     ],
+     true
+    ],
+    [
+     "check",
+     [
+      "u:a"
+     ]
+    ],
+    [
+     "check",
+     [
+      "ip:1"
+     ]
+    ]
+   ],
+   "results": [
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 1,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": 1,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "u:a",
+        1,
+        1000,
+        0
+       ],
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        2,
+        3000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 0
+     }
+    },
+    {
+     "value": 2000,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        2,
+        3000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        2,
+        3000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 3,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        3,
+        5000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 3,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        3,
+        5000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 4,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        4,
+        9000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 4,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        4,
+        9000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 5,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        5,
+        17000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 5,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        5,
+        17000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 6,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        6,
+        31000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 6,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        6,
+        31000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 7,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        7,
+        31000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 7,
+      "active": 0
+     }
+    },
+    {
+     "value": 30000,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        7,
+        31000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 7,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ],
+       [
+        "u:a",
+        7,
+        31000,
+        1000
+       ]
+      ],
+      "tail": [],
+      "recent": 8,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 8,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 8,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "ip:1",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 8,
+      "active": 0
+     }
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "check",
+     []
+    ],
+    [
+     "begin"
+    ],
+    [
+     "check",
+     []
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "check",
+     []
+    ]
+   ],
+   "results": [
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 1,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 2,
+      "active": 2
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 3,
+      "active": 3
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 3,
+      "active": 3
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 4,
+      "active": 4
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 4,
+      "active": 4
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 4,
+      "active": 3
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 4,
+      "active": 3
+     }
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "end",
+     [],
+     true
+    ],
+    [
+     "check",
+     []
+    ],
+    [
+     "now",
+     59999
+    ],
+    [
+     "check",
+     []
+    ],
+    [
+     "now",
+     60000
+    ],
+    [
+     "check",
+     []
+    ]
+   ],
+   "results": [
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 1,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 2,
+      "active": 2
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 3,
+      "active": 3
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 4,
+      "active": 4
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 5,
+      "active": 5
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 6,
+      "active": 6
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 7,
+      "active": 7
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 8,
+      "active": 8
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 9,
+      "active": 9
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 10,
+      "active": 10
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 11,
+      "active": 11
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 12,
+      "active": 12
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 13,
+      "active": 13
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 14,
+      "active": 14
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 15,
+      "active": 15
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 16,
+      "active": 16
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 17,
+      "active": 17
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 18,
+      "active": 18
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 19,
+      "active": 19
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 20,
+      "active": 20
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 21,
+      "active": 21
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 22,
+      "active": 22
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 23,
+      "active": 23
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 24,
+      "active": 24
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 25,
+      "active": 25
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 26,
+      "active": 26
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 27,
+      "active": 27
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 28,
+      "active": 28
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 29,
+      "active": 29
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 30,
+      "active": 30
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 31,
+      "active": 31
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 32,
+      "active": 32
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 33,
+      "active": 33
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 34,
+      "active": 34
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 35,
+      "active": 35
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 36,
+      "active": 36
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 37,
+      "active": 37
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 38,
+      "active": 38
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 39,
+      "active": 39
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 40,
+      "active": 40
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 41,
+      "active": 41
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 42,
+      "active": 42
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 43,
+      "active": 43
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 44,
+      "active": 44
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 45,
+      "active": 45
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 46,
+      "active": 46
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 47,
+      "active": 47
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 48,
+      "active": 48
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 49,
+      "active": 49
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 50,
+      "active": 50
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 51,
+      "active": 51
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 52,
+      "active": 52
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 53,
+      "active": 53
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 54,
+      "active": 54
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 55,
+      "active": 55
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 56,
+      "active": 56
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 57,
+      "active": 57
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 58,
+      "active": 58
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 59,
+      "active": 59
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 60
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 59
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 58
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 57
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 56
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 55
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 54
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 53
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 52
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 51
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 50
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 49
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 48
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 47
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 46
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 45
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 44
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 43
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 42
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 41
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 40
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 39
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 38
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 37
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 36
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 35
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 34
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 33
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 32
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 31
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 30
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 29
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 28
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 27
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 26
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 25
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 24
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 23
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 22
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 21
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 20
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 19
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 18
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 17
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 16
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 15
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 14
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 13
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 12
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 11
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 10
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 9
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 8
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 7
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 6
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 5
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 4
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 3
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 2
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 60,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "old"
+     ],
+     false
+    ],
+    [
+     "now",
+     3600000
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "new"
+     ],
+     false
+    ],
+    [
+     "now",
+     3600001
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "newer"
+     ],
+     false
+    ]
+   ],
+   "results": [
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 1,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 1,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ],
+       [
+        "new",
+        1,
+        3601000,
+        3600000
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ],
+       [
+        "new",
+        1,
+        3601000,
+        3600000
+       ]
+      ],
+      "tail": [],
+      "recent": 2,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "old",
+        1,
+        1000,
+        0
+       ],
+       [
+        "new",
+        1,
+        3601000,
+        3600000
+       ]
+      ],
+      "tail": [],
+      "recent": 3,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 2,
+      "head": [
+       [
+        "new",
+        1,
+        3601000,
+        3600000
+       ],
+       [
+        "newer",
+        1,
+        3601001,
+        3600001
+       ]
+      ],
+      "tail": [],
+      "recent": 3,
+      "active": 0
+     }
+    }
+   ]
+  },
+  {
+   "script": [
+    [
+     "now",
+     0
+    ],
+    [
+     "begin"
+    ],
+    [
+     "endMany",
+     10005,
+     false
+    ],
+    [
+     "check",
+     [
+      "k0"
+     ]
+    ],
+    [
+     "check",
+     [
+      "k5"
+     ]
+    ],
+    [
+     "check",
+     [
+      "k10004"
+     ]
+    ],
+    [
+     "begin"
+    ],
+    [
+     "end",
+     [
+      "k5"
+     ],
+     false
+    ]
+   ],
+   "results": [
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 0,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 0,
+      "head": [],
+      "tail": [],
+      "recent": 1,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k5",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10002",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k5",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10002",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k5",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10002",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": 1000,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k5",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10002",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "recent": 1,
+      "active": 0
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k5",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10002",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "recent": 2,
+      "active": 1
+     }
+    },
+    {
+     "value": null,
+     "state": {
+      "n": 10000,
+      "head": [
+       [
+        "k6",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k7",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k8",
+        1,
+        1000,
+        0
+       ]
+      ],
+      "tail": [
+       [
+        "k10003",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k10004",
+        1,
+        1000,
+        0
+       ],
+       [
+        "k5",
+        2,
+        2000,
+        0
+       ]
+      ],
+      "recent": 2,
+      "active": 0
+     }
+    }
+   ]
+  }
+ ]
+}

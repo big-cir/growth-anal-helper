@@ -1,0 +1,19 @@
+{
+  "id": "board_join_12w",
+  "kind": "metric",
+  "question": "For each of the last 12 complete signup weeks, what share of new members created or joined a board within 7 days of signing up? Include members who later deleted their account.",
+  "tags": [
+    "core"
+  ],
+  "expect": {
+    "action": "panel",
+    "metric": "first_week_activation",
+    "pattern": [
+      "line",
+      "bar"
+    ]
+  },
+  "reference": "reference/board_join_12w.json",
+  "x_grain": "week",
+  "note": "A signup week counts once every signup in it has had 7 days"
+}

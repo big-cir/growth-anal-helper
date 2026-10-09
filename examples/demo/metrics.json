@@ -3,47 +3,47 @@
   "metrics": [
     {
       "id": "first_week_activation",
-      "name": "가입 첫 주 활성화",
-      "asks": ["가입자는 첫 7일 동안 어디서 멈추나", "가입 첫 주 퍼널", "가입 후 7일 안에 게시판 참여·연결·첫 글 비율"],
+      "name": "First-week activation",
+      "asks": ["Where do new members drop off in their first 7 days", "First-week funnel", "Share who join a board, connect and post within 7 days of signup"],
       "tables": ["d_member_first_week"],
       "definition": [
-        ["모집단", "가입 후 7일이 지난 회원 (가입 주 = 월요일 시작)"],
-        ["단계", "게시판 참여 → 다른 회원과 같은 게시판 → 첫 글 → 내 글에 다른 회원의 댓글·공감"],
-        ["창", "모든 단계는 가입 후 7일 안, 앞 단계 이후"]
+        ["Population", "Members at least 7 days past signup (signup week starts Monday)"],
+        ["Steps", "Joined a board → shared a board with another member → first post → another member commented on or liked their post"],
+        ["Window", "Every step within 7 days of signup, after the previous step"]
       ],
       "seed_panel": "activation_funnel"
     },
     {
       "id": "connected_retention",
-      "name": "첫 주 연결 여부별 리텐션",
-      "asks": ["첫 주에 다른 회원과 연결된 회원은 더 오래 남나", "연결 여부별 주차 리텐션"],
+      "name": "Retention by first-week connection",
+      "asks": ["Do members who connect in their first week stay longer", "Weekly retention by connection"],
       "tables": ["d_member_first_week", "d_member_activity_week"],
       "definition": [
-        ["모집단", "가입 후 7일 안에 게시판에 참여한 회원"],
-        ["집단", "7일 안에 다른 회원과 같은 게시판에 있었는지"],
-        ["리텐션", "Wn = 가입 후 [7n, 7n+7)일에 글·댓글·공감 1건 이상, 그 구간이 다 지난 회원만 분모"]
+        ["Population", "Members who joined a board within 7 days of signup"],
+        ["Groups", "Whether they shared a board with another member within 7 days"],
+        ["Retention", "Wn = at least one post, comment or like in days [7n, 7n+7) after signup; only members whose window has fully passed count in the denominator"]
       ],
       "seed_panel": "connected_retention"
     },
     {
       "id": "member_retention",
-      "name": "가입 주별 주차 리텐션",
-      "asks": ["가입자는 몇 주 뒤까지 활동하나", "가입 코호트 리텐션", "주차별 잔존율"],
+      "name": "Weekly retention by signup week",
+      "asks": ["How many weeks do new members stay active", "Signup cohort retention", "Retention by week"],
       "tables": ["d_member", "d_member_activity_week"],
       "definition": [
-        ["모집단", "cohort_start 이후 가입한 회원"],
-        ["리텐션", "Wn = 가입 후 [7n, 7n+7)일에 글·댓글·공감 1건 이상, 그 구간이 다 지난 회원만 분모"],
-        ["탈퇴", "탈퇴 회원도 분모에 남긴다"]
+        ["Population", "Members who signed up on or after cohort_start"],
+        ["Retention", "Wn = at least one post, comment or like in days [7n, 7n+7) after signup; only members whose window has fully passed count in the denominator"],
+        ["Deleted accounts", "Members who left stay in the denominator"]
       ]
     },
     {
       "id": "weekly_activity",
-      "name": "주별 쓰기 활동",
-      "asks": ["주별로 글·댓글·공감이 얼마나 생기나", "주별 활동 회원 수"],
+      "name": "Weekly writing activity",
+      "asks": ["How many posts, comments and likes are made each week", "Weekly active members"],
       "tables": ["d_activity", "d_member"],
       "definition": [
-        ["활동", "글·댓글·답글·공감(삭제된 활동도 그때 한 것으로 셈)"],
-        ["주", "월요일 시작"]
+        ["Activity", "Posts, comments, replies and likes (deleted ones still count when they were made)"],
+        ["Week", "Starts Monday"]
       ]
     }
   ]

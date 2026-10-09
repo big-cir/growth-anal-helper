@@ -1,38 +1,38 @@
 {
   "id": "activation_funnel",
   "metric": "first_week_activation",
-  "title": "가입 주별 첫 7일 활성화 퍼널",
-  "question": "가입자는 첫 7일 동안 어디서 멈추나?",
-  "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, '가입' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, '게시판 참여', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, '다른 회원과 연결', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, '첫 글', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, '반응 받음', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
+  "title": "First-7-day activation funnel by signup week",
+  "question": "Where do new members drop off in their first 7 days?",
+  "sql": "WITH f AS (\n  SELECT signup_week AS cohort, board_state, connected_state, post_state, received_state FROM d_member_first_week\n  UNION ALL\n  SELECT 'ALL', board_state, connected_state, post_state, received_state FROM d_member_first_week\n)\nSELECT cohort, 1 AS step_no, 'Signed up' AS step_name, count(*) AS reached, 0 AS unknown, count(*) AS eligible FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 2, 'Joined a board', sum(board_state = 'reached'), 0, count(*) FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 3, 'Connected with others', sum(connected_state = 'reached'), 0, sum(board_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 4, 'First post', sum(post_state = 'reached'), 0, sum(connected_state = 'reached') FROM f GROUP BY cohort\nUNION ALL\nSELECT cohort, 5, 'Got a reaction', sum(received_state = 'reached'), 0, sum(post_state = 'reached') FROM f GROUP BY cohort\nORDER BY cohort, step_no",
   "display": {
     "type": "funnel",
     "cohort": "cohort"
   },
   "definition": [
     [
-      "모집단",
-      "가입 후 7일이 지난 회원 (가입 주 = 월요일 시작)"
+      "Population",
+      "Members at least 7 days past signup (signup week starts Monday)"
     ],
     [
-      "단계",
-      "가입 → 게시판 참여 → 다른 회원과 같은 게시판 → 첫 글 → 내 글에 다른 회원의 댓글·공감"
+      "Steps",
+      "Signed up → joined a board → shared a board with another member → first post → another member commented on or liked their post"
     ],
     [
-      "창",
-      "모든 단계는 가입 후 7일 안, 앞 단계 이후"
+      "Window",
+      "Every step within 7 days of signup, after the previous step"
     ],
     [
-      "분모",
-      "앞 단계 도달자"
+      "Denominator",
+      "Members who reached the previous step"
     ]
   ],
   "caveats": [
-    "읽기만 하는 회원은 활동으로 잡히지 않습니다"
+    "Members who only read are not counted as active"
   ],
   "answers": [
     {
-      "question": "단계 판정 기간",
-      "answer": "가입 후 7일",
+      "question": "Window for each step",
+      "answer": "7 days after signup",
       "defaulted": true
     }
   ]

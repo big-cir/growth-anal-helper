@@ -1,0 +1,16 @@
+{
+  "checks": [
+    {
+      "id": "weekly_signups",
+      "title": "Members who signed up that week",
+      "source_sql": "SELECT count(*) AS n FROM member WHERE created_at >= :week_start AND created_at < :week_end",
+      "snapshot_sql": "SELECT count(*) AS n FROM d_member WHERE signup_at >= :week_start AND signup_at < :week_end"
+    },
+    {
+      "id": "weekly_posts",
+      "title": "Posts written that week",
+      "source_sql": "SELECT count(*) AS n FROM post WHERE created_at >= :week_start AND created_at < :week_end",
+      "snapshot_sql": "SELECT count(*) AS n FROM r_post WHERE created_at >= :week_start AND created_at < :week_end"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-// 데모 시드와 데모 파생 SQL.
+// Demo seed data and demo derived SQL.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
@@ -53,7 +53,7 @@ function quickSnapshot(sourcePath: string, cutoff: string): DatabaseSync {
   return db;
 }
 
-test('간이 수집의 기준 시각 정리: cutoff 뒤 행은 버리고, cutoff 뒤 삭제는 NULL', () => {
+test('cutoff cleanup in a simple collect: rows after the cutoff are dropped, deletions after it become NULL', () => {
   const p = join(mkdtempSync(join(tmpdir(), 'gl-seed-')), 's.sqlite');
   seedDemo(p, { anchor: ANCHOR });
   const src = new DatabaseSync(p, { readOnly: true });
@@ -68,11 +68,11 @@ test('간이 수집의 기준 시각 정리: cutoff 뒤 행은 버리고, cutoff
   }
   assert.equal(n(`SELECT count(*) n FROM r_board_member WHERE joined_at > '${cutoff}'`), 0);
   for (const t of ['r_member', 'r_board', 'r_post', 'r_reply']) assert.equal(n(`SELECT count(*) n FROM ${t} WHERE deleted_at > '${cutoff}'`), 0, t);
-  assert.equal(n(`SELECT count(*) n FROM r_post WHERE id = ${edge.id} AND created_at = '${cutoff}'`), 1, 'cutoff와 같은 시각의 행은 남는다');
+  assert.equal(n(`SELECT count(*) n FROM r_post WHERE id = ${edge.id} AND created_at = '${cutoff}'`), 1, 'a row exactly at the cutoff is kept');
   db.close();
 });
 
-test('시드는 결정적이다 (같은 seed·anchor → 같은 데이터)', () => {
+test('seed is deterministic (same seed and anchor → same data)', () => {
   const dir = mkdtempSync(join(tmpdir(), 'gl-seed-'));
   const a = seedDemo(join(dir, 'a.sqlite'), { anchor: ANCHOR });
   const b = seedDemo(join(dir, 'b.sqlite'), { anchor: ANCHOR });
@@ -82,7 +82,7 @@ test('시드는 결정적이다 (같은 seed·anchor → 같은 데이터)', () 
   assert.notDeepEqual(a, c);
 });
 
-test('시드 데이터의 일관성: 모든 행이 anchor 이전, 탈퇴·떠난 뒤 활동 없음, 글쓴이는 게시판 멤버', () => {
+test('seed data is consistent: every row before the anchor, no activity after leaving, authors are board members', () => {
   const p = join(mkdtempSync(join(tmpdir(), 'gl-seed-')), 's.sqlite');
   seedDemo(p, { anchor: ANCHOR });
   const db = new DatabaseSync(p, { readOnly: true });
@@ -113,7 +113,7 @@ test('시드 데이터의 일관성: 모든 행이 anchor 이전, 탈퇴·떠난
   db.close();
 });
 
-test('데모 derived.sql이 돌고, 퍼널은 단계마다 줄어든다', () => {
+test('demo derived.sql runs and the funnel shrinks at every step', () => {
   const p = join(mkdtempSync(join(tmpdir(), 'gl-seed-')), 's.sqlite');
   seedDemo(p, { anchor: ANCHOR });
   const db = quickSnapshot(p, normalizeTs(ANCHOR));

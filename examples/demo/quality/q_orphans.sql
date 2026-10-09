@@ -1,4 +1,4 @@
--- 참조 대상이 없는 행 수(0건이어도 출력)
+-- Rows whose referenced row is missing (printed even when 0)
 SELECT 'post→board' AS link, count(*) AS orphans FROM r_post p WHERE NOT EXISTS (SELECT 1 FROM r_board b WHERE b.id = p.board_id)
 UNION ALL SELECT 'post→member', count(*) FROM r_post p WHERE NOT EXISTS (SELECT 1 FROM r_member m WHERE m.id = p.member_id)
 UNION ALL SELECT 'reply→post', count(*) FROM r_reply x WHERE NOT EXISTS (SELECT 1 FROM r_post p WHERE p.id = x.post_id)

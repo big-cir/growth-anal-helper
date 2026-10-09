@@ -1,5 +1,5 @@
-// 데모 소스 DB 생성기: 가상 커뮤니티 게시판. 같은 seed·anchor면 같은 DB.
-// 사용: node examples/demo/seed.ts <출력.sqlite> [--anchor "YYYY-MM-DD HH:MM:SS"] [--seed N]
+// Demo source DB generator: a fictional community board app. Same seed and anchor → same DB.
+// Usage: node examples/demo/seed.ts <out.sqlite> [--anchor "YYYY-MM-DD HH:MM:SS"] [--seed N]
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 export type SeedOptions = { anchor: string; seed?: number; weeks?: number; members?: number };
 export type SeedSummary = { members: number; boards: number; boardMembers: number; posts: number; replies: number; reactions: number };
 
-/** 결정적 난수(mulberry32) */
+/** Deterministic random numbers (mulberry32) */
 function rng(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
@@ -24,11 +24,11 @@ const MS_DAY = 86_400_000;
 
 function parseLocal(ts: string): number {
   const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?$/.exec(ts);
-  if (!m) throw new Error(`anchor 형식 오류: ${ts}`);
+  if (!m) throw new Error(`invalid anchor: ${ts}`);
   return Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] ?? 0), +(m[5] ?? 0), +(m[6] ?? 0));
 }
 
-/** micro면 소수점 6자리, 아니면 초까지 */
+/** micro: 6-digit fraction, otherwise seconds */
 function fmt(ms: number, micro: boolean, r: () => number): string {
   const iso = new Date(ms).toISOString();
   const base = `${iso.slice(0, 10)} ${iso.slice(11, 19)}`;
@@ -70,7 +70,7 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
   const start = anchor - weeks * 7 * MS_DAY;
   const pick = <T>(xs: T[]) => xs[Math.floor(r() * xs.length)];
 
-  // 회원
+  // Members
   const members: Member[] = [];
   for (let i = 0; i < total; i++) {
     const u = Math.sqrt(r());
@@ -79,11 +79,11 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
   }
   members.sort((a, b) => a.signup - b.signup);
   members.forEach((m, i) => { m.id = 1001 + i; });
-  // 일부 탈퇴(탈퇴 뒤 활동 없음)
+  // Some members leave (no activity afterwards)
   for (const m of members) if (r() < 0.04) m.deleted = m.signup + Math.floor((3 + r() * 40) * MS_DAY);
   const activeAt = (m: Member, at: number) => at < anchor && (m.deleted === null || at < m.deleted);
 
-  // 게시판 만들기·가입
+  // Create and join boards
   const boards: Board[] = [];
   const events: { at: number; kind: 'create' | 'join'; m: Member }[] = [];
   for (const m of members) {
@@ -112,7 +112,7 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
   const boardById = new Map(boards.map((b) => [b.id, b]));
   const memberById = new Map(members.map((m) => [m.id, m]));
 
-  // 일부는 게시판을 떠난다
+  // Some members leave boards
   const leftAt = new Map<string, number>();
   for (const b of boards) for (const [mid, joined] of b.members) {
     if (mid !== [...b.members.keys()][0] && r() < 0.05) leftAt.set(`${b.id}:${mid}`, joined + Math.floor((2 + r() * 30) * MS_DAY));
@@ -123,7 +123,7 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
     return activeAt(m, at) && (left === undefined || at < left) && (b.deleted === null || at < b.deleted);
   };
 
-  // 활동
+  // Activity
   const posts: { id: number; board: number; member: number; at: number; deleted: number | null }[] = [];
   const replies: { id: number; post: number; member: number; parent: number | null; at: number; deleted: number | null }[] = [];
   const reactions: { id: number; post: number; member: number; at: number }[] = [];
@@ -182,7 +182,7 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
   reactions.forEach((x, i) => { x.id = 300001 + i; });
 
 
-  // 저장
+  // Write rows
   if (existsSync(path)) rmSync(path);
   mkdirSync(dirname(resolve(path)), { recursive: true });
   const db = new DatabaseSync(path);
@@ -190,10 +190,10 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
   db.exec('BEGIN');
   const ins = (sql: string) => db.prepare(sql);
   const iMember = ins('INSERT INTO member VALUES (?, ?, ?, ?, ?)');
-  for (const m of members) iMember.run(m.id, fmt(m.signup, false, r), m.deleted === null || m.deleted >= anchor ? null : fmt(m.deleted, false, r), pick(COUNTRIES), `회원${m.id}`);
+  for (const m of members) iMember.run(m.id, fmt(m.signup, false, r), m.deleted === null || m.deleted >= anchor ? null : fmt(m.deleted, false, r), pick(COUNTRIES), `member${m.id}`);
   const iBoard = ins('INSERT INTO board VALUES (?, ?, ?, ?, ?)');
   for (const b of boards) {
-    iBoard.run(b.id, fmt(b.created, true, r), b.deleted === null || b.deleted >= anchor ? null : fmt(b.deleted, true, r), [...b.members.keys()][0], `소모임 ${b.id}`);
+    iBoard.run(b.id, fmt(b.created, true, r), b.deleted === null || b.deleted >= anchor ? null : fmt(b.deleted, true, r), [...b.members.keys()][0], `Board ${b.id}`);
   }
   const iBm = ins('INSERT INTO board_member VALUES (?, ?, ?, ?)');
   for (const b of boards) for (const [mid, joined] of b.members) {
@@ -201,9 +201,9 @@ export function seedDemo(path: string, o: SeedOptions): SeedSummary {
     iBm.run(b.id, mid, fmt(joined, true, r), left === undefined || left >= anchor ? null : fmt(left, true, r));
   }
   const iPost = ins('INSERT INTO post VALUES (?, ?, ?, ?, ?, ?)');
-  for (const p of posts) iPost.run(p.id, p.board, p.member, fmt(p.at, true, r), p.deleted === null || p.deleted >= anchor ? null : fmt(p.deleted, true, r), `글 ${p.id}`);
+  for (const p of posts) iPost.run(p.id, p.board, p.member, fmt(p.at, true, r), p.deleted === null || p.deleted >= anchor ? null : fmt(p.deleted, true, r), `Post ${p.id}`);
   const iReply = ins('INSERT INTO reply VALUES (?, ?, ?, ?, ?, ?, ?)');
-  for (const x of replies) iReply.run(x.id, x.post, x.member, x.parent, fmt(x.at, true, r), x.deleted === null || x.deleted >= anchor ? null : fmt(x.deleted, true, r), `댓글 ${x.id}`);
+  for (const x of replies) iReply.run(x.id, x.post, x.member, x.parent, fmt(x.at, true, r), x.deleted === null || x.deleted >= anchor ? null : fmt(x.deleted, true, r), `Comment ${x.id}`);
   const iReaction = ins('INSERT INTO reaction VALUES (?, ?, ?, ?)');
   for (const x of reactions) iReaction.run(x.id, x.post, x.member, fmt(x.at, true, r));
   db.exec('COMMIT');
@@ -229,7 +229,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const args = process.argv.slice(2);
   const out = args[0];
   if (!out || out.startsWith('--')) {
-    console.error('사용법: node examples/demo/seed.ts <출력.sqlite> [--anchor "YYYY-MM-DD HH:MM:SS"] [--seed N]');
+    console.error('usage: node examples/demo/seed.ts <out.sqlite> [--anchor "YYYY-MM-DD HH:MM:SS"] [--seed N]');
     process.exit(2);
   }
   const opt = (name: string) => {

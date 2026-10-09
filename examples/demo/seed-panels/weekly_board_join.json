@@ -1,27 +1,27 @@
 {
   "id": "weekly_board_join",
   "metric": "first_week_activation",
-  "title": "가입 주별 7일 내 게시판 참여율 (최근 완결 12주)",
-  "question": "관측이 끝난 최근 12개 가입 주의 7일 내 게시판 참여율은 어떤가?",
-  "sql": "SELECT signup_week AS x,\n       sum(board_state = 'reached') AS numerator,\n       count(*) AS denominator\nFROM d_member_first_week\n-- 가입 주 W는 W + 14일 ≤ 기준 시각이면 그 주 가입자 모두의 7일 창이 끝났다\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\nGROUP BY signup_week\nORDER BY signup_week",
+  "title": "7-day board join rate by signup week (last 12 weeks)",
+  "question": "What is the 7-day board join rate for the last 12 complete signup weeks?",
+  "sql": "SELECT signup_week AS x,\n       sum(board_state = 'reached') AS numerator,\n       count(*) AS denominator\nFROM d_member_first_week\n-- Signup week W is complete when W + 14 days ≤ cutoff: every signup in it has a full 7-day window\nWHERE signup_week <= date(:as_of, '-14 days', 'weekday 0', '-6 days')\n  AND signup_week >= date(:as_of, '-14 days', 'weekday 0', '-6 days', '-77 days')\nGROUP BY signup_week\nORDER BY signup_week",
   "display": {
     "type": "line"
   },
   "definition": [
     [
-      "모집단",
-      "관측이 끝난 최근 12개 가입 주(월요일 시작)의 가입자 — 주의 모든 가입자가 7일을 채운 주만"
+      "Population",
+      "Members who signed up in the last 12 complete signup weeks (starting Monday), where every signup has had 7 days"
     ],
     [
-      "분자",
-      "가입 후 7일 안에 게시판을 만들거나 참여한 회원"
+      "Numerator",
+      "Members who created or joined a board within 7 days of signup"
     ]
   ],
   "caveats": [],
   "answers": [
     {
-      "question": "기간",
-      "answer": "최근 12주",
+      "question": "Period",
+      "answer": "Last 12 weeks",
       "defaulted": false
     }
   ]

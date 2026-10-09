@@ -1,9 +1,9 @@
--- 연결 판정의 7일 창 경계
---   1001: 1일차에 게시판 10 가입, 거기 이미 있던 2001이 3일차에 떠남 → 1일차에 연결
---   1002: 게시판 11을 만들었지만 다른 회원은 8일차에 가입(창 밖) → 연결 안 됨
---   1003: 게시판 12에 가입했지만 같이 있던 2003은 1003이 오기 전에 떠남 → 연결 안 됨
---   1004: 가입 후 7일이 지나지 않음 → 대상 아님
---   2001: 2월 1일 가입이라 창(2/1~2/8)이 1001 가입 전에 끝남 → 연결 안 됨
+-- Edges of the 7-day connection window
+--   1001: joins board 10 on day 1 where 2001 already is; 2001 leaves on day 3 → connected on day 1
+--   1002: creates board 11, but the other member joins on day 8 (outside the window) → not connected
+--   1003: joins board 12, but 2003 left before 1003 arrived → not connected
+--   1004: less than 7 days since signup → not included
+--   2001: signed up Feb 1, so its window (2/1–2/8) ends before 1001 signs up → not connected
 INSERT INTO snapshot_meta (source_cutoff_at, collection_started_at, collection_finished_at, spec_hash)
 VALUES ('2024-03-20 00:00:00.000000', '2024-03-20 00:00:00.000000', '2024-03-20 00:00:01.000000', 'test');
 INSERT INTO snapshot_params VALUES ('cohort_start', '2024-01-01 00:00:00.000000'), ('calendar_start', '2024-02-26 00:00:00.000000');

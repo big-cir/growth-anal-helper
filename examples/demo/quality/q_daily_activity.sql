@@ -1,4 +1,4 @@
--- 날짜별 가입·글·댓글 수
+-- Signups, posts and comments per day
 WITH d AS (
   SELECT date(created_at) AS day, 'signups' AS k FROM r_member
   UNION ALL SELECT date(created_at), 'posts' FROM r_post

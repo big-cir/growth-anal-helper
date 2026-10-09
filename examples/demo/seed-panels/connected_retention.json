@@ -1,8 +1,8 @@
 {
   "id": "connected_retention",
   "metric": "connected_retention",
-  "title": "첫 주 연결 여부별 주차 리텐션",
-  "question": "첫 7일 안에 다른 회원과 연결된 회원과 못 한 회원은 이후 얼마나 남나?",
+  "title": "Weekly retention by first-week connection",
+  "question": "Do members who connect with others in their first 7 days stay longer than those who do not?",
   "sql": "WITH periods(period) AS (VALUES (1), (2), (3), (4), (5), (6), (7), (8)),\nbase AS (\n  SELECT member_id, signup_week AS cohort, signup_at,\n         CASE connected_state WHEN 'reached' THEN 'connected' ELSE 'unconnected' END AS series\n  FROM d_member_first_week\n  WHERE board_state = 'reached'\n)\nSELECT b.cohort, b.series, p.period,\n       sum(w.member_id IS NOT NULL) AS numerator,\n       count(*) AS denominator\nFROM base b\nJOIN periods p\n  ON strftime('%Y-%m-%d %H:%M:%S', b.signup_at, '+' || (7 * (p.period + 1)) || ' days') || substr(b.signup_at, 20) <= :as_of\nLEFT JOIN d_member_activity_week w\n  ON w.member_id = b.member_id AND w.life_week = p.period AND w.any_cnt > 0\nGROUP BY b.cohort, b.series, p.period\nORDER BY b.cohort, b.series, p.period",
   "display": {
     "type": "cohort",
@@ -10,35 +10,35 @@
   },
   "definition": [
     [
-      "모집단",
-      "가입 후 7일 안에 게시판에 참여한 회원"
+      "Population",
+      "Members who joined a board within 7 days of signup"
     ],
     [
-      "집단",
-      "connected: 7일 안에 다른 회원과 같은 게시판에 있었음 / unconnected: 그렇지 않음"
+      "Groups",
+      "connected: shared a board with another member within 7 days / unconnected: did not"
     ],
     [
-      "리텐션",
-      "Wn = 가입 후 [7n, 7n+7)일에 글·댓글·공감이 1건 이상"
+      "Retention",
+      "Wn = at least one post, comment or like in days [7n, 7n+7) after signup"
     ],
     [
-      "분모",
-      "그 구간이 기준 시각까지 다 지난 회원만 (관측 가능 조건)"
+      "Denominator",
+      "Only members whose window has fully passed by the cutoff (observable)"
     ]
   ],
   "caveats": [
-    "첫 주 활동이 많은 회원이 연결도 잘 되는 선택 편향이 있습니다",
-    "탈퇴 회원은 분모에 남기고 비활성으로 셉니다"
+    "Selection bias: members who are more active in their first week also connect more easily",
+    "Members who left are kept in the denominator and counted as inactive"
   ],
   "answers": [
     {
-      "question": "연결 판정 기간",
-      "answer": "가입 후 7일",
+      "question": "Connection window",
+      "answer": "7 days after signup",
       "defaulted": true
     },
     {
-      "question": "활동 기준",
-      "answer": "글·댓글·공감 중 하나",
+      "question": "Activity",
+      "answer": "Any post, comment or like",
       "defaulted": true
     }
   ]

@@ -1,0 +1,672 @@
+[
+ {
+  "total": 2,
+  "bg": 1,
+  "ops": [
+   [
+    "acquire",
+    "a",
+    "interactive"
+   ],
+   [
+    "acquire",
+    "b",
+    "background"
+   ],
+   [
+    "acquire",
+    "c",
+    "background"
+   ],
+   [
+    "acquire",
+    "d",
+    "interactive"
+   ],
+   [
+    "release",
+    "a"
+   ],
+   [
+    "release",
+    "b"
+   ],
+   [
+    "release",
+    "d"
+   ],
+   [
+    "release",
+    "c"
+   ]
+  ],
+  "steps": [
+   {
+    "op": [
+     "acquire",
+     "a",
+     "interactive"
+    ],
+    "events": [
+     "granted a"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "b",
+     "background"
+    ],
+    "events": [
+     "granted b"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "c",
+     "background"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "d",
+     "interactive"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 2
+    }
+   },
+   {
+    "op": [
+     "release",
+     "a"
+    ],
+    "events": [
+     "granted d"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "release",
+     "b"
+    ],
+    "events": [
+     "granted c"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "d"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "c"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   }
+  ]
+ },
+ {
+  "total": 1,
+  "bg": 1,
+  "ops": [
+   [
+    "acquire",
+    "a",
+    "background"
+   ],
+   [
+    "acquire",
+    "b",
+    "background"
+   ],
+   [
+    "acquire",
+    "c",
+    "interactive"
+   ],
+   [
+    "release",
+    "a"
+   ],
+   [
+    "release",
+    "c"
+   ],
+   [
+    "release",
+    "b"
+   ]
+  ],
+  "steps": [
+   {
+    "op": [
+     "acquire",
+     "a",
+     "background"
+    ],
+    "events": [
+     "granted a"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "b",
+     "background"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "c",
+     "interactive"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 2
+    }
+   },
+   {
+    "op": [
+     "release",
+     "a"
+    ],
+    "events": [
+     "granted c"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 0,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "release",
+     "c"
+    ],
+    "events": [
+     "granted b"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "b"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   }
+  ]
+ },
+ {
+  "total": 3,
+  "bg": 1,
+  "ops": [
+   [
+    "acquire",
+    "a",
+    "background"
+   ],
+   [
+    "acquire",
+    "b",
+    "background"
+   ],
+   [
+    "acquire",
+    "c",
+    "interactive"
+   ],
+   [
+    "acquire",
+    "d",
+    "interactive"
+   ],
+   [
+    "abort",
+    "b"
+   ],
+   [
+    "release",
+    "a"
+   ],
+   [
+    "release",
+    "c"
+   ],
+   [
+    "release",
+    "d"
+   ]
+  ],
+  "steps": [
+   {
+    "op": [
+     "acquire",
+     "a",
+     "background"
+    ],
+    "events": [
+     "granted a"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "b",
+     "background"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "c",
+     "interactive"
+    ],
+    "events": [
+     "granted c"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "d",
+     "interactive"
+    ],
+    "events": [
+     "granted d"
+    ],
+    "stats": {
+     "inUse": 3,
+     "backgroundInUse": 1,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "abort",
+     "b"
+    ],
+    "events": [
+     "rejected b: cancelled"
+    ],
+    "stats": {
+     "inUse": 3,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "a"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "c"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "d"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   }
+  ]
+ },
+ {
+  "total": 1,
+  "bg": 0,
+  "ops": [
+   [
+    "acquire",
+    "a",
+    "background"
+   ],
+   [
+    "acquire",
+    "b",
+    "interactive"
+   ],
+   [
+    "release",
+    "b"
+   ],
+   [
+    "acquire_aborted",
+    "c",
+    "interactive"
+   ]
+  ],
+  "steps": [
+   {
+    "op": [
+     "acquire",
+     "a",
+     "background"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "b",
+     "interactive"
+    ],
+    "events": [
+     "granted b"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 0,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "release",
+     "b"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "acquire_aborted",
+     "c",
+     "interactive"
+    ],
+    "events": [
+     "rejected c: cancelled"
+    ],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 1
+    }
+   }
+  ]
+ },
+ {
+  "total": 2,
+  "bg": 2,
+  "ops": [
+   [
+    "acquire",
+    "a",
+    "interactive"
+   ],
+   [
+    "release",
+    "a"
+   ],
+   [
+    "release",
+    "a"
+   ],
+   [
+    "acquire",
+    "b",
+    "background"
+   ],
+   [
+    "acquire",
+    "c",
+    "background"
+   ],
+   [
+    "acquire",
+    "d",
+    "background"
+   ],
+   [
+    "abort",
+    "d"
+   ],
+   [
+    "release",
+    "b"
+   ],
+   [
+    "release",
+    "c"
+   ]
+  ],
+  "steps": [
+   {
+    "op": [
+     "acquire",
+     "a",
+     "interactive"
+    ],
+    "events": [
+     "granted a"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "a"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "a"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "b",
+     "background"
+    ],
+    "events": [
+     "granted b"
+    ],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "c",
+     "background"
+    ],
+    "events": [
+     "granted c"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 2,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "acquire",
+     "d",
+     "background"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 2,
+     "waiting": 1
+    }
+   },
+   {
+    "op": [
+     "abort",
+     "d"
+    ],
+    "events": [
+     "rejected d: cancelled"
+    ],
+    "stats": {
+     "inUse": 2,
+     "backgroundInUse": 2,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "b"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 1,
+     "backgroundInUse": 1,
+     "waiting": 0
+    }
+   },
+   {
+    "op": [
+     "release",
+     "c"
+    ],
+    "events": [],
+    "stats": {
+     "inUse": 0,
+     "backgroundInUse": 0,
+     "waiting": 0
+    }
+   }
+  ]
+ }
+]

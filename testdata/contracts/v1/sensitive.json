@@ -1,0 +1,436 @@
+[
+ {
+  "hex": "",
+  "normalized": "",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "68656c6c6f",
+  "normalized": "hello",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ed9a8cec9b9020ebb984ebb080ebb288ed98b820ec958ceba0a4eca498",
+  "normalized": "ㅎㅚㅇㅝㄴㅂㅣㅁㅣㄹㅂㅓㄴㅎㅗㅇㅏㄹㄹㅕㅈㅝ",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ebb98420ebb08020ebb28820ed98b8",
+  "normalized": "ㅂㅣㅁㅣㄹㅂㅓㄴㅎㅗ",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "e38582e385a3e38581e385a3e384b9ebb288ed98b8",
+  "normalized": "ㅂㅣㅁㅣㄹㅂㅓㄴㅎㅗ",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "506173732d576f7264206c697374",
+  "normalized": "passwordlist",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "50f09d90805353574f5244",
+  "normalized": "password",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "efbcb0efbca1efbcb3efbcb3efbcb7efbcafefbcb2efbca4",
+  "normalized": "password",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "617069206b6579",
+  "normalized": "apikey",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "4150495f4b4559",
+  "normalized": "apikey",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ec84b8ec8598204944",
+  "normalized": "ㅅㅔㅅㅕㄴid",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "73657373696f6e2d6964",
+  "normalized": "sessionid",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ec9db4eba994ec9dbc20ebaaa9eba19d",
+  "normalized": "ㅇㅣㅁㅔㅇㅣㄹㅁㅗㄱㄹㅗㄱ",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "652d6d61696c",
+  "normalized": "email",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "45204d20412049204c",
+  "normalized": "email",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ec82acec9aa9ec9e9020eab384eca095eca095ebb3b4",
+  "normalized": "ㅅㅏㅇㅛㅇㅈㅏㄱㅖㅈㅓㅇㅈㅓㅇㅂㅗ",
+  "topic": "account",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "646220eca091ec868d",
+  "normalized": "dbㅈㅓㅂㅅㅗㄱ",
+  "topic": "connection",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "737368",
+  "normalized": "ssh",
+  "topic": "connection",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "6d637020ec849cebb284",
+  "normalized": "mcpㅅㅓㅂㅓ",
+  "topic": "connection",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ed9998eab2bd20ebb380ec8898",
+  "normalized": "ㅎㅘㄴㄱㅕㅇㅂㅕㄴㅅㅜ",
+  "topic": "config",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "454e56",
+  "normalized": "env",
+  "topic": "config",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "656e7669726f6e6d656e74",
+  "normalized": "environment",
+  "topic": "config",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "eca084ed9994ebb288ed98b8",
+  "normalized": "ㅈㅓㄴㅎㅘㅂㅓㄴㅎㅗ",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "697020eca3bcec868c",
+  "normalized": "ipㅈㅜㅅㅗ",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "eca3bcebafbceb93b1eba19debb288ed98b8",
+  "normalized": "ㅈㅜㅁㅣㄴㄷㅡㅇㄹㅗㄱㅂㅓㄴㅎㅗ",
+  "topic": "contact",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "eab080ec9e85ec9e9020ec8898",
+  "normalized": "ㄱㅏㅇㅣㅂㅈㅏㅅㅜ",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "eca3bceab08420ed999cec84b120ec82acec9aa9ec9e90",
+  "normalized": "ㅈㅜㄱㅏㄴㅎㅘㄹㅅㅓㅇㅅㅏㅇㅛㅇㅈㅏ",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "6861736820746167",
+  "normalized": "hashtag",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "6f7470",
+  "normalized": "otp",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "e285ab20e291a0e291a1",
+  "normalized": "xii12",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "c39f2073747261c39f65",
+  "normalized": "ßstraße",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "c4b07374616e62756c",
+  "normalized": "istanbul",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "efac816c65",
+  "normalized": "file",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "ed959ceab88020e384b1e384b420e18480e185a1",
+  "normalized": "ㅎㅏㄴㄱㅡㄹㄱㄴㄱㅏ",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "e18480e185a1e186a8",
+  "normalized": "ㄱㅏㄱ",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "636166c3a9",
+  "normalized": "cafe",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "efbca1efbca2efbca3efbc91efbc92efbc93",
+  "normalized": "abc123",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "65794a68624763694f694a49557a49314e694a392e65794a7a645749694f6949782e53666c4b7877524a534d654b4b46325154346677",
+  "normalized": "eyjhbgcioijiuzi1nij9eyjzdwiioiixsflkxwrjsmekkf2qt4fw",
+  "topic": null,
+  "shape": "jwt",
+  "assignment": false
+ },
+ {
+  "hex": "426561726572206162636465666768696a6b6c6d6e6f7031323334",
+  "normalized": "bearerabcdefghijklmnop1234",
+  "topic": "credential",
+  "shape": "bearer",
+  "assignment": false
+ },
+ {
+  "hex": "626561726572c2a06162636465666768696a6b6c6d6e6f70717273",
+  "normalized": "bearerabcdefghijklmnopqrs",
+  "topic": "credential",
+  "shape": "bearer",
+  "assignment": false
+ },
+ {
+  "hex": "6265617265722073686f7274",
+  "normalized": "bearershort",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "2d2d2d2d2d424547494e2050524956415445204b45592d2d2d2d2d",
+  "normalized": "beginprivatekey",
+  "topic": "credential",
+  "shape": "pem",
+  "assignment": false
+ },
+ {
+  "hex": "30313233343536373839616263646566303132333435363738396162636465663031323334353637",
+  "normalized": "0123456789abcdef0123456789abcdef01234567",
+  "topic": null,
+  "shape": "hex",
+  "assignment": false
+ },
+ {
+  "hex": "303132333435363738394142434445463031323334353637383961626364656630313233343536",
+  "normalized": "0123456789abcdef0123456789abcdef0123456",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "75736572406578616d706c652e636f6d",
+  "normalized": "userexamplecom",
+  "topic": null,
+  "shape": "email",
+  "assignment": false
+ },
+ {
+  "hex": "6140622e63",
+  "normalized": "abc",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "7840792e636f",
+  "normalized": "xyco",
+  "topic": null,
+  "shape": "email",
+  "assignment": false
+ },
+ {
+  "hex": "706f7374677265733a2f2f757365723a707740686f73742f6462",
+  "normalized": "postgresuserpwhostdb",
+  "topic": null,
+  "shape": "url_credential",
+  "assignment": false
+ },
+ {
+  "hex": "68747470733a2f2f686f73742f70617468",
+  "normalized": "httpshostpath",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "6674703a2f2f613a624063",
+  "normalized": "ftpabc",
+  "topic": null,
+  "shape": "url_credential",
+  "assignment": false
+ },
+ {
+  "hex": "61423378787878787878787878787878787878787878787878787878787878787878787878787878787878",
+  "normalized": "ab3xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "topic": null,
+  "shape": "base64",
+  "assignment": false
+ },
+ {
+  "hex": "766572795f6c6f6e675f736e616b655f636173655f6964656e7469666965725f6e616d655f776974686f75745f6469676974735f78",
+  "normalized": "verylongsnakecaseidentifiernamewithoutdigitsx",
+  "topic": null,
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "4141414161616161313131313131313131313131313131313131313131313131313131313131313131313131",
+  "normalized": "aaaaaaaa111111111111111111111111111111111111",
+  "topic": null,
+  "shape": "hex",
+  "assignment": false
+ },
+ {
+  "hex": "70617373776f72643a2068756e74657232",
+  "normalized": "passwordhunter2",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ },
+ {
+  "hex": "50415353574f52443d616263",
+  "normalized": "passwordabc",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ },
+ {
+  "hex": "6170692d6b6579203a2078",
+  "normalized": "apikeyx",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ },
+ {
+  "hex": "6170696b65793d",
+  "normalized": "apikey",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "707269766174655f6b65793a206b",
+  "normalized": "privatekeyk",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ },
+ {
+  "hex": "746f6b656ee280833de2808376",
+  "normalized": "tokenv",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ },
+ {
+  "hex": "6d7920746f6b656e2069732078",
+  "normalized": "mytokenisx",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "7365637265743a20",
+  "normalized": "secret",
+  "topic": "credential",
+  "shape": null,
+  "assignment": false
+ },
+ {
+  "hex": "63726564656e7469616c3d63",
+  "normalized": "credentialc",
+  "topic": "credential",
+  "shape": null,
+  "assignment": true
+ }
+]

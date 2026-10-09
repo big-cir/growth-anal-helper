@@ -1,4 +1,5 @@
-// 패널 렌더러: SVG 차트와 원자료 표. 분모 30 미만은 흐리게 표시한다.
+// Panel renderer: SVG charts and raw tables. Denominators under 30 are dimmed.
+import { LANG, tr } from './i18n.js';
 
 export const SMALL_N = 30;
 
@@ -8,7 +9,7 @@ export function esc(t) {
 export function pct(x, d = 1) {
   return Number.isFinite(x) ? `${(x * 100).toFixed(d)}%` : '–';
 }
-const fmt = (v) => (v === null || v === undefined ? 'NULL' : typeof v === 'number' ? v.toLocaleString('ko-KR') : String(v));
+const fmt = (v) => (v === null || v === undefined ? 'NULL' : typeof v === 'number' ? v.toLocaleString(LANG === 'ko' ? 'ko-KR' : 'en-US') : String(v));
 const ratio = (n, d) => (d > 0 ? n / d : NaN);
 const cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a) < String(b) ? -1 : String(a) > String(b) ? 1 : 0);
 
@@ -86,7 +87,7 @@ function xyChart(view, title) {
         const rr = Math.min(4, w / 2, h);
         const d = h <= 0 ? '' : `M${x0},${y(0)} V${y0 + rr} Q${x0},${y0} ${x0 + rr},${y0} H${x0 + w - rr} Q${x0 + w},${y0} ${x0 + w},${y0 + rr} V${y(0)} Z`;
         s += `<path d="${d}" class="f${j + 1}" opacity="${den < SMALL_N ? 0.35 : 1}"/>`;
-        s += `<rect class="hit" x="${x0}" y="${T}" width="${w}" height="${H - T - B}"><title>${esc(`${lb}${se ? ` · ${se}` : ''}: ${pct(v)} (${fmt(num)}/${fmt(den)})${den < SMALL_N ? ' · n<30' : ''}`)}</title></rect>`;
+        s += `<rect class="hit" x="${x0}" y="${T}" width="${w}" height="${H - T - B}" data-tip="${esc(`${lb}${se ? ` · ${se}` : ''}: ${pct(v)} (${fmt(num)}/${fmt(den)})${den < SMALL_N ? ' · n<30' : ''}`)}"></rect>`;
       });
     });
   } else {
@@ -99,7 +100,7 @@ function xyChart(view, title) {
       for (const p of pts) {
         const cy = y(ratio(p.num, p.den) || 0);
         if (n <= 24) s += `<circle class="dot f${j + 1}" cx="${x(p.i).toFixed(1)}" cy="${cy.toFixed(1)}" r="4" opacity="${p.den < SMALL_N ? 0.4 : 1}"/>`;
-        s += `<circle class="hit" cx="${x(p.i).toFixed(1)}" cy="${cy.toFixed(1)}" r="10"><title>${esc(`${p.lb}${se ? ` · ${se}` : ''}: ${pct(ratio(p.num, p.den))} (${fmt(p.num)}/${fmt(p.den)})${p.den < SMALL_N ? ' · n<30' : ''}`)}</title></circle>`;
+        s += `<circle class="hit" cx="${x(p.i).toFixed(1)}" cy="${cy.toFixed(1)}" r="10" data-tip="${esc(`${p.lb}${se ? ` · ${se}` : ''}: ${pct(ratio(p.num, p.den))} (${fmt(p.num)}/${fmt(p.den)})${p.den < SMALL_N ? ' · n<30' : ''}`)}"></circle>`;
       }
     });
   }
@@ -111,7 +112,7 @@ function xyTable(view) {
   const extra = view.display.extra ?? [];
   const idx = new Map(view.columns.map((c, i) => [c.name, i]));
   const xName = view.display.x;
-  let h = `<div class="scroll"><table><thead><tr><th>${esc(xName)}</th>${series.map((s) => `<th>${esc(s || '비율')}</th>`).join('')}${series.length === 1 ? extra.map((e) => `<th>${esc(e)}</th>`).join('') : ''}</tr></thead><tbody>`;
+  let h = `<div class="scroll"><table><thead><tr><th>${esc(xName)}</th>${series.map((s) => `<th>${esc(s || tr('rate', '비율'))}</th>`).join('')}${series.length === 1 ? extra.map((e) => `<th>${esc(e)}</th>`).join('') : ''}</tr></thead><tbody>`;
   for (const lb of xs) {
     h += `<tr><td>${esc(lb)}</td>`;
     for (const se of series) {
@@ -155,8 +156,8 @@ function funnelChart(view, title, cohort) {
     s += `<text x="0" y="${yy + 16}">${esc(fmt(get(r, 'step_name')))}</text>`;
     s += `<rect class="track" x="${L}" y="${yy}" width="${W - L - R}" height="24" rx="4"/>`;
     s += `<rect class="f1" x="${L}" y="${yy}" width="${Math.max(w, 0).toFixed(1)}" height="24" rx="4" opacity="${eligible < SMALL_N ? 0.4 : 1}"/>`;
-    s += `<text x="${W - R + 10}" y="${yy + 16}">${fmt(reached)}${i ? ` · ${pct(conv)}` : ''}${unknown ? ` · 판정 불가 ${fmt(unknown)}` : ''}</text>`;
-    s += `<rect class="hit" x="${L}" y="${yy}" width="${W - L - R}" height="24"><title>${esc(`${fmt(get(r, 'step_name'))}: ${fmt(reached)} 도달 · 전환율 ${pct(conv)} (${fmt(reached)}/${fmt(eligible)}) · 처음 대비 ${pct(ratio(reached, base))}`)}</title></rect>`;
+    s += `<text x="${W - R + 10}" y="${yy + 16}">${fmt(reached)}${i ? ` · ${pct(conv)}` : ''}${unknown ? ` · ${tr('unknown', '판정 불가')} ${fmt(unknown)}` : ''}</text>`;
+    s += `<rect class="hit" x="${L}" y="${yy}" width="${W - L - R}" height="24" data-tip="${esc(tr(`${fmt(get(r, 'step_name'))}: ${fmt(reached)} reached · conversion ${pct(conv)} (${fmt(reached)}/${fmt(eligible)}) · vs first step ${pct(ratio(reached, base))}`, `${fmt(get(r, 'step_name'))}: ${fmt(reached)} 도달 · 전환율 ${pct(conv)} (${fmt(reached)}/${fmt(eligible)}) · 처음 대비 ${pct(ratio(reached, base))}`))}"></rect>`;
   });
   return `<div class="chartbox">${s}</svg></div>`;
 }
@@ -165,14 +166,14 @@ function funnelTable(view, cohort) {
   const { groups, get } = funnelGroups(view);
   const rows = groups.get(cohort) ?? [];
   const base = rows.length ? get(rows[0], 'reached') : 0;
-  let h = '<div class="scroll"><table><thead><tr><th>단계</th><th>도달</th><th>전환율 (도달/분모)</th><th>판정 불가</th><th>처음 대비</th></tr></thead><tbody>';
+  let h = `<div class="scroll"><table><thead><tr><th>${tr('Step', '단계')}</th><th>${tr('Reached', '도달')}</th><th>${tr('Conversion (reached/eligible)', '전환율 (도달/분모)')}</th><th>${tr('Unknown', '판정 불가')}</th><th>${tr('vs first step', '처음 대비')}</th></tr></thead><tbody>`;
   for (const r of rows) {
     h += `<tr><td>${esc(`${get(r, 'step_no')}. ${fmt(get(r, 'step_name'))}`)}</td><td class="num">${fmt(get(r, 'reached'))}</td>${rateCell(get(r, 'reached'), get(r, 'eligible'))}<td class="num">${fmt(get(r, 'unknown'))}</td><td>${pct(ratio(get(r, 'reached'), base))}</td></tr>`;
   }
   return `${h}</tbody></table></div>`;
 }
 
-// ── cohort (히트맵 표) ───────────────────────────────────
+// ── cohort (heatmap table) ──────────────────────────────
 
 function cohortData(view) {
   const { col, get } = columnsOf(view);
@@ -205,7 +206,7 @@ function cohortTable(view, series) {
       if (!r) { h += '<td class="empty">·</td>'; continue; }
       const num = get(r, 'numerator'), den = get(r, 'denominator'), v = ratio(num, den), small = den < SMALL_N;
       const step = small ? null : heatStep(v, max);
-      h += `<td class="cell${small ? ' small' : ''}${step ? ` h${step}` : ''}" title="${esc(`${c} · ${view.display.period} ${p}: ${pct(v)} (${fmt(num)}/${fmt(den)})${small ? ' · n<30, 색 없음' : ''}`)}">${pct(v, 0)}<span class="frac">${fmt(num)}/${fmt(den)}</span></td>`;
+      h += `<td class="cell${small ? ' small' : ''}${step ? ` h${step}` : ''}" title="${esc(`${c} · ${view.display.period} ${p}: ${pct(v)} (${fmt(num)}/${fmt(den)})${small ? tr(' · n<30, no color', ' · n<30, 색 없음') : ''}`)}">${pct(v, 0)}<span class="frac">${fmt(num)}/${fmt(den)}</span></td>`;
     }
     h += '</tr>';
   }
@@ -227,13 +228,13 @@ export function plainTable(view, limit = 500) {
   let h = `<div class="scroll"><table><thead><tr>${view.columns.map((c) => `<th>${esc(c.name)}</th>`).join('')}</tr></thead><tbody>`;
   for (const r of rows) h += `<tr>${r.map((v) => `<td>${esc(fmt(v))}</td>`).join('')}</tr>`;
   h += '</tbody></table></div>';
-  if (view.rows.length > limit) h += `<p class="muted note-sm">${view.rows.length}행 중 ${limit}행만 표시</p>`;
+  if (view.rows.length > limit) h += `<p class="muted note-sm">${tr(`Showing ${limit} of ${view.rows.length} rows`, `${view.rows.length}행 중 ${limit}행만 표시`)}</p>`;
   return h;
 }
 
 const isTimeLike = (v) => typeof v === 'number' || /^\d{4}-\d{2}(-\d{2})?/.test(String(v));
 
-/** table 패턴 자동 차트: 첫 칸이 x, 나머지 수 칸(6개까지)이 값. 시간 축이면 선, 범주면 가로 막대 */
+/** Auto chart for the table pattern: first column is x, up to 6 numeric columns are values. Lines for time axes, horizontal bars for categories */
 export function tableChart(view, title) {
   const { columns, rows } = view;
   const key = view.display.key ?? [];
@@ -242,14 +243,14 @@ export function tableChart(view, title) {
   if (xs.some((v) => v === null) || new Set(xs.map((v) => typeof v)).size > 1) return null;
   const numIdx = columns.map((_, i) => i).slice(1).filter((i) => rows.every((r) => r[i] === null || typeof r[i] === 'number') && rows.some((r) => typeof r[i] === 'number')).slice(0, 6);
   if (!numIdx.length) return null;
-  // 한 축에 그리므로 첫 값과 크기가 10배 넘게 다른 칸은 표에만 둔다
+  // One axis: columns more than 10x off from the first value stay in the table only
   const peak = (i) => Math.max(...rows.map((r) => Math.abs(typeof r[i] === 'number' ? r[i] : 0)));
   const base = peak(numIdx[0]);
   const drawn = numIdx.filter((i) => { const m = peak(i); return base === 0 || m === 0 ? i === numIdx[0] : m / base <= 10 && base / m <= 10; });
   const hidden = numIdx.length - drawn.length;
   const names = [columns[0].name, ...drawn.map((i) => columns[i].name)];
   const sub = rows.map((r) => [r[0], ...drawn.map((i) => r[i])]);
-  const note = hidden ? `<p class="muted note-sm">크기가 크게 다른 값 ${hidden}개는 표에만 있습니다.</p>` : '';
+  const note = hidden ? `<p class="muted note-sm">${tr(`${hidden} values of a very different size are in the table only.`, `크기가 크게 다른 값 ${hidden}개는 표에만 있습니다.`)}</p>` : '';
   if (xs.every(isTimeLike)) return countLineChart(names, [...sub].sort((a, b) => cmp(a[0], b[0])), title) + note;
   if (rows.length > 30) return null;
   return barRows(names, sub, title) + note;
@@ -267,13 +268,13 @@ function barRows(names, rows, title) {
     s += `<text x="0" y="${y + 14}">${esc(fmt(r[0]).slice(0, 22))}</text>`;
     s += `<rect class="f1" x="${L}" y="${y}" width="${w.toFixed(1)}" height="18" rx="4"/>`;
     s += `<text x="${(L + w + 6).toFixed(1)}" y="${y + 14}">${esc(fmt(r[first]))}</text>`;
-    s += `<rect class="hit" x="${L}" y="${y}" width="${W - L - R}" height="18"><title>${esc(`${fmt(r[0])}: ${names.slice(1).map((n, j) => `${n} ${fmt(r[j + 1])}`).join(' · ')}`)}</title></rect>`;
+    s += `<rect class="hit" x="${L}" y="${y}" width="${W - L - R}" height="18" data-tip="${esc(`${fmt(r[0])}: ${names.slice(1).map((n, j) => `${n} ${fmt(r[j + 1])}`).join(' · ')}`)}"></rect>`;
   });
-  const note = names.length > 2 ? `<p class="muted note-sm">막대는 ${esc(names[1])} 기준. 나머지 값은 표에 있습니다.</p>` : '';
+  const note = names.length > 2 ? `<p class="muted note-sm">${tr(`Bars show ${esc(names[1])}. Other values are in the table.`, `막대는 ${esc(names[1])} 기준. 나머지 값은 표에 있습니다.`)}</p>` : '';
   return `<div class="chartbox">${s}</svg></div>${note}`;
 }
 
-/** state = 선택한 코호트·series. controls = 선택 상자가 필요하면 선택지 */
+/** state = selected cohort and series. controls = options when a selector is needed */
 export function renderPanel(view, title, state = {}) {
   const type = view.display.type;
   if (type === 'line' || type === 'bar') return { html: xyChart(view, title) + xyTable(view), controls: null };
@@ -291,7 +292,7 @@ export function renderPanel(view, title, state = {}) {
   return { html: (tableChart(view, title) ?? '') + plainTable(view), controls: null };
 }
 
-/** 대시보드 카드용 작은 차트. 표만 있는 패턴은 null */
+/** Small chart for dashboard cards. null for table-only patterns */
 export function thumbChart(view, title) {
   const type = view.display.type;
   if (type === 'line' || type === 'bar') return xyChart(view, title).replace(/^<div class="legend">.*?<\/div>/, '');
@@ -303,7 +304,7 @@ export function thumbChart(view, title) {
   return null;
 }
 
-/** 품질 검사용 수 선 그래프: 첫 칸이 x, 나머지 수 칸이 series(6개까지) */
+/** Count line chart for quality checks: first column is x, other numeric columns are series (up to 6) */
 export function countLineChart(columns, rows, title) {
   const names = columns.slice(1, 7);
   const W = 720, H = 220, L = 48, R = 16, T = 14, B = 34;
@@ -328,7 +329,7 @@ export function countLineChart(columns, rows, title) {
     s += `<polyline class="ln s${j + 1}" points="${pts.join(' ')}"/>`;
   });
   rows.forEach((r, i) => {
-    s += `<rect class="hit" x="${(x(i) - (W - L - R) / Math.max(n, 1) / 2).toFixed(1)}" y="${T}" width="${((W - L - R) / Math.max(n, 1)).toFixed(1)}" height="${H - T - B}"><title>${esc(`${fmt(r[0])}: ${names.map((nm, j) => `${nm} ${fmt(r[j + 1])}`).join(' · ')}`)}</title></rect>`;
+    s += `<rect class="hit" x="${(x(i) - (W - L - R) / Math.max(n, 1) / 2).toFixed(1)}" y="${T}" width="${((W - L - R) / Math.max(n, 1)).toFixed(1)}" height="${H - T - B}" data-tip="${esc(`${fmt(r[0])}: ${names.map((nm, j) => `${nm} ${fmt(r[j + 1])}`).join(' · ')}`)}"></rect>`;
   });
   return `${legendHtml(names)}<div class="chartbox">${s}</svg></div>`;
 }
@@ -337,4 +338,39 @@ export function headlineHtml(h) {
   if (!h) return '';
   const value = h.numerator === null ? fmt(h.value) : pct(h.value);
   return `<div class="dd-headline"><span class="big${h.lowN ? ' dim' : ''}">${esc(value)}</span><span class="muted">${esc(h.label)}${h.numerator !== null ? ` · ${fmt(h.numerator)}/${fmt(h.denominator)}` : ''}${h.lowN ? ' <span class="tag">n&lt;30</span>' : ''}</span></div>`;
+}
+
+// Chart value tooltip: the native title tooltip is slow, so show our own immediately on hover
+if (typeof document !== 'undefined') {
+  let tip = null;
+  const place = (e) => {
+    const pad = 12;
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    if (x + r.width > window.innerWidth - 4) x = e.clientX - r.width - pad;
+    if (y + r.height > window.innerHeight - 4) y = e.clientY - r.height - pad;
+    tip.style.transform = `translate(${Math.max(4, x)}px, ${Math.max(4, y)}px)`;
+  };
+  document.addEventListener('pointerover', (e) => {
+    const hit = e.target instanceof Element ? e.target.closest('[data-tip]') : null;
+    if (!hit) return;
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.className = 'chart-tip';
+      tip.setAttribute('role', 'tooltip');
+      document.body.appendChild(tip);
+    }
+    tip.textContent = hit.getAttribute('data-tip');
+    tip.hidden = false;
+    place(e);
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (tip && !tip.hidden && e.target instanceof Element && e.target.closest('[data-tip]')) place(e);
+  });
+  document.addEventListener('pointerout', (e) => {
+    if (!tip || !(e.target instanceof Element) || !e.target.closest('[data-tip]')) return;
+    const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest('[data-tip]') : null;
+    if (!to) tip.hidden = true;
+  });
 }

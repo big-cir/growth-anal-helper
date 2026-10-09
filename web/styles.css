@@ -1,4 +1,4 @@
-/* 상단 바 + 왼쪽 대화 / 오른쪽 미리보기. 좁은 화면에서는 위아래로 쌓인다 */
+/* Top bar + conversation on the left / preview on the right. Stacked on narrow screens */
 :root {
   --bg: #f4f5f7; --surface: #ffffff; --sunken: #eef0f3; --ink: #18202b; --muted: #5d6877; --line: #dde2e8;
   --accent: #2c5d8f; --accent-ink: #ffffff; --accent-soft: #e4edf6;
@@ -35,7 +35,7 @@ button { font: inherit; }
 .num { font-variant-numeric: tabular-nums; }
 h1, h2, h3 { margin: 0; text-wrap: balance; }
 
-/* 상단 바 */
+/* Top bar */
 .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--line); }
 .brand { font-weight: 700; letter-spacing: -.01em; }
 .tabs { display: flex; gap: 2px; }
@@ -53,7 +53,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .view { flex: 1; min-height: 0; }
 .view[hidden] { display: none !important; }
 
-/* 작업 화면 */
+/* Work view */
 .work { display: grid; grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); height: 100%; min-height: 0; }
 .chat { display: flex; flex-direction: column; border-right: 1px solid var(--line); background: var(--surface); min-height: 0; }
 .chat-log { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
@@ -127,7 +127,7 @@ dl.def dd { margin: 0; }
 pre.sql { margin: 0; padding: 12px 14px; background: var(--sunken); border-radius: var(--r); font-family: var(--font-mono); font-size: 12px; overflow-x: auto; color: var(--ink); line-height: 1.55; }
 .runinfo { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 16px; }
 
-/* 대시보드 */
+/* Dashboard */
 .page { overflow-y: auto; height: 100%; padding: 22px 26px 40px; display: flex; flex-direction: column; gap: 16px; }
 .page-head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
@@ -152,13 +152,13 @@ pre.sql { margin: 0; padding: 12px 14px; background: var(--sunken); border-radiu
   dl.def { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* 저장 폼 */
+/* Save form */
 .saveform { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .sf-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: start; }
 .sf-row label { font-size: 13px; color: var(--muted); padding-top: 7px; }
 .sf-row input, .sf-row textarea { font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; background: var(--surface); color: var(--ink); width: 100%; resize: vertical; }
 .sf-row input:focus, .sf-row textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
-/* 대시보드 카드 */
+/* Dashboard cards */
 .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); gap: 16px; }
 .dcard { border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .dcard.review { border-color: var(--warn); }
@@ -189,7 +189,7 @@ button.dcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
 .thumb svg text { display: none; }
 .thumb.faded { opacity: .45; }
 .dfoot { font-size: 12px; color: var(--muted); }
-/* 상세 페이지 */
+/* Detail page */
 .back { font: inherit; border: 0; background: transparent; color: var(--accent); cursor: pointer; padding: 0; align-self: flex-start; }
 .back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .dd-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-start; }
@@ -208,7 +208,7 @@ h2.sec { font-size: 15px; margin-top: 8px; }
 .quote { margin: 0; font-size: 13.5px; }
 @media (max-width: 860px) { .dd-grid { grid-template-columns: minmax(0, 1fr); } .side-block dl.def { grid-template-columns: minmax(0, 1fr); } }
 
-/* 대화·차트 */
+/* Conversation and charts */
 .composer .btn { align-self: stretch; }
 .chat-actions { display: flex; gap: 8px; justify-content: space-between; padding: 8px 14px 0; }
 .step.fail .msgline { color: var(--ink); }
@@ -224,11 +224,14 @@ table.heat td.cell .frac { display: block; margin: 0; font-size: 10px; color: in
 table.heat td.empty { color: var(--dim); text-align: center; }
 svg.chart .hit { fill: transparent; }
 svg.chart .hit:hover { fill: var(--ink); fill-opacity: .04; }
+.chart-tip { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; max-width: 320px; padding: 6px 9px; border-radius: 6px;
+  background: var(--ink); color: var(--surface); font-size: 12.5px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
+.chart-tip[hidden] { display: none; }
 .placeholder { margin: auto; max-width: 480px; text-align: center; color: var(--muted); padding: 60px 0; display: flex; flex-direction: column; gap: 8px; }
 .placeholder h2 { color: var(--ink); font-size: 18px; }
 
 
-/* 보조 클래스 */
+/* Helpers */
 .sr-only { position: absolute; left: -9999px; }
 .note-sm { font-size: 12px; }
 .note-plan { font-size: 13px; margin: 8px 0 0; }
@@ -242,7 +245,7 @@ table.heat td.h3 { background: var(--q3); color: var(--qt3); } table.heat td.h4 
 table.heat td.h5 { background: var(--q5); color: var(--qt5); } table.heat td.h6 { background: var(--q6); color: var(--qt6); }
 table.heat td.h7 { background: var(--q7); color: var(--qt7); }
 
-/* 차트 색 */
+/* Chart colors */
 svg.chart .f1 { fill: var(--s1); } svg.chart .f2 { fill: var(--s2); } svg.chart .f3 { fill: var(--s3); }
 svg.chart .f4 { fill: var(--s4); } svg.chart .f5 { fill: var(--s5); } svg.chart .f6 { fill: var(--s6); }
 svg.chart .ln { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
@@ -251,7 +254,7 @@ svg.chart .s4 { stroke: var(--s4); } svg.chart .s5 { stroke: var(--s5); } svg.ch
 svg.chart .dot { stroke: var(--surface); stroke-width: 2; }
 svg.chart .track { fill: var(--sunken); }
 
-/* 저장·대시보드·품질 */
+/* Save, dashboard, quality */
 .spin.inline { display: inline-block; width: 10px; height: 10px; border-width: 2px; vertical-align: -1px; margin-right: 4px; }
 .faded-wrap .chartbox { opacity: .45; }
 article.dcard { cursor: pointer; }
@@ -263,7 +266,7 @@ article.dcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .metricline { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
 .offdict { border-color: var(--warn); }
 
-/* 로그인 */
+/* Sign-in */
 .userbar { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
 .userbar[hidden], .tabs[hidden], .tabs button[hidden] { display: none; }
 .login { max-width: 340px; margin: 12vh auto 0; padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }

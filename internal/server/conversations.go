@@ -266,6 +266,7 @@ type Conversation struct {
 	Drafting bool
 	locked   bool
 	restart  jsjson.Object
+	history  []histItem // inputs read from the log at load (before this server start)
 }
 
 func newConversation(app *App, id, dir string) *Conversation {
@@ -371,6 +372,11 @@ func parsePreview(o jsjson.Object) (*Preview, error) {
 		Columns: parseColumns(getKey(o, "columns")), Rows: parseRows(getKey(o, "rows")), Tables: stringList(getKey(o, "tables")), Versions: versions}, nil
 }
 
+// histItem is one earlier input and how its request ended ("" while unfinished).
+type histItem struct{ requestID, text, end string }
+
+const historyMax = 20
+
 // load restores the conversation from its log.
 func (c *Conversation) load() {
 	b, err := os.ReadFile(c.file)
@@ -394,6 +400,7 @@ func (c *Conversation) load() {
 		switch typ {
 		case "user_input":
 			c.inputs = append(c.inputs, str(getKey(e, "text")))
+			c.history = append(c.history, histItem{requestID: str(getKey(e, "request_id")), text: str(getKey(e, "text"))})
 		case "question":
 			c.lastAsk = &agent.LastAsk{Questions: parseQuestions(getKey(e, "questions")), Answers: map[string]string{}}
 			c.askOrder = nil
@@ -436,12 +443,17 @@ func (c *Conversation) load() {
 			failedRequest = str(getKey(e, "request_id"))
 		case "done", "failed", "cancelled":
 			failedRequest = ""
+			c.endHistory(str(getKey(e, "request_id")), typ)
 		}
 	}
 	if failedRequest != "" {
 		msg := i18n.Tr("The server restarted, so the running request was stopped", "서버가 다시 시작되어 진행 중이던 요청을 멈췄어요")
 		c.record(jsjson.Object{{Key: "type", Value: "failed"}, {Key: "request_id", Value: failedRequest}, {Key: "reason", Value: "server_restart"}, {Key: "message", Value: msg}})
 		c.restart = jsjson.Object{{Key: "request_id", Value: failedRequest}, {Key: "reason", Value: "server_restart"}, {Key: "message", Value: msg}}
+		c.endHistory(failedRequest, "failed")
+	}
+	if len(c.history) > historyMax {
+		c.history = c.history[len(c.history)-historyMax:]
 	}
 }
 
@@ -461,6 +473,15 @@ func (c *Conversation) record(e jsjson.Object) {
 	}
 	defer f.Close()
 	_, _ = f.WriteString(line)
+}
+
+func (c *Conversation) endHistory(requestID, end string) {
+	for i := len(c.history) - 1; i >= 0; i-- {
+		if c.history[i].requestID == requestID {
+			c.history[i].end = end
+			return
+		}
+	}
 }
 
 // HasInput reports whether anything was asked.
@@ -612,7 +633,11 @@ func (c *Conversation) State() jsjson.Object {
 	if c.preview != nil {
 		preview = c.preview.Obj
 	}
-	return jsjson.Object{{Key: "conversation_id", Value: c.ID}, {Key: "request", Value: request}, {Key: "question", Value: question}, {Key: "offdict", Value: offdict},
+	history := make([]any, len(c.history))
+	for i, h := range c.history {
+		history[i] = jsjson.Object{{Key: "request_id", Value: h.requestID}, {Key: "text", Value: h.text}, {Key: "end", Value: h.end}}
+	}
+	return jsjson.Object{{Key: "conversation_id", Value: c.ID}, {Key: "history", Value: history}, {Key: "request", Value: request}, {Key: "question", Value: question}, {Key: "offdict", Value: offdict},
 		{Key: "preview", Value: preview}, {Key: "locked", Value: c.locked}, {Key: "failed", Value: failed}, {Key: "last_event_id", Value: c.nextEventID - 1}}
 }
 
@@ -776,6 +801,21 @@ func (c *Conversation) Answer(requestID string, turnNo int, answers map[string]s
 	a := c.act
 	if a == nil || a.id != requestID || a.cancelled || a.req == nil {
 		return false
+	}
+	if c.lastAsk != nil {
+		open := map[string]bool{}
+		for _, q := range c.lastAsk.Questions {
+			open[q.ID] = true
+		}
+		kept := order[:0:0]
+		for _, k := range order {
+			if open[k] {
+				kept = append(kept, k)
+			} else {
+				delete(answers, k)
+			}
+		}
+		order = kept
 	}
 	var free []string
 	for _, k := range order {

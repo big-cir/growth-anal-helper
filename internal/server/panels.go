@@ -550,25 +550,44 @@ func (s *PanelService) MustGet(id string) (*panels.SavedPanel, error) {
 	return p, nil
 }
 
-// Create saves a panel unless the same user already saved the same preview.
-func (s *PanelService) Create(fields jsjson.Object, spec panels.Spec) (*panels.SavedPanel, bool, error) {
+// Create saves a panel unless the same user already saved the same preview; then only a changed chart shape is applied.
+func (s *PanelService) Create(fields jsjson.Object, spec panels.Spec) (p *panels.SavedPanel, created, viewUpdated bool, err error) {
 	hash, _ := fields.Get("preview_hash")
 	by, _ := fields.Get("created_by")
+	view, _ := fields.Get("view")
 	list, err := s.Store.List()
 	if err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
 	for _, x := range list {
 		h, _ := x.Fields.Get("preview_hash")
 		c, _ := x.Fields.Get("created_by")
 		if h == hash && c == by {
-			return x, false, nil
+			old, _ := x.Fields.Get("view")
+			if jsjson.MustStringify(old) == jsjson.MustStringify(view) {
+				return x, false, false, nil
+			}
+			_, err := s.Exclusive(x.Str("id"), func(cur *panels.SavedPanel) (jsjson.Object, error) {
+				cur.Set("view", view)
+				if err := s.Store.Write(*cur); err != nil {
+					return nil, err
+				}
+				x = cur
+				return nil, nil
+			})
+			if err != nil {
+				return nil, false, false, err
+			}
+			s.mu.Lock()
+			s.emit("panels_changed", jsjson.Object{})
+			s.mu.Unlock()
+			return x, false, true, nil
 		}
 	}
-	p := &panels.SavedPanel{Fields: append(append(jsjson.Object{}, fields...),
+	p = &panels.SavedPanel{Fields: append(append(jsjson.Object{}, fields...),
 		jsjson.Member{Key: "id", Value: NewID()}, jsjson.Member{Key: "created_at", Value: nowISO()}, jsjson.Member{Key: "status", Value: "ok"}, jsjson.Member{Key: "last_error", Value: nil}), Spec: spec}
 	if err := s.Store.Write(*p); err != nil {
-		return nil, false, err
+		return nil, false, false, err
 	}
 	s.mu.Lock()
 	s.emit("panels_changed", jsjson.Object{})
@@ -576,7 +595,7 @@ func (s *PanelService) Create(fields jsjson.Object, spec panels.Spec) (*panels.S
 	if snap := s.app.Snapshot(); snap != nil && panels.Decide(*p, s.app.PanelVersions(snap)) != "none" {
 		s.Scan()
 	}
-	return p, true, nil
+	return p, true, false, nil
 }
 
 // Delete removes a panel unless a job runs on it.
@@ -813,7 +832,7 @@ func (s *PanelService) View(p *panels.SavedPanel, snap *Snapshot, full bool) jsj
 		{Key: "summary", Value: get(p.Fields, "summary")}, {Key: "summary_snapshot_id", Value: get(p.Fields, "summary_snapshot_id")},
 		{Key: "metric", Value: metric}, {Key: "display", Value: panels.DisplayJSON(p.Spec.Display)}, {Key: "definition", Value: def},
 		{Key: "status", Value: get(p.Fields, "status")}, {Key: "job_status", Value: s.JobStatus(p.Str("id"))}, {Key: "created_by", Value: createdBy},
-		{Key: "created_at", Value: get(p.Fields, "created_at")}, {Key: "legacy", Value: p.Legacy},
+		{Key: "created_at", Value: get(p.Fields, "created_at")}, {Key: "legacy", Value: p.Legacy}, {Key: "view", Value: get(p.Fields, "view")},
 		{Key: "last_result", Value: jsjson.Object{{Key: "columns", Value: names}, {Key: "rows", Value: get(r, "rows")}, {Key: "headline", Value: get(r, "headline")},
 			{Key: "caveats", Value: get(r, "caveats")}, {Key: "as_of", Value: get(r, "as_of")}, {Key: "computed_at", Value: get(r, "computed_at")},
 			{Key: "mode", Value: get(r, "mode")}, {Key: "snapshot_id", Value: get(r, "snapshot_id")}}},

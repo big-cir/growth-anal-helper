@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -275,6 +276,23 @@ func readJSON(r *http.Request) (jsjson.Object, error) {
 }
 
 func field(o jsjson.Object, k string) (any, bool) { return o.Get(k) }
+
+// viewShapes are the chart shapes each pattern can be redrawn as without rerunning.
+var viewShapes = map[string][]string{"line": {"line", "bar", "table"}, "bar": {"line", "bar", "table"}, "table": {"line", "bar", "table"}, "cohort": {"line", "table"}}
+
+// viewField checks the chart shape picked in the preview: null, or one the pattern can be redrawn as.
+func viewField(v any, present bool, pattern string) (any, error) {
+	if !present || v == nil {
+		return nil, nil
+	}
+	o, ok := v.(jsjson.Object)
+	t, _ := o.Get("type")
+	ts, _ := t.(string)
+	if !ok || len(o) != 1 || !slices.Contains(viewShapes[pattern], ts) {
+		return nil, herr(400, "view: must be null or {type} with a shape this pattern can be drawn as (line/bar/table: line|bar|table, cohort: line|table)", "view: null 또는 이 패턴이 그릴 수 있는 {type}이어야 해요(선·막대·표: line|bar|table, 코호트: line|table)")
+	}
+	return jsjson.Object{{Key: "type", Value: ts}}, nil
+}
 
 func nonEmpty(v any, name string, max int) (string, error) {
 	s, ok := v.(string)
@@ -623,7 +641,7 @@ func (s *Server) makeRoutes() []route {
 				if m.Value == nil || m.Value == "" {
 					continue
 				}
-				v, err := nonEmpty(m.Value, "answers."+m.Key, 300)
+				v, err := nonEmpty(m.Value, "answers."+m.Key, 200)
 				if err != nil {
 					return err
 				}
@@ -848,6 +866,11 @@ func (s *Server) makeRoutes() []route {
 			if err != nil {
 				return err
 			}
+			vv, vp := field(b, "view")
+			view, err := viewField(vv, vp, p.Spec.Display.Type)
+			if err != nil {
+				return err
+			}
 			if secretLike(title+"\n"+description+"\n"+summary) || specSecretLike(p.Spec) {
 				return herr(400, "Not saved: something looks like a secret", "비밀처럼 보이는 값이 있어 저장하지 않았어요")
 			}
@@ -864,13 +887,13 @@ func (s *Server) makeRoutes() []route {
 				{Key: "title", Value: title}, {Key: "description", Value: description}, {Key: "summary", Value: summary}, {Key: "summary_snapshot_id", Value: summarySnap},
 				{Key: "prompt", Value: cv.FirstPrompt()}, {Key: "spec", Value: p.Spec.JS()}, {Key: "versions", Value: versions}, {Key: "generated_model", Value: genModel},
 				{Key: "preview_hash", Value: p.Hash}, {Key: "last_result", Value: MakeResult(p.Spec, p.SnapshotID, p.AsOf, "preview", p.Columns, p.Rows, p.Tables, s.App.Lang)},
-				{Key: "created_by", Value: c.user.Username},
+				{Key: "created_by", Value: c.user.Username}, {Key: "view", Value: view},
 			}
 			var panel *panels.SavedPanel
-			var created bool
+			var created, viewUpdated bool
 			if err := s.audited(auth.AuditRecord{Event: "panel_saved", User: ptr(c.user.Username), IP: ptr(c.ip), Target: ptr(cv.ID)}, func() error {
 				var e error
-				panel, created, e = s.Panels.Create(fields, p.Spec)
+				panel, created, viewUpdated, e = s.Panels.Create(fields, p.Spec)
 				return e
 			}); err != nil {
 				return err
@@ -885,7 +908,7 @@ func (s *Server) makeRoutes() []route {
 			if created {
 				status = 201
 			}
-			s.sendJSON(c.w, status, jsjson.Object{{Key: "panel", Value: s.panelView(c.user, panel)}, {Key: "created", Value: created}, {Key: "replaces", Value: replaces}}, nil)
+			s.sendJSON(c.w, status, jsjson.Object{{Key: "panel", Value: s.panelView(c.user, panel)}, {Key: "created", Value: created}, {Key: "view_updated", Value: viewUpdated}, {Key: "replaces", Value: replaces}}, nil)
 			return nil
 		}},
 		{"GET", re(`^\/api\/panels\/([^/]+)$`), "viewer", func(c *ctx) error {

@@ -247,12 +247,20 @@ func TestAskAnswerOffdictAndRefusal(t *testing.T) {
 	if r := e.call("POST", "/api/conversations/"+id+"/answers", editor, map[string]any{"request_id": reqID, "turn_no": 99, "answers": map[string]string{"win": "14 days"}}, nil); r.Status != 409 {
 		t.Errorf("wrong turn: %d", r.Status)
 	}
-	if r := e.call("POST", "/api/conversations/"+id+"/answers", editor, map[string]any{"request_id": reqID, "turn_no": turn, "answers": map[string]string{"win": "14 days"}}, nil); r.Status != 202 {
+	if r := e.call("POST", "/api/conversations/"+id+"/answers", editor, map[string]any{"request_id": reqID, "turn_no": turn, "answers": map[string]string{"win": strings.Repeat("x", 201)}}, nil); r.Status != 400 {
+		t.Errorf("answer over 200 characters: %d", r.Status)
+	}
+	if r := e.call("POST", "/api/conversations/"+id+"/answers", editor, map[string]any{"request_id": reqID, "turn_no": turn, "answers": map[string]string{"win": "14 days", "not_asked": "extra-answer"}}, nil); r.Status != 202 {
 		t.Fatalf("answer: %d %s", r.Status, r.Text)
 	}
 	evs = e.events("/api/conversations/"+id+"/events?since=0", editor, nil, []string{"done", "failed"}, 20*time.Second)
 	if !contains(types(evs), "answers") || !contains(types(evs), "preview") {
 		t.Errorf("after the answer: %v", types(evs))
+	}
+	for _, ev := range evs {
+		if b, _ := json.Marshal(ev.Data); ev.Type == "answers" && strings.Contains(string(b), "extra-answer") {
+			t.Errorf("an answer to a question not asked was kept: %s", b)
+		}
 	}
 
 	e.script(panelAction(nil, ""))
@@ -451,6 +459,20 @@ func TestConversationSurvivesRestart(t *testing.T) {
 	if !strings.Contains(string(logText), `"type":"cancelled"`) {
 		t.Errorf("running request not cancelled on stop: %s", logText)
 	}
+	// earlier inputs come back with how they ended, so the screen can offer to send them again
+	last := func(conv string) map[string]any {
+		h, _ := e.call("GET", "/api/conversations/"+conv, editor, nil, nil).get("history").([]any)
+		if len(h) == 0 {
+			return nil
+		}
+		return h[len(h)-1].(map[string]any)
+	}
+	if h := last(running); h == nil || h["text"] != "slow request" || h["end"] != "cancelled" {
+		t.Errorf("history of the stopped request: %v", h)
+	}
+	if h := last(id); h == nil || h["text"] != "Activation by week?" || h["end"] != "done" {
+		t.Errorf("history of a finished request: %v", h)
+	}
 	// after a crash a started request is reported as stopped by the restart
 	crashed := "crashedconv1"
 	_ = os.WriteFile(filepath.Join(e.ws.Config.OutDir, "conversations", crashed+".jsonl"),
@@ -500,5 +522,41 @@ func TestKeepCurrentPanel(t *testing.T) {
 	_, evs = e.ask(editor, "Board joins in the first week?")
 	if got := types(evs); !contains(got, "preview") {
 		t.Fatalf("keep without a panel: %v", got)
+	}
+}
+
+func TestSaveChartView(t *testing.T) {
+	e := newEnv(t, nil)
+	editor := e.login("editor1")
+	e.script(panelAction("first_week_activation", ""))
+	id, _ := e.ask(editor, "What share joined a board within 7 days?")
+	cv := e.call("GET", "/api/conversations/"+id, editor, nil, nil)
+	save := func(view any) resp {
+		return e.call("POST", "/api/panels", editor, map[string]any{"conversation_id": id, "request_id": cv.str("preview", "request_id"), "preview_hash": cv.str("preview", "preview_hash"), "title": "Joins", "summary": "", "view": view}, nil)
+	}
+	for _, bad := range []any{map[string]any{"type": "pie"}, "bar", map[string]any{"type": "bar", "x": "y"}} {
+		if r := save(bad); r.Status != 400 {
+			t.Errorf("view %v: %d %s", bad, r.Status, r.Text)
+		}
+	}
+	first := save(map[string]any{"type": "bar"})
+	if first.Status != 201 || first.str("panel", "view", "type") != "bar" || first.str("panel", "display", "type") != "line" {
+		t.Fatalf("save with view: %d %s", first.Status, first.Text)
+	}
+	pid := first.str("panel", "id")
+	again := save(map[string]any{"type": "bar"})
+	if again.Status != 200 || again.get("view_updated") != false {
+		t.Errorf("same view again: %d %s", again.Status, again.Text)
+	}
+	changed := save(map[string]any{"type": "table"})
+	if changed.Status != 200 || changed.get("view_updated") != true || changed.str("panel", "id") != pid || changed.str("panel", "view", "type") != "table" {
+		t.Errorf("change view: %d %s", changed.Status, changed.Text)
+	}
+	got := e.call("GET", "/api/panels/"+pid, editor, nil, nil)
+	if got.str("panel", "view", "type") != "table" {
+		t.Errorf("stored view: %s", got.Text)
+	}
+	if list := e.call("GET", "/api/panels", editor, nil, nil); len(list.get("panels").([]any)) != 1 {
+		t.Errorf("one panel expected: %s", list.Text)
 	}
 }

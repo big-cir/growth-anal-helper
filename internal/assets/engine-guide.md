@@ -73,6 +73,7 @@ Column names in `display` refer to SQL result columns. If you omit a role, the c
 - `headline` (optional) picks the dashboard's headline number: `{ "x": "<value>", "series": "<name>" }`. Without it the engine's default rule applies.
 - `definition` must contain every definition you settled: population, denominator, period, activity criterion, etc. `answers` holds the values settled by asking (`defaulted: true` if it was the default).
 - An observational comparison (group comparison) is not causal. Put limitations such as selection bias in `caveats`.
+- `caveats`: limitations of the method or data only. No result values, trends or guessed causes (caveats are not recomputed, and probes see 50 rows); the screen explains the full result on request.
 
 ## Invariants (violations reject the panel)
 

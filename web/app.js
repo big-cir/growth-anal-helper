@@ -1,5 +1,5 @@
 // Web UI: conversation and panel preview, updated by server events (SSE).
-import { countLineChart, esc, headlineHtml, plainTable, renderPanel, thumbChart } from './charts.js';
+import { chartModes, countLineChart, esc, headlineHtml, plainTable, renderPanel, thumbChart } from './charts.js';
 import { LANG, tr } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
@@ -111,7 +111,7 @@ const tablesText = (t) => (Array.isArray(t) ? (t.length ? t.join(', ') : tr('non
 
 // ── Conversation ────────────────────────────────────────
 const log = $('log');
-const ui = { conv: null, es: null, requestId: null, running: false, runningNode: null, lastInput: null, preview: null, sub: 'chart', chartState: {}, saveForm: null };
+const ui = { conv: null, es: null, requestId: null, running: false, runningNode: null, lastInput: null, preview: null, sub: 'chart', chartState: {}, viewMode: null, saveForm: null, explain: null };
 
 function add(node) {
   log.appendChild(node);
@@ -184,20 +184,18 @@ function questionCard(ev) {
       opts.appendChild(b);
     }
     box.appendChild(opts);
-    let free = null;
-    if (q.allow_free_text) {
-      free = document.createElement('input');
-      free.className = 'free';
-      free.maxLength = 300;
-      free.placeholder = tr('Type your own (optional)', '직접 입력 (선택)');
-      free.addEventListener('input', () => {
-        if (free.value.trim()) {
-          opts.querySelectorAll('.opt').forEach((x) => x.setAttribute('aria-pressed', 'false'));
-          picked[q.id] = free.value.trim();
-        } else delete picked[q.id];
-      });
-      box.appendChild(free);
-    }
+    // Always offer free text: the options may not hold the definition the user means
+    const free = document.createElement('input');
+    free.className = 'free';
+    free.maxLength = 200;
+    free.placeholder = tr('Or type your own (optional)', '또는 직접 입력 (선택)');
+    free.addEventListener('input', () => {
+      if (free.value.trim()) {
+        opts.querySelectorAll('.opt').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        picked[q.id] = free.value.trim();
+      } else delete picked[q.id];
+    });
+    box.appendChild(free);
     c.appendChild(box);
   }
   const act = div('qactions', `<button type="button" class="btn" data-a="def">${tr('Use defaults', '기본값으로 진행')}</button><button type="button" class="btn primary" data-a="go">${tr('Send answers', '답변 보내기')}</button>`);
@@ -304,10 +302,11 @@ function onEvent(ev) {
       step('ok', '✓', `<b>${tr('Panel ready', '패널 완성')}</b> ${tr('checks and runs passed', '검사·실행 통과')} · ${d.preview.rows.length}${tr(' rows', '행')} · ${tr('real and pseudonymized results match', '원본/가명 결과 일치')}`);
       ui.preview = d.preview;
       ui.chartState = {};
+      ui.viewMode = null;
       ui.saveForm = null;
       renderPreview();
       add(div('msg agent', tr('It is in the preview. Tell me if anything should change.', '미리보기에 띄웠어요. 고칠 점이 있으면 이어서 말씀해 주세요.')));
-      setSuggest([tr('Make it a bar chart', '막대로 바꿔줘'), tr('Show only the last 4 weeks', '최근 4주만 보여줘')]);
+      setSuggest([tr('Show only the last 4 weeks', '최근 4주만 보여줘')]);
       break;
     case 'refused':
       stopRunning();
@@ -355,12 +354,26 @@ function resetLog() {
   setBusy(false);
 }
 
+/** Earlier inputs from before the server restarted; a resend button under the last one if it did not finish */
+function renderHistory(s) {
+  const items = s.history ?? [];
+  items.forEach((h, i) => {
+    add(div('msg user', esc(h.text)));
+    if (i < items.length - 1 || h.end === 'done' || s.last_event_id > 0 || s.request) return;
+    const box = div('resend', `<span class="muted note-sm">${tr('This request did not finish.', '이 요청은 끝나지 않았어요.')}</span> <button type="button" class="btn sm">${tr('Send again', '다시 보내기')}</button>`);
+    box.querySelector('button').addEventListener('click', () => { box.remove(); void submit(h.text); });
+    add(box);
+  });
+  if (items.length) ui.lastInput = items.at(-1).text;
+}
+
 /** Restore preview and questions from the server state; returns the last event number */
 async function restore() {
   const conv = ui.conv;
   const s = await api(`/api/conversations/${conv}`);
   if (ui.conv !== conv) return s.last_event_id;
   resetLog();
+  renderHistory(s);
   ui.requestId = s.request?.request_id ?? null;
   if (s.preview) { ui.preview = s.preview; renderPreview(); }
   if (s.question) questionCard({ request_id: s.question.request_id, turn_no: s.question.turn_no, data: { questions: s.question.questions } });
@@ -398,6 +411,7 @@ async function openConversation(id, regenerated = false) {
   $('conv-label').textContent = regenerated ? tr('Rebuilding a saved panel', '저장한 패널을 다시 만듭니다') : tr('Continuing the previous conversation', '이전 대화를 이어갑니다');
   if (s.last_event_id > 0) {
     resetLog();
+    renderHistory(s);
     connect(0);
   } else {
     connect(await restore());
@@ -414,29 +428,35 @@ function renderPreview() {
   }
   const s = p.spec;
   const defaulted = s.answers.filter((a) => a.defaulted).length;
+  const pview = { display: p.display, columns: p.columns, rows: p.rows };
+  const modes = chartModes(pview);
+  const mode = modes && ui.viewMode && modes[ui.viewMode] ? ui.viewMode : null;
   pv.innerHTML =
     `<div class="ph"><div><h2>${esc(s.title)}</h2><div class="q2">${esc(s.question)}</div><div class="metricline">${metricHtml(s.metric)}</div></div>` +
     `<div class="actions"><button class="btn primary" type="button" id="b-save"${ui.running || ui.saveForm ? ' disabled' : ''}>${tr('Save this panel', '현재 패널 저장')}</button></div></div>` +
     '<div id="saveslot"></div>' +
+    '<div id="explain"></div>' +
     headlineHtml(p.headline) +
     (p.caveats.length ? `<div class="caveats"><b>${tr('Before reading', '읽기 전에')}</b><ul>${p.caveats.map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div>` : '') +
     `<div class="subtabs" role="tablist"><button role="tab" data-s="chart">${tr('Chart', '차트')}</button><button role="tab" data-s="def">${tr('Definition', '정의')}${defaulted ? ` <span class="tag defv">${tr('defaults', '기본값')} ${defaulted}</span>` : ''}</button><button role="tab" data-s="sql">SQL</button></div>` +
     '<div id="subview"></div>' +
-    `<div class="runinfo"><span>${tr('Pattern', '패턴')} ${esc(p.display.type)}</span><span>${tr('Snapshot', '스냅샷')} <span class="mono">${esc(p.snapshot_id.slice(0, 15))}</span></span><span>${tr('As of', '기준')} ${esc(p.as_of.slice(0, 16))}</span><span>${p.rows.length}${tr(' rows', '행')}</span></div>`;
+    `<div class="runinfo"><span>${tr('Pattern', '패턴')} ${esc(p.display.type)}${mode && mode !== modes.auto ? ` · ${tr('view', '보기')} ${esc(modeName(mode, p.display.type))}` : ''}</span><span>${tr('Snapshot', '스냅샷')} <span class="mono">${esc(p.snapshot_id.slice(0, 15))}</span></span><span>${tr('As of', '기준')} ${esc(p.as_of.slice(0, 16))}</span><span>${p.rows.length}${tr(' rows', '행')}</span></div>`;
   $('b-save').addEventListener('click', openSaveForm);
   renderSaveForm();
+  renderExplain();
   pv.querySelectorAll('.subtabs button').forEach((b) => {
     b.setAttribute('aria-selected', String(b.dataset.s === ui.sub));
     b.addEventListener('click', () => { ui.sub = b.dataset.s; renderPreview(); });
   });
   const sv = $('subview');
   if (ui.sub === 'chart') {
-    const r = renderPanel({ display: p.display, columns: p.columns, rows: p.rows }, s.title, ui.chartState);
+    const r = renderPanel(pview, s.title, ui.chartState, mode);
     const controls = r.controls
       ? `<div class="chart-controls"><label>${esc(r.controls.label)} <select id="chart-sel">${r.controls.options.map((o) => `<option${o === r.controls.value ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label></div>`
       : '';
-    sv.innerHTML = controls + r.html;
+    sv.innerHTML = modeSwitch(modes, mode ?? modes?.auto, p.display.type) + controls + r.html;
     $('chart-sel')?.addEventListener('change', (e) => { ui.chartState[r.controls.name] = e.target.value; renderPreview(); });
+    sv.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => { ui.viewMode = b.dataset.m; renderPreview(); }));
   } else if (ui.sub === 'def') {
     sv.innerHTML = `<dl class="def">${s.definition.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}` +
       s.answers.map((a) => `<dt>${esc(a.question)}</dt><dd>${esc(a.answer)}${a.defaulted ? ` <span class="tag defv">${tr('default used', '기본값 적용')}</span>` : ''}</dd>`).join('') +
@@ -445,6 +465,22 @@ function renderPreview() {
   } else {
     sv.innerHTML = `<pre class="sql">${esc(s.sql)}</pre>`;
   }
+}
+
+const MODE_NAME = { line: tr('Line', '꺾은선'), bar: tr('Bar', '막대'), table: tr('Table only', '표만') };
+const modeName = (m, type) => (type === 'cohort' ? { line: tr('Curve', '곡선'), table: tr('Table', '표') }[m] : MODE_NAME[m]);
+
+/** Shape buttons; redraws in the browser without asking the agent */
+function modeSwitch(modes, current, type) {
+  if (!modes) return '';
+  return `<div class="seg" role="group" aria-label="${tr('Chart type', '차트 모양')}">${['line', 'bar', 'table'].filter((m) => m in modes).map((m) => `<button type="button" data-m="${m}" aria-pressed="${m === current}"${modes[m] ? '' : ` disabled title="${tr('Too many rows to draw this way', '행이 많아 이 모양으로 그릴 수 없어요')}"`}>${modeName(m, type)}</button>`).join('')}</div>`;
+}
+
+/** Shape to save with the panel; null when it is the pattern's default */
+function savedMode() {
+  const p = ui.preview;
+  const modes = p && chartModes({ display: p.display, columns: p.columns, rows: p.rows });
+  return modes && ui.viewMode && modes[ui.viewMode] && ui.viewMode !== modes.auto ? ui.viewMode : null;
 }
 
 
@@ -456,23 +492,52 @@ const SUMMARY_NOTE = {
   disabled: tr('This workspace does not send result values, so there is no automatic description', '이 워크스페이스는 결과 값을 보내지 않는 모드라 자동 설명을 만들지 않아요'),
 };
 
+/** Description written from the full result (numbers checked by the engine). One call per preview, shared by [Explain] and the save form */
+function draftSummary(p) {
+  if (ui.explain?.hash === p.preview_hash && ui.explain.status !== 'failed') return ui.explain.promise;
+  const e = { hash: p.preview_hash, status: 'drafting', summary: '', message: '' };
+  e.promise = api(`/api/conversations/${ui.conv}/save-draft`, { request_id: p.request_id, preview_hash: p.preview_hash })
+    .then((r) => { e.status = r.summary_status; e.summary = r.summary; e.message = r.message ?? ''; })
+    .catch((err) => { e.status = 'failed'; e.message = err.message; })
+    .then(() => e);
+  ui.explain = e;
+  return e.promise;
+}
+
+function renderExplain() {
+  const slot = $('explain');
+  const p = ui.preview;
+  if (!slot || !p) return;
+  if (appState?.data_mode === 'schema_only') { slot.innerHTML = ''; return; }
+  const e = ui.explain?.hash === p.preview_hash ? ui.explain : null;
+  if (!e || !e.shown) {
+    slot.innerHTML = `<div class="explain"><button type="button" class="btn sm" id="b-explain"${ui.running ? ' disabled' : ''}>${tr('Explain this result', '설명 보기')}</button></div>`;
+    $('b-explain').addEventListener('click', async () => {
+      const d = draftSummary(p);
+      ui.explain.shown = true;
+      renderExplain();
+      await d;
+      if (ui.preview === p) renderExplain();
+    });
+    return;
+  }
+  if (e.status === 'drafting') { slot.innerHTML = `<div class="explain muted note-sm"><span class="spin inline"></span> ${esc(SUMMARY_NOTE.drafting)}</div>`; return; }
+  if (e.status === 'ok') { slot.innerHTML = `<div class="explain"><p class="prose">${esc(e.summary)}</p><p class="muted note-sm">${esc(tr('Every number was rechecked by the engine against the result.', '설명 속 숫자는 엔진이 결과에서 다시 계산해 확인했어요.'))}</p></div>`; return; }
+  slot.innerHTML = `<div class="explain muted note-sm">${esc(SUMMARY_NOTE[e.status] ?? SUMMARY_NOTE.failed)}${e.message ? ` (${esc(e.message)})` : ''}${e.status === 'failed' ? ` <button type="button" class="btn sm" id="b-explain-retry">${tr('Try again', '다시 시도')}</button>` : ''}</div>`;
+  $('b-explain-retry')?.addEventListener('click', () => { e.shown = false; renderExplain(); $('b-explain')?.click(); });
+}
+
 async function openSaveForm() {
   const p = ui.preview;
   if (!p || ui.saveForm) return;
   const f = { hash: p.preview_hash, requestId: p.request_id, title: p.spec.title, desc: p.spec.question.slice(0, 300), summary: '', summaryTouched: false, status: 'drafting', note: SUMMARY_NOTE.drafting, replaces: null, saving: false };
   ui.saveForm = f;
   renderPreview();
-  try {
-    const r = await api(`/api/conversations/${ui.conv}/save-draft`, { request_id: f.requestId, preview_hash: f.hash });
-    if (ui.saveForm !== f) return;
-    f.status = r.summary_status;
-    f.note = SUMMARY_NOTE[r.summary_status] ?? '';
-    if (!f.summaryTouched) f.summary = r.summary;
-  } catch (e) {
-    if (ui.saveForm !== f) return;
-    f.status = 'failed';
-    f.note = `${SUMMARY_NOTE.failed} (${e.message})`;
-  }
+  const e = await draftSummary(p);
+  if (ui.saveForm !== f) return;
+  f.status = e.status;
+  f.note = e.status === 'failed' ? `${SUMMARY_NOTE.failed}${e.message ? ` (${e.message})` : ''}` : SUMMARY_NOTE[e.status] ?? '';
+  if (!f.summaryTouched) f.summary = e.summary;
   renderSaveForm();
 }
 
@@ -515,9 +580,9 @@ async function submitSave(f) {
   f.saving = true;
   renderSaveForm();
   try {
-    const r = await api('/api/panels', { conversation_id: ui.conv, request_id: f.requestId, preview_hash: f.hash, title: f.title.trim(), description: f.desc.trim(), summary: f.status === 'drafting' ? '' : f.summary.trim() });
+    const r = await api('/api/panels', { conversation_id: ui.conv, request_id: f.requestId, preview_hash: f.hash, title: f.title.trim(), description: f.desc.trim(), summary: f.status === 'drafting' ? '' : f.summary.trim(), view: savedMode() ? { type: savedMode() } : null });
     if (ui.saveForm !== f) return;
-    toast(r.created ? tr('Saved to the dashboard', '대시보드에 저장했어요') : tr('This panel is already saved', '이미 저장된 패널이에요'));
+    toast(r.created ? tr('Saved to the dashboard', '대시보드에 저장했어요') : r.view_updated ? tr('Changed the chart type of the saved panel', '저장된 패널의 차트 모양을 바꿨어요') : tr('This panel is already saved', '이미 저장된 패널이에요'));
     void loadState();
     if (r.replaces) { f.replaces = r.replaces; renderSaveForm(); } else closeSaveForm();
   } catch (e) {
@@ -593,7 +658,7 @@ function cardHtml(p) {
   const r = p.last_result;
   const faded = p.status !== 'ok' ? ' faded' : '';
   let thumb = null;
-  try { thumb = thumbChart(viewOf(p), p.title); } catch { thumb = null; }
+  try { thumb = thumbChart(viewOf(p), p.title, p.view?.type ?? null); } catch { thumb = null; }
   const type = p.display.type;
   const body = r.headline ? headlineHtml(r.headline) : `<span class="muted note-sm">${type === 'cohort' ? tr('Cohort table', '코호트 표') : tr(`Table, ${r.rows.length} rows`, `표 ${r.rows.length}행`)}</span>`;
   return `<article class="dcard${p.status === 'review' ? ' review' : ''}" tabindex="0" data-id="${esc(p.id)}" aria-label="${esc(tr(`${p.title} details`, `${p.title} 상세 보기`))}">` +
@@ -619,7 +684,7 @@ function renderDetail(page, id) {
   }
   const r = p.last_result;
   const full = p.full === true;
-  const chart = renderPanel(viewOf(p), p.title, dash.detailState);
+  const chart = renderPanel(viewOf(p), p.title, dash.detailState, p.view?.type ?? null);
   const controls = chart.controls
     ? `<div class="chart-controls"><label>${esc(chart.controls.label)} <select id="d-sel">${chart.controls.options.map((o) => `<option${o === chart.controls.value ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label></div>`
     : '';
@@ -794,6 +859,7 @@ function loggedOut() {
   ui.requestId = null;
   ui.lastInput = null;
   ui.chartState = {};
+  ui.viewMode = null;
   ui.sub = 'chart';
   dash.panels = [];
   dash.detailState = {};

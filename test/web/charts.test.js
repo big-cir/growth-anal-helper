@@ -48,3 +48,41 @@ test('table pattern: lines for a time first column, bars for categories, values 
   assert.match(mixed, /in the table only/);
   assert.equal(tableChart({ display: { type: 'table' }, columns: cols('a', 'n'), rows: [['x', 1]] }, 't'), null, 'table only for a single row');
 });
+
+test('chart shape switch: redraws line, bar and table panels without a rerun', async () => {
+  const { chartModes, thumbChart } = await import('../../web/charts.js');
+  const rate = { display: { type: 'line', x: 'x', numerator: 'numerator', denominator: 'denominator' }, columns: cols('x', 'numerator', 'denominator'), rows: [['W1', 1, 40], ['W2', 2, 40]] };
+  assert.deepEqual(chartModes(rate), { auto: 'line', line: true, bar: true, table: true });
+  assert.match(renderPanel(rate, 't', {}, 'bar').html, /<path d="M/);
+  assert.ok(!renderPanel(rate, 't', {}, 'table').html.includes('<svg'));
+  assert.equal(thumbChart(rate, 't', 'table'), null);
+
+  const time = { display: { type: 'table' }, columns: cols('week', 'n'), rows: [['2024-05-13', 3], ['2024-05-06', 5]] };
+  assert.equal(chartModes(time).auto, 'line');
+  assert.match(renderPanel(time, 't', {}, 'bar').html, /rect class="f1"/);
+  assert.ok(!renderPanel(time, 't', {}, 'table').html.includes('<svg'));
+
+  const many = { display: { type: 'table' }, columns: cols('k', 'n'), rows: Array.from({ length: 31 }, (_, i) => [`c${i}`, i]) };
+  assert.deepEqual(chartModes(many), { auto: 'table', line: true, bar: false, table: true });
+  assert.match(renderPanel(many, 't', {}, 'line').html, /polyline/);
+
+  assert.equal(chartModes({ display: { type: 'table' }, columns: cols('a', 'b'), rows: [['x', 'y'], ['z', 'w']] }), null);
+  assert.equal(chartModes({ display: { type: 'number', value: 'v' }, columns: cols('v'), rows: [[1]] }), null);
+});
+
+test('cohort curves: latest 6 cohorts of the selected series, table kept below', async () => {
+  const { chartModes, thumbChart } = await import('../../web/charts.js');
+  const rows = [];
+  for (let c = 1; c <= 8; c++) for (let p = 0; p <= 8 - c; p++) rows.push([`2024-W0${c}`, 'A', p, 10 + c, p === 0 && c === 8 ? 20 : 100]);
+  rows.push(['2024-W08', 'B', 0, 5, 50]);
+  const v = { display: { type: 'cohort', cohort: 'cohort', period: 'period', numerator: 'numerator', denominator: 'denominator', series: 's' }, columns: cols('cohort', 's', 'period', 'numerator', 'denominator'), rows };
+  assert.deepEqual(chartModes(v), { auto: 'table', line: true, table: true });
+  const html = renderPanel(v, 't', { series: 'A' }, 'line').html;
+  assert.equal((html.match(/<polyline/g) ?? []).length, 6, 'one line per cohort, latest 6');
+  assert.ok(!html.includes('2024-W02</span>') && html.includes('2024-W08</span>'));
+  assert.match(html, /opacity="0.4"/, 'n<30 points dimmed');
+  assert.match(html, /table class="heat"/);
+  assert.ok(!renderPanel(v, 't', { series: 'A' }).html.includes('<svg'), 'table by default');
+  assert.match(thumbChart(v, 't', 'line'), /<polyline/);
+  assert.equal(thumbChart(v, 't'), null);
+});

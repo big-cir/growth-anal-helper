@@ -213,6 +213,20 @@ function cohortTable(view, series) {
   return `${h}</tbody></table></div>`;
 }
 
+const CURVE_COHORTS = 6;
+
+/** Retention curves: period on x, one line per cohort, the latest 6 cohorts of the selected series */
+function cohortCurve(view, series, title) {
+  const { get, hasSeries } = cohortData(view);
+  const rows = view.rows.filter((r) => !hasSeries || fmt(get(r, 'series')) === series);
+  const cohorts = [...new Set(rows.map((r) => fmt(get(r, 'cohort'))))].sort(cmp);
+  const shown = new Set(cohorts.slice(-CURVE_COHORTS));
+  const d = view.display;
+  const line = { display: { type: 'line', x: d.period, numerator: d.numerator, denominator: d.denominator, series: d.cohort }, columns: view.columns, rows: rows.filter((r) => shown.has(fmt(get(r, 'cohort')))) };
+  const note = tr(`Latest ${shown.size} of ${cohorts.length} cohorts. Recent cohorts have fewer periods observed.`, `코호트 ${cohorts.length}개 중 최근 ${shown.size}개. 최근 코호트일수록 지난 기간이 짧아 선이 짧습니다.`);
+  return `${xyChart(line, title)}<p class="muted note-sm">${note}</p>`;
+}
+
 // ── number · table ──────────────────────────────────────
 
 function numberCard(view, headline) {
@@ -235,7 +249,7 @@ export function plainTable(view, limit = 500) {
 const isTimeLike = (v) => typeof v === 'number' || /^\d{4}-\d{2}(-\d{2})?/.test(String(v));
 
 /** Auto chart for the table pattern: first column is x, up to 6 numeric columns are values. Lines for time axes, horizontal bars for categories */
-export function tableChart(view, title) {
+function tablePlot(view) {
   const { columns, rows } = view;
   const key = view.display.key ?? [];
   if (rows.length < 2 || columns.length < 2 || key.length > 1) return null;
@@ -247,13 +261,33 @@ export function tableChart(view, title) {
   const peak = (i) => Math.max(...rows.map((r) => Math.abs(typeof r[i] === 'number' ? r[i] : 0)));
   const base = peak(numIdx[0]);
   const drawn = numIdx.filter((i) => { const m = peak(i); return base === 0 || m === 0 ? i === numIdx[0] : m / base <= 10 && base / m <= 10; });
-  const hidden = numIdx.length - drawn.length;
-  const names = [columns[0].name, ...drawn.map((i) => columns[i].name)];
+  const time = xs.every(isTimeLike);
   const sub = rows.map((r) => [r[0], ...drawn.map((i) => r[i])]);
-  const note = hidden ? `<p class="muted note-sm">${tr(`${hidden} values of a very different size are in the table only.`, `크기가 크게 다른 값 ${hidden}개는 표에만 있습니다.`)}</p>` : '';
-  if (xs.every(isTimeLike)) return countLineChart(names, [...sub].sort((a, b) => cmp(a[0], b[0])), title) + note;
-  if (rows.length > 30) return null;
-  return barRows(names, sub, title) + note;
+  return { names: [columns[0].name, ...drawn.map((i) => columns[i].name)], rows: time ? [...sub].sort((a, b) => cmp(a[0], b[0])) : sub, hidden: numIdx.length - drawn.length, time };
+}
+
+const MAX_BARS = 30;
+
+/** mode: 'line' | 'bar' | 'table'; without it, line for a time axis and bar for up to 30 categories */
+export function tableChart(view, title, mode) {
+  const t = tablePlot(view);
+  if (!t) return null;
+  const m = mode ?? (t.time ? 'line' : 'bar');
+  if (m === 'table' || (m === 'bar' && t.rows.length > MAX_BARS)) return null;
+  const note = t.hidden ? `<p class="muted note-sm">${tr(`${t.hidden} values of a very different size are in the table only.`, `크기가 크게 다른 값 ${t.hidden}개는 표에만 있습니다.`)}</p>` : '';
+  return (m === 'line' ? countLineChart(t.names, t.rows, title) : barRows(t.names, t.rows, title)) + note;
+}
+
+/** Shapes the viewer can switch to without rerunning: { auto, line, bar, table } (a missing shape is not offered). null for single-shape patterns */
+export function chartModes(view) {
+  const type = view.display.type;
+  if (type === 'line' || type === 'bar') return { auto: type, line: true, bar: true, table: true };
+  if (type === 'cohort') return view.rows.length ? { auto: 'table', line: true, table: true } : null;
+  if (type !== 'table') return null;
+  const t = tablePlot(view);
+  if (!t) return null;
+  const bar = t.rows.length <= MAX_BARS;
+  return { auto: t.time ? 'line' : bar ? 'bar' : 'table', line: true, bar, table: true };
 }
 
 function barRows(names, rows, title) {
@@ -274,10 +308,15 @@ function barRows(names, rows, title) {
   return `<div class="chartbox">${s}</svg></div>${note}`;
 }
 
-/** state = selected cohort and series. controls = options when a selector is needed */
-export function renderPanel(view, title, state = {}) {
+const withType = (view, type) => ({ ...view, display: { ...view.display, type } });
+
+/** state = selected cohort and series. controls = options when a selector is needed. mode = shape picked by the viewer (see chartModes) */
+export function renderPanel(view, title, state = {}, mode = null) {
   const type = view.display.type;
-  if (type === 'line' || type === 'bar') return { html: xyChart(view, title) + xyTable(view), controls: null };
+  if (type === 'line' || type === 'bar') {
+    if (mode === 'table') return { html: xyTable(view), controls: null };
+    return { html: xyChart(mode === 'line' || mode === 'bar' ? withType(view, mode) : view, title) + xyTable(view), controls: null };
+  }
   if (type === 'funnel') {
     const { keys, hasCohort } = funnelGroups(view);
     const cohort = state.cohort && keys.includes(state.cohort) ? state.cohort : keys.includes('ALL') ? 'ALL' : keys.at(-1);
@@ -286,21 +325,22 @@ export function renderPanel(view, title, state = {}) {
   if (type === 'cohort') {
     const { series, hasSeries } = cohortData(view);
     const s = state.series && series.includes(state.series) ? state.series : series[0];
-    return { html: cohortTable(view, s), controls: hasSeries ? { name: 'series', label: view.display.series, options: series, value: s } : null };
+    return { html: (mode === 'line' ? cohortCurve(view, s, title) : '') + cohortTable(view, s), controls: hasSeries ? { name: 'series', label: view.display.series, options: series, value: s } : null };
   }
   if (type === 'number') return { html: numberCard(view) + plainTable(view), controls: null };
-  return { html: (tableChart(view, title) ?? '') + plainTable(view), controls: null };
+  return { html: (tableChart(view, title, mode ?? undefined) ?? '') + plainTable(view), controls: null };
 }
 
 /** Small chart for dashboard cards. null for table-only patterns */
-export function thumbChart(view, title) {
+export function thumbChart(view, title, mode = null) {
   const type = view.display.type;
-  if (type === 'line' || type === 'bar') return xyChart(view, title).replace(/^<div class="legend">.*?<\/div>/, '');
+  if (type === 'line' || type === 'bar') return mode === 'table' ? null : xyChart(mode ? withType(view, mode) : view, title).replace(/^<div class="legend">.*?<\/div>/, '');
   if (type === 'funnel') {
     const { keys } = funnelGroups(view);
     return funnelChart(view, title, keys.includes('ALL') ? 'ALL' : keys.at(-1));
   }
-  if (type === 'table') return tableChart(view, title)?.replace(/^<div class="legend">.*?<\/div>/, '') ?? null;
+  if (type === 'cohort' && mode === 'line') return cohortCurve(view, cohortData(view).series[0], title).replace(/^<div class="legend">.*?<\/div>/, '');
+  if (type === 'table') return tableChart(view, title, mode ?? undefined)?.replace(/^<div class="legend">.*?<\/div>/, '') ?? null;
   return null;
 }
 

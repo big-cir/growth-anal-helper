@@ -60,6 +60,9 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .msg { max-width: 92%; padding: 9px 13px; border-radius: 12px; }
 .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 4px; }
 .msg.agent { align-self: flex-start; background: var(--sunken); border-bottom-left-radius: 4px; }
+.resend { align-self: flex-end; display: flex; gap: 8px; align-items: center; }
+.explain { margin: 8px 0 4px; }
+.explain .prose { margin: 0 0 4px; white-space: pre-wrap; }
 .step { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); }
 .step .ic { flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; margin-top: 2px; }
 .step.ok .ic { background: var(--good-soft); color: var(--good); }
@@ -219,6 +222,12 @@ h2.sec { font-size: 15px; margin-top: 8px; }
 .numcard .big { font-size: 40px; }
 .chart-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .chart-controls select { font: inherit; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; background: var(--surface); color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 10px 0 6px; }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 4px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg button:disabled { opacity: .4; cursor: not-allowed; }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 table.heat td.cell { text-align: center; min-width: 64px; }
 table.heat td.cell .frac { display: block; margin: 0; font-size: 10px; color: inherit; opacity: .8; }
 table.heat td.empty { color: var(--dim); text-align: center; }

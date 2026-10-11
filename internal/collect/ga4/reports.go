@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -593,7 +594,8 @@ func TransformRows(def ReportDef, raw []RawRow, o TransformOptions) ([]Row, Tran
 		}
 		key := jsjson.MustStringify(keyParts)
 		if g, ok := groups[key]; ok {
-			if !def.Custom {
+			// Built-in reports collide only through values folded into _unknown / _ga4_other; such rows are dropped like custom ones
+			if !def.Custom && !slices.ContainsFunc(keyParts, func(v any) bool { return v == CodeUnknown || v == CodeGA4Other }) {
 				return nil, stats, &ReportShapeError{"more than one row with the same key (" + def.Table + ")"}
 			}
 			groups[key] = append(g, row)

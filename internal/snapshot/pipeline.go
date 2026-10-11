@@ -143,11 +143,19 @@ func RunCollect(ws *workspace.Workspace, log func(string), onSource func(collect
 	if onSource != nil {
 		onSource(source)
 	}
+	step := func(name string, start time.Time) {
+		if log != nil {
+			log(fmt.Sprintf("Step %s: %.1fs", name, time.Since(start).Seconds()))
+		}
+	}
+	t0 := time.Now()
 	c, err := collect.Collect(inputs.Specs, source, dir, log)
 	if err != nil {
 		return Result{}, err
 	}
+	step("source tables", t0)
 	if inputs.GA4 != nil {
+		t0 = time.Now()
 		db, err := sqlitec.Open(c.TmpPath, false)
 		if err == nil {
 			err = GA4.Import(db, ws, log)
@@ -158,8 +166,14 @@ func RunCollect(ws *workspace.Workspace, log func(string), onSource func(collect
 			os.Remove(c.TmpPath + "-journal")
 			return Result{}, err
 		}
+		step("GA4 reports", t0)
 	}
-	return Finalize(FinalizeOptions{TmpPath: c.TmpPath, SnapshotsDir: dir, Inputs: inputs, Meta: Meta{c.Cutoff, c.StartedAt, c.FinishedAt}, ApplyCutoffFirst: true, LockHeld: true})
+	t0 = time.Now()
+	r, err := Finalize(FinalizeOptions{TmpPath: c.TmpPath, SnapshotsDir: dir, Inputs: inputs, Meta: Meta{c.Cutoff, c.StartedAt, c.FinishedAt}, ApplyCutoffFirst: true, LockHeld: true})
+	if err == nil {
+		step("finalize (derived tables, pseudonymized copy, indexes)", t0)
+	}
+	return r, err
 }
 
 // RunDerive rebuilds derived tables and the pseudonymized copy from the current snapshot's raw tables (the source is not read).

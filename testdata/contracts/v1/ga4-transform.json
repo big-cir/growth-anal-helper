@@ -44,7 +44,7 @@
    }
   },
   {
-   "name": "normalized collision built-in",
+   "name": "normalized collision built-in: rows folded into _unknown are dropped",
    "def": "daily_channel",
    "raw": [
     {
@@ -81,9 +81,85 @@
     }
    ],
    "out": {
-    "ok": false,
-    "error": "more than one row with the same key (r_ga4_daily_channel)",
-    "type": "ReportShapeError"
+    "ok": true,
+    "value": {
+     "rows": [],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 2,
+      "suppressedCells": 0
+     }
+    }
+   }
+  },
+  {
+   "name": "new vs returning: (not set) and empty both fold into _unknown, known rows stay",
+   "def": "daily_new_returning",
+   "raw": [
+    {
+     "dims": [
+      "20240610",
+      "new"
+     ],
+     "metrics": [
+      "40",
+      "30"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      "(not set)"
+     ],
+     "metrics": [
+      "12",
+      "5"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    },
+    {
+     "dims": [
+      "20240610",
+      ""
+     ],
+     "metrics": [
+      "11",
+      "4"
+     ],
+     "types": [
+      "TYPE_INTEGER",
+      "TYPE_INTEGER"
+     ]
+    }
+   ],
+   "out": {
+    "ok": true,
+    "value": {
+     "rows": [
+      [
+       "2024-06-10",
+       "new",
+       40,
+       30
+      ]
+     ],
+     "stats": {
+      "droppedSmall": 0,
+      "droppedUnobserved": 0,
+      "droppedUnmapped": 0,
+      "droppedCollision": 2,
+      "suppressedCells": 0
+     }
+    }
    }
   },
   {
@@ -945,7 +1021,7 @@
        1,
        0,
        0,
-       1e-7
+       1e-07
       ]
      ],
      "stats": {

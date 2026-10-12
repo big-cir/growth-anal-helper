@@ -99,7 +99,7 @@
     "input": "",
     "systemPrompt": "",
     "jsonSchema": "",
-    "budgetUsd": 0.00005,
+    "budgetUsd": 5e-05,
     "timeoutMs": 1
    },
    "out": [
@@ -181,6 +181,22 @@
    "result": null,
    "nonJson": 0,
    "violation": "event before init"
+  },
+  {
+   "lines": [
+    "{\"type\":\"system\",\"subtype\":\"ui_invalidate\"}",
+    "{\"type\":\"system\",\"subtype\":\"init\"}",
+    "{\"type\":\"result\"}"
+   ],
+   "init": {
+    "type": "system",
+    "subtype": "init"
+   },
+   "result": {
+    "type": "result"
+   },
+   "nonJson": 0,
+   "violation": null
   },
   {
    "lines": [

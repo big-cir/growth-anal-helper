@@ -135,10 +135,13 @@ func (p *StreamParser) Line(text string) {
 		return
 	}
 	if p.Init == nil {
-		if !isInit {
-			p.Violation = "event before init"
-		} else {
+		switch {
+		case isInit:
 			p.Init = ev
+		case get(ev, "type") == "system":
+			// The CLI may send display notices (e.g. ui_invalidate) before init
+		default:
+			p.Violation = "event before init"
 		}
 		return
 	}

@@ -266,8 +266,8 @@ func ParseConfig(raw any, dir, home string) (cfg Config, err error) {
 			if !identPrefixRE.MatchString(k) {
 				fail(".params."+k, "key must be an identifier")
 			}
-			if k == "as_of" {
-				fail(".params.as_of", "reserved by the engine")
+			if k == "as_of" || k == "today" {
+				fail(".params."+k, "reserved by the engine")
 			}
 			switch v := m.Value.(type) {
 			case float64:

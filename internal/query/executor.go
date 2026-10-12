@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"sync"
 	"syscall"
+	"time"
 	"unicode/utf16"
 	"unicode/utf8"
 
@@ -55,6 +56,8 @@ type Request struct {
 	Path  string
 	Mode  Mode
 	AsOf  string
+	// Today is the request date (YYYY-MM-DD) bound to :today; empty means the local date now
+	Today string
 	// Params: workspace params (float64, string or []string); only scalars bind
 	Params           jsjson.Object
 	ReadablePrefixes []string
@@ -89,6 +92,9 @@ type Result struct {
 }
 
 func failed(kind, msg string) Result { return Result{Kind: kind, Message: msg} }
+
+// TodayDate formats a local date as YYYY-MM-DD for :today.
+func TodayDate(t time.Time) string { return t.Format("2006-01-02") }
 
 // ScalarParams keeps the non-array params.
 func ScalarParams(params jsjson.Object) jsjson.Object {
@@ -131,9 +137,9 @@ func runWithLease(req Request) Result {
 		ctx = context.Background()
 	}
 	scalars := ScalarParams(req.Params)
-	keys := make([]string, len(scalars))
-	for i, m := range scalars {
-		keys[i] = m.Key
+	keys := []string{"today"}
+	for _, m := range scalars {
+		keys = append(keys, m.Key)
 	}
 	lint := sqllint.Lint(req.SQL, keys)
 	if !lint.OK {
@@ -146,6 +152,12 @@ func runWithLease(req Request) Result {
 	for _, p := range lint.Params {
 		if p == "as_of" {
 			bound = append(bound, jsjson.Member{Key: p, Value: req.AsOf})
+		} else if p == "today" {
+			today := req.Today
+			if today == "" {
+				today = TodayDate(time.Now())
+			}
+			bound = append(bound, jsjson.Member{Key: p, Value: today})
 		} else {
 			v, _ := scalars.Get(p)
 			bound = append(bound, jsjson.Member{Key: p, Value: v})

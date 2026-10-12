@@ -144,7 +144,7 @@ func runOne(ctx context.Context, a *server.App, snap *server.Snapshot, systemPro
 	if err != nil {
 		return rec, err
 	}
-	deps := server.MakeLoopDeps(a, server.LoopInput{Snap: snap, SystemPrompt: systemPrompt, Metrics: dict, Outbound: &agent.Outbound{Mode: cfg.Agent.DataMode, Roles: a.Roles},
+	deps := server.MakeLoopDeps(a, server.LoopInput{Snap: snap, SystemPrompt: systemPrompt, Today: Today(snap), Metrics: dict, Outbound: &agent.Outbound{Mode: cfg.Agent.DataMode, Roles: a.Roles},
 		Emit: func(ev agent.Event, _ int) { onEvent(ev) }, Tracer: tracer})
 	req := agent.NewRequest(id, deps)
 	stopped := make(chan struct{})
@@ -295,7 +295,7 @@ func Run(ws *workspace.Workspace, o Options) (Report, string, error) {
 		mode = "blind"
 	}
 	cv := a.ContextVersion(snap)
-	systemPrompt, err := a.SystemPrompt(snap, cv, o.Blind)
+	systemPrompt, err := a.SystemPrompt(snap, cv, o.Blind, Today(snap))
 	if err != nil {
 		return Report{}, "", err
 	}

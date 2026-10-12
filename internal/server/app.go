@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
 	"growth-lab/internal/agent"
 	"growth-lab/internal/auth"
@@ -327,8 +326,8 @@ func (a *App) PanelVersions(snap *Snapshot) jsjson.Object {
 	return append(ContextJS(a.ContextVersion(snap)), jsjson.Member{Key: "pattern_contract_version", Value: float64(panels.PatternContractVersion)}, jsjson.Member{Key: "renderer_version", Value: float64(panels.RendererVersion)})
 }
 
-// SystemPrompt builds the agent context; blind leaves out seed panel SQL.
-func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool) (string, error) {
+// SystemPrompt builds the agent context for the request date today; blind leaves out seed panel SQL.
+func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool, today string) (string, error) {
 	a.mu.Lock()
 	var excluded []string
 	for k := range a.excludedSeeds {
@@ -336,7 +335,7 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	}
 	a.mu.Unlock()
 	sort.Strings(excluded)
-	key := fmt.Sprintf("%s|%s|%v", ctx.Key(), strings.Join(excluded, ","), blind)
+	key := fmt.Sprintf("%s|%s|%v|%s", ctx.Key(), strings.Join(excluded, ","), blind, today)
 	a.mu.Lock()
 	if a.ctxCache != nil && a.ctxCache.key == key {
 		t := a.ctxCache.text
@@ -377,10 +376,9 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	if v, ok := cfg.Params.Get("calendar_start"); ok {
 		calendar, _ = v.(string)
 	}
-	now := time.Now()
 	text, err := agent.BuildContext(agent.ContextInput{
 		Schema: schemaText, Metrics: panels.MetricsContext(dict), Guide: guide, SeedPanels: kept, Lang: a.Lang,
-		State: agent.ContextState{AsOf: snap.AsOf, Today: fmt.Sprintf("%04d-%02d-%02d", now.Year(), now.Month(), now.Day()), CalendarStart: calendar, Params: cfg.Params},
+		State: agent.ContextState{AsOf: snap.AsOf, Today: today, CalendarStart: calendar, Params: cfg.Params},
 	}, !blind)
 	if err != nil {
 		return "", err

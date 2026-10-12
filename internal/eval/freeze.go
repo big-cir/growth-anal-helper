@@ -68,6 +68,14 @@ func CheckEnv(a *server.App) (*server.Snapshot, jsjson.Object, error) {
 	return snap, env, nil
 }
 
+// Today is the fixed request date for eval: the snapshot cutoff's date, so answers do not change from day to day.
+func Today(snap *server.Snapshot) string {
+	if len(snap.AsOf) < 10 {
+		return snap.AsOf
+	}
+	return snap.AsOf[:10]
+}
+
 // StaleReason says why a fixture can't be used for this case now ("" when usable).
 func StaleReason(c *Case, f *Fixture, env jsjson.Object) string {
 	if f == nil {
@@ -167,7 +175,7 @@ func FreezeCases(a *server.App, cases []*Case) ([]FreezeResult, error) {
 		spec := c.Reference.Spec
 		var r panels.RunResult
 		err := a.Slots.Run(context.Background(), query.Interactive, func(l *query.SlotLease) error {
-			r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
+			r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Today: Today(snap), Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
 				Metrics: dict, Blocked: a.Blocked(), HeapLimitMb: float64(cfg.HeapLimitMb), Roles: a.Roles, Lease: l, Ctx: context.Background()})
 			return nil
 		})

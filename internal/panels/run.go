@@ -19,6 +19,7 @@ type RunInput struct {
 	RealPath    string
 	AgentPath   string
 	AsOf        string
+	Today       string
 	Params      jsjson.Object
 	PanelPrefix []string
 	Metrics     MetricDict
@@ -136,9 +137,12 @@ func fail(stage, msg string) RunResult { return RunResult{Stage: stage, Message:
 // Run runs a panel and checks the contract, the invariants and that both copies agree.
 func Run(o RunInput) RunResult {
 	t0 := time.Now()
+	if o.Today == "" {
+		o.Today = query.TodayDate(t0)
+	}
 	req := func(path string) query.Request {
 		blocked := o.Blocked
-		return query.Request{Lease: o.Lease, SQL: o.Spec.SQL, Path: path, Mode: query.Panel, AsOf: o.AsOf, Params: o.Params, ReadablePrefixes: o.PanelPrefix, Blocked: &blocked, HeapLimitMb: o.HeapLimitMb, Ctx: o.Ctx}
+		return query.Request{Lease: o.Lease, SQL: o.Spec.SQL, Path: path, Mode: query.Panel, AsOf: o.AsOf, Today: o.Today, Params: o.Params, ReadablePrefixes: o.PanelPrefix, Blocked: &blocked, HeapLimitMb: o.HeapLimitMb, Ctx: o.Ctx}
 	}
 	real := query.RunQuery(req(o.RealPath))
 	if !real.OK {

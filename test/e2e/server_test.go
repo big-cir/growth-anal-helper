@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"growth-lab/internal/query"
 	"growth-lab/internal/snapshot"
 )
 
@@ -558,5 +559,37 @@ func TestSaveChartView(t *testing.T) {
 	}
 	if list := e.call("GET", "/api/panels", editor, nil, nil); len(list.get("panels").([]any)) != 1 {
 		t.Errorf("one panel expected: %s", list.Text)
+	}
+}
+
+func TestTodayParameter(t *testing.T) {
+	e := newEnv(t, nil)
+	editor := e.login("editor1")
+	today := query.TodayDate(time.Now())
+	e.script(probeAction("SELECT :today AS today"), panelAction("first_week_activation", ""))
+	_, evs := e.ask(editor, "Signups last week?")
+	if got := types(evs); !contains(got, "preview") {
+		t.Fatalf("events %v", got)
+	}
+	b, err := os.ReadFile(filepath.Join(e.dir, "fake", "argv.jsonl"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var args [][]string
+	for _, line := range strings.Split(strings.TrimSpace(string(b)), "\n") {
+		var a []string
+		_ = json.Unmarshal([]byte(line), &a)
+		if len(a) > 1 && !strings.HasPrefix(a[1], "This is an isolation check") {
+			args = append(args, a)
+		}
+	}
+	if len(args) < 2 {
+		t.Fatalf("calls: %d", len(args))
+	}
+	if !strings.Contains(strings.Join(args[0], "\n"), "Today (:today): "+today) {
+		t.Errorf("system prompt lacks the request date")
+	}
+	if !strings.Contains(args[1][1], `[["`+today+`"]]`) {
+		t.Errorf("probe result lacks :today: %s", args[1][1])
 	}
 }

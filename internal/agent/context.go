@@ -184,11 +184,11 @@ func seedText(ps []SeedPanel, withSQL []bool) string {
 // BuildContext assembles the system prompt. Over the limit it drops seed panel SQL, then seed panels, from the end.
 // seedSQL false leaves out all seed SQL (blind evaluation).
 func BuildContext(o ContextInput, seedSQL bool) (string, error) {
-	state := []string{"# Current state", "- Snapshot cutoff (:as_of): " + o.State.AsOf, "- Today: " + o.State.Today}
+	state := []string{"# Current state", "- Snapshot cutoff (:as_of): " + o.State.AsOf, "- Today (:today): " + o.State.Today}
 	if o.State.CalendarStart != "" {
 		state = append(state, "- Data start (calendar_start): "+o.State.CalendarStart)
 	}
-	avail := "- Available parameters: :as_of"
+	avail := "- Available parameters: :as_of, :today"
 	for _, m := range o.State.Params {
 		if _, isArr := m.Value.([]string); isArr {
 			continue

@@ -403,8 +403,8 @@
    "lang": "en",
    "out": {
     "ok": true,
-    "length": 20577,
-    "sha": "a0faa08a3b84640a87cf3cd155645b8cf18dd13dc85a387ebc848f0b21b6b6ec"
+    "length": 20947,
+    "sha": "5b1581960d6f2e902a32056702f47ce43c265de617ae8db451f529f4b04fd3bc"
    }
   },
   {
@@ -584,8 +584,8 @@
    "lang": "ko",
    "out": {
     "ok": true,
-    "length": 18139,
-    "sha": "4be693852b8784d0bb9b98fe2e2d8da9e0c497b7142bb1b2e9ac5cbca761c60f"
+    "length": 18509,
+    "sha": "c84e494b7d631d84b7b11934b8dd834942435bb8820a0ead09fc2cfedb3baa2a"
    }
   },
   {
@@ -605,8 +605,8 @@
    "lang": "en",
    "out": {
     "ok": true,
-    "length": 10134,
-    "sha": "f83fb2b67a3bd69ca320b325f61ee1edc111af2847ee84e3e8f929d6b4b7ba8f"
+    "length": 10504,
+    "sha": "27013c68918d11b098aea1410a31f2c400088a6dc58754afccd8e5f409629d43"
    }
   },
   {
@@ -743,8 +743,8 @@
    "lang": "en",
    "out": {
     "ok": true,
-    "length": 58622,
-    "sha": "45c1c354fd6f7397423a4836e85a05fb20b7c0cbe7f1142bda96f8c231ebcc62"
+    "length": 58992,
+    "sha": "e1722baff327b92bcb908e6d7355c2d1643e217e6a9a462772d9100de173343e"
    }
   },
   {
@@ -881,8 +881,8 @@
    "lang": "en",
    "out": {
     "ok": true,
-    "length": 59621,
-    "sha": "de1c7edde9e71f8df06c1bf7ee51ba73a107649e87ac75054577e93bc2e08e87"
+    "length": 59991,
+    "sha": "eb90b99bd786aee590a0a0f0b56fc049a693cdcb3f11f2c4e20016aab19b1714"
    }
   },
   {
@@ -1129,8 +1129,8 @@
    "lang": "en",
    "out": {
     "ok": true,
-    "length": 52394,
-    "sha": "a512bee838df72e7b64e40b30005cba4fe553d8d866a7f88835b2b4e43b5a711"
+    "length": 52764,
+    "sha": "da04d9f151b0d88cbf3e749aa5509a57ce3c9e09bba9d50e2a93d518818e509f"
    }
   },
   {
@@ -1267,7 +1267,7 @@
    "lang": "en",
    "out": {
     "ok": false,
-    "error": "context is over 60000 characters (68141): shorten guide.md",
+    "error": "context is over 60000 characters (68511): shorten guide.md",
     "kind": "ContextError"
    }
   },
@@ -1294,13 +1294,13 @@
    "lang": "en",
    "out": {
     "ok": false,
-    "error": "context is over 60000 characters (70141): shorten guide.md",
+    "error": "context is over 60000 characters (70511): shorten guide.md",
     "kind": "ContextError"
    }
   }
  ],
  "summaryGuide": {
-  "en": "603c9e15f0e0e32d5b6b2e30b86763855350c87b24c6ebdf3a0c243e4b7f7d09",
-  "ko": "60922239c72f0f09add5790f9ea5e554d997bd875efca63d84bce97a9d1e39ec"
+  "en": "4fa6a21f7b53a5922f6aab2cd20197e27d0a2a46decbe27d0d4345cbb93c16fb",
+  "ko": "b6a6f29bcc6d3ef9a20f6cdd047066cf9f7e249e69d549497a805fa70915a97c"
  }
 }

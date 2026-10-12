@@ -84,6 +84,7 @@ func IsSensitiveInput(text string, earlier []string) bool {
 type LoopInput struct {
 	Snap         *Snapshot
 	SystemPrompt string
+	Today        string
 	Metrics      panels.MetricDict
 	Outbound     *agent.Outbound
 	Emit         func(ev agent.Event, turnNo int)
@@ -147,7 +148,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			t0 := time.Now()
 			var r query.Result
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
-				r = query.RunQuery(query.Request{Lease: l, SQL: sql, Path: snap.Agent, Mode: query.Probe, AsOf: snap.AsOf, Params: cfg.Params,
+				r = query.RunQuery(query.Request{Lease: l, SQL: sql, Path: snap.Agent, Mode: query.Probe, AsOf: snap.AsOf, Today: in.Today, Params: cfg.Params,
 					ReadablePrefixes: cfg.ReadablePrefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx})
 				return nil
 			})
@@ -163,7 +164,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			t0 := time.Now()
 			var r panels.RunResult
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
-				r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
+				r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Today: in.Today, Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
 					Metrics: in.Metrics, Blocked: blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Roles: a.Roles, Lease: l, Ctx: ctx})
 				return nil
 			})
@@ -893,9 +894,10 @@ func (c *Conversation) start(a *active, text string) {
 	ctxKey := ctx.Key()
 	setupFailed := i18n.Tr("There is a problem with the agent setup (guide, metric dictionary or example panels). Please tell an admin", "에이전트 설정(설명서·지표 사전·예시 패널)에 문제가 있어요. 관리자에게 알려 주세요")
 	dict, _, err := app.Metrics()
+	today := query.TodayDate(time.Now())
 	var systemPrompt string
 	if err == nil {
-		systemPrompt, err = app.SystemPrompt(snap, ctx, false)
+		systemPrompt, err = app.SystemPrompt(snap, ctx, false, today)
 	}
 	if err != nil {
 		slog.Error("building the agent context failed", "err", err, "conversation", c.ID, "request", requestID)
@@ -940,7 +942,7 @@ func (c *Conversation) start(a *active, text string) {
 		conv := c.ID
 		tracer = trace.NewTracer(requestID, &conv, cfg.Agent.Provider, cfg.Agent.Model, func(s trace.Span) { app.Trace.Write(s) }, nil)
 	}
-	deps := MakeLoopDeps(app, LoopInput{Snap: snap, SystemPrompt: systemPrompt, Metrics: dict, Outbound: outbound, Tracer: tracer,
+	deps := MakeLoopDeps(app, LoopInput{Snap: snap, SystemPrompt: systemPrompt, Today: today, Metrics: dict, Outbound: outbound, Tracer: tracer,
 		Emit: func(ev agent.Event, turnNo int) { c.onLoopEvent(requestID, ev, turnNo, ctxKey) }})
 	deps.Keep = func() *agent.KeptResult { return kept }
 	req := agent.NewRequest(requestID, deps)

@@ -310,8 +310,32 @@ function barRows(names, rows, title) {
 
 const withType = (view, type) => ({ ...view, display: { ...view.display, type } });
 
+const isMonday = (v) => /^\d{4}-\d{2}-\d{2}/.test(v) && new Date(`${v.slice(0, 10)}T00:00:00Z`).getUTCDay() === 1;
+
+/** The date range a panel shows, read from its rows: "first ~ last (n)", noting when the dates are week starts */
+export function rangeText(view) {
+  const { col, get } = columnsOf(view);
+  const type = view.display.type;
+  const role = type === 'line' || type === 'bar' ? 'x' : type === 'cohort' || type === 'funnel' ? 'cohort' : null;
+  let vals;
+  if (role) vals = col(role) ? view.rows.map((r) => get(r, role)) : [];
+  else if (type === 'table') vals = view.rows.map((r) => r[0]);
+  else return null;
+  const xs = [...new Set(vals.filter((v) => v !== 'ALL').map(String))].sort();
+  if (xs.length < 2 || !xs.every((v) => /^\d{4}-\d{2}(-\d{2})?/.test(v))) return null;
+  const weeks = xs.every(isMonday);
+  return tr(`Shown: ${xs[0]} ~ ${xs.at(-1)} (${xs.length}${weeks ? ' weeks; each date is the Monday the week starts' : ''})`,
+    `표시 범위: ${xs[0]} ~ ${xs.at(-1)} (${xs.length}개${weeks ? ', 날짜는 각 주의 시작일인 월요일' : ''})`);
+}
+
 /** state = selected cohort and series. controls = options when a selector is needed. mode = shape picked by the viewer (see chartModes) */
 export function renderPanel(view, title, state = {}, mode = null) {
+  const r = renderShape(view, title, state, mode);
+  const range = rangeText(view);
+  return range ? { ...r, html: `<p class="muted note-sm range">${esc(range)}</p>${r.html}` } : r;
+}
+
+function renderShape(view, title, state, mode) {
   const type = view.display.type;
   if (type === 'line' || type === 'bar') {
     if (mode === 'table') return { html: xyTable(view), controls: null };

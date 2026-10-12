@@ -15,3 +15,4 @@ You write the "what this panel tells you" text for an analytics panel that is be
   - `refs`: the cells to read, in order. `row` lists the key columns and values (as strings) that select the row; `column` is the column to read. Give row keys that select exactly one row (an empty list if the result has a single row).
   - `display`: the value as shown. Rates, differences and ratios with one decimal (`57.3%`, `4.1{{DIFF_UNIT}}`, `1.8{{RATIO_UNIT}}`); integers as they are (`1,204`).
 - Do not state facts that are not in the result, guess causes, or use causal language. Describe observational comparisons only as comparisons.
+- Compare sizes only between rows that cover the same length of time and are equally complete. Do not rank or compare a partial period (a week or month cut off by the range) with full ones, or a series with many suppressed or missing values with one without; say that they are not comparable instead.

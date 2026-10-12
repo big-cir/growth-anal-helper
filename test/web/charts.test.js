@@ -86,3 +86,16 @@ test('cohort curves: latest 6 cohorts of the selected series, table kept below',
   assert.match(thumbChart(v, 't', 'line'), /<polyline/);
   assert.equal(thumbChart(v, 't'), null);
 });
+
+test('range line: shows the first and last date, and says when they are week starts', async () => {
+  const { rangeText } = await import('../../web/charts.js');
+  const weekly = { display: { type: 'line', x: 'x', numerator: 'n', denominator: 'd' }, columns: cols('x', 'n', 'd'), rows: [['2026-09-21', 1, 2], ['2026-08-03', 1, 2], ['2026-08-10', 1, 2]] };
+  assert.match(rangeText(weekly), /2026-08-03 ~ 2026-09-21 \(3 weeks; each date is the Monday/);
+  assert.match(renderPanel(weekly, 't', {}).html, /class="muted note-sm range"/);
+  const funnel = { display: { type: 'funnel', cohort: 'cohort' }, columns: cols('cohort', 'step_no'), rows: [['2026-09-14', 1], ['2026-09-21', 1], ['ALL', 1]] };
+  assert.match(rangeText(funnel), /2026-09-14 ~ 2026-09-21 \(2 weeks/);
+  const daily = { display: { type: 'table' }, columns: cols('date', 'n'), rows: [['2026-09-01', 1], ['2026-09-30', 2]] };
+  assert.equal(rangeText(daily), 'Shown: 2026-09-01 ~ 2026-09-30 (2)');
+  assert.equal(rangeText({ display: { type: 'table' }, columns: cols('ch', 'n'), rows: [['Direct', 1], ['Organic', 2]] }), null);
+  assert.equal(rangeText({ display: { type: 'number', value: 'v' }, columns: cols('v'), rows: [[1]] }), null);
+});

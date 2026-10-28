@@ -16,6 +16,7 @@ import (
 	"growth-lab/internal/auth"
 	"growth-lab/internal/collect"
 	"growth-lab/internal/collect/ga4"
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/i18n"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
@@ -59,6 +60,11 @@ type App struct {
 	agentReady    chan struct{}
 	excludedSeeds map[string]bool
 	ctxCache      *struct{ key, text string }
+	covMu         sync.Mutex
+	covCache      *struct {
+		key string
+		r   *coverage.Resolved
+	}
 }
 
 // NewApp loads the workspace definitions and checks what goes into the agent context.
@@ -310,7 +316,7 @@ func (a *App) ContextVersion(snap *Snapshot) panels.ContextVersion {
 		SnapshotID:    snap.ID,
 		SchemaVersion: panels.SchemaVersion(string(derived), snap.RolesHash+":"+snap.GA4SpecHash),
 		PolicyVersion: panels.PolicyVersion(a.WS.Config.ReadablePrefixes, a.WS.Config.PanelPrefixes),
-		DocsVersion:   panels.DocsVersion(a.Guide(), docs, metricsText),
+		DocsVersion:   panels.DocsVersion(a.Guide()+a.CoverageKey(), docs, metricsText),
 		PromptVersion: panels.PromptVersion(agent.EngineGuide(a.Lang), agent.ActionSchemaText),
 	}
 }
@@ -335,7 +341,7 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	}
 	a.mu.Unlock()
 	sort.Strings(excluded)
-	key := fmt.Sprintf("%s|%s|%v|%s", ctx.Key(), strings.Join(excluded, ","), blind, today)
+	key := fmt.Sprintf("%s|%s|%v|%s|%s", ctx.Key(), strings.Join(excluded, ","), blind, today, a.CoverageKey())
 	a.mu.Lock()
 	if a.ctxCache != nil && a.ctxCache.key == key {
 		t := a.ctxCache.text
@@ -344,6 +350,13 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	}
 	a.mu.Unlock()
 	guide := a.Guide()
+	cov, err := a.Coverage(snap)
+	if err != nil {
+		return "", &agent.ContextError{Msg: err.Error()}
+	}
+	if cov != nil {
+		guide += "\n\n" + cov.Guide()
+	}
 	cfg := a.WS.Config
 	dict, _, err := a.Metrics()
 	if err != nil {
@@ -378,7 +391,7 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	}
 	text, err := agent.BuildContext(agent.ContextInput{
 		Schema: schemaText, Metrics: panels.MetricsContext(dict), Guide: guide, SeedPanels: kept, Lang: a.Lang,
-		State: agent.ContextState{AsOf: snap.AsOf, Today: today, CalendarStart: calendar, Params: cfg.Params},
+		State: agent.ContextState{AsOf: snap.AsOf, Today: today, CalendarStart: calendar, Params: a.QueryParams(snap)},
 	}, !blind)
 	if err != nil {
 		return "", err

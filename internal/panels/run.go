@@ -2,6 +2,7 @@ package panels
 
 import (
 	"context"
+	"errors"
 	"math"
 	"regexp"
 	"sort"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"growth-lab/internal/collect"
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/query"
 )
@@ -28,6 +30,9 @@ type RunInput struct {
 	Roles       *collect.Roles
 	Lease       *query.SlotLease
 	Ctx         context.Context
+	// Coverage turns on the data coverage checks
+	Coverage *coverage.Resolved
+	Lang     string
 }
 
 // RunResult: on success the columns and both copies' rows; otherwise the failed stage
@@ -44,6 +49,8 @@ type RunResult struct {
 	Violations []Violation
 	// FailTables is set for metric_tables failures
 	FailTables []string
+	// Signals are coverage findings on a passed panel
+	Signals []coverage.Signal
 }
 
 // ToColumns converts query result columns.
@@ -207,8 +214,19 @@ func Run(o RunInput) RunResult {
 	if !SameResult(real.Rows, agent.Rows) {
 		return fail("id_dependent", "panel depends on ID values: the real and pseudonymized results differ. Do not depend on the size, range or order of IDs")
 	}
+	var signals []coverage.Signal
+	if o.Coverage != nil {
+		signals = o.Coverage.Check(coverage.CheckInput{Tables: real.Tables, Lang: o.Lang,
+			SameOnGapCopy: func(path string) (bool, error) {
+				gap := query.RunQuery(req(path))
+				if !gap.OK {
+					return true, errors.New(gap.Message)
+				}
+				return SameResult(real.Rows, gap.Rows), nil
+			}})
+	}
 	ms := math.Floor(float64(time.Since(t0).Microseconds())/1000 + 0.5)
-	return RunResult{OK: true, Columns: realCols, Real: realRows, Agent: agentRows, Ms: ms, Tables: real.Tables}
+	return RunResult{OK: true, Columns: realCols, Real: realRows, Agent: agentRows, Ms: ms, Tables: real.Tables, Signals: signals}
 }
 
 // JS returns the result in its stored JSON form.

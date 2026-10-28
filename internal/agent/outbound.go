@@ -7,6 +7,7 @@ import (
 	"unicode/utf16"
 
 	"growth-lab/internal/collect"
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
 )
@@ -41,6 +42,7 @@ type PanelResult struct {
 	Stage      string
 	Message    string
 	Violations []panels.Violation
+	Signals    []coverage.Signal
 }
 
 // OutboundBlocked: data the dataMode forbids was about to be sent.
@@ -280,6 +282,11 @@ func (o *Outbound) PanelFailure(r PanelResult, remainingFixes int) (string, erro
 // ZeroResult asks to check an all-zero result.
 func (o *Outbound) ZeroResult() (string, error) {
 	return o.render(text("Every number column in the panel result is 0 (or NULL). Check that the join and filter conditions really match. In particular, comparing a date string (YYYY-MM-DD) with a timestamp string (YYYY-MM-DD HH:MM:SS.ffffff) as-is matches no rows. Use a probe if needed, then send the fixed panel. If 0 is correct, send the same panel again and it will be accepted."))
+}
+
+// CoverageCheck asks once about the data coverage findings; the same panel sent again is accepted.
+func (o *Outbound) CoverageCheck(msgs []string) (string, error) {
+	return o.render(text("Data coverage check on your panel:\n- " + strings.Join(msgs, "\n- ") + "\nFix the panel, or send the same panel again if the result is intended (the engine then adds a caveat)."))
 }
 
 // OffdictRejected asks for a dictionary metric.

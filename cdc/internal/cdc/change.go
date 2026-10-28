@@ -19,18 +19,29 @@ type Change struct {
 	Before, After []any
 }
 
+// ApplyMode is how a source transaction is applied.
+type ApplyMode int
+
+const (
+	// Strict applies what happened on the source and stops when the copy's previous values differ.
+	Strict ApplyMode = iota
+	// Converge overwrites by primary key, for replaying changes the copy may already have
+	// (a staging copy between the position before its snapshot and the first one after it).
+	Converge
+)
+
 // Sink applies changes to the copy and keeps the position with them. It knows nothing of binlogs:
 // a position is an opaque string handed back by Load.
 type Sink interface {
 	// Begin opens a copy transaction for one source transaction.
-	Begin(ctx context.Context) error
+	Begin(ctx context.Context, mode ApplyMode) error
 	Apply(ctx context.Context, c *Change) error
-	// Commit stores the position in the open transaction and commits. An error after the commit
-	// was sent is an *UncertainError.
-	Commit(ctx context.Context, position string) error
+	// Commit stores the position, and the phase when not empty, in the open transaction and commits.
+	// An error after the commit was sent is an *UncertainError.
+	Commit(ctx context.Context, position, phase string) error
 	Rollback()
-	// Save stores the position when no transaction is open.
-	Save(ctx context.Context, position string) error
+	// Save stores the position, and the phase when not empty, when no transaction is open.
+	Save(ctx context.Context, position, phase string) error
 }
 
 // StopError is a condition run must not retry: the copy or the stream is not what it expects.

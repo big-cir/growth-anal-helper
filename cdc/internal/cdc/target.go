@@ -121,6 +121,7 @@ type savedState struct {
 	Phase, DataDB, InitID      string
 	P, P2                      string // positions around the init snapshot
 	FirstInstall               bool
+	SnapshotLocked             bool // the snapshot was taken with the followed tables locked
 }
 
 // added columns, by table; a row stored before they existed gets the default
@@ -131,6 +132,7 @@ var stateColumns = []struct{ table, name, def string }{
 	{"position", "p", "varchar(512) NOT NULL DEFAULT ''"},
 	{"position", "p2", "varchar(512) NOT NULL DEFAULT ''"},
 	{"position", "first_install", "tinyint NOT NULL DEFAULT 0"},
+	{"position", "snapshot_locked", "tinyint NOT NULL DEFAULT 0"},
 	{"staging_owner", "table_id", "bigint NOT NULL DEFAULT 0"},
 }
 
@@ -170,7 +172,7 @@ func ensureState(ctx context.Context, db *sql.Conn) error {
 
 // loadState returns the stored state, if any. A stored row for another source stops the run.
 func loadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*savedState, error) {
-	rows, err := db.QueryContext(ctx, "SELECT source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install FROM "+positionTable)
+	rows, err := db.QueryContext(ctx, "SELECT source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked FROM "+positionTable)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +181,7 @@ func loadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*sav
 	for rows.Next() {
 		var id string
 		var s savedState
-		if err := rows.Scan(&id, &s.Position, &s.Tables, &s.SchemaFP, &s.Phase, &s.DataDB, &s.InitID, &s.P, &s.P2, &s.FirstInstall); err != nil {
+		if err := rows.Scan(&id, &s.Position, &s.Tables, &s.SchemaFP, &s.Phase, &s.DataDB, &s.InitID, &s.P, &s.P2, &s.FirstInstall, &s.SnapshotLocked); err != nil {
 			return nil, err
 		}
 		if id != sourceID {
@@ -194,16 +196,16 @@ func loadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*sav
 }
 
 func initState(ctx context.Context, tx *sql.Tx, sourceID string, s savedState) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO `+positionTable+` (source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(6))`,
-		sourceID, s.Position, s.Tables, s.SchemaFP, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall)
+	_, err := tx.ExecContext(ctx, `INSERT INTO `+positionTable+` (source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(6))`,
+		sourceID, s.Position, s.Tables, s.SchemaFP, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall, s.SnapshotLocked)
 	return err
 }
 
 // setState rewrites the stored row's fields that init moves between phases.
 func setState(ctx context.Context, tx *sql.Tx, sourceID string, s savedState) error {
 	res, err := tx.ExecContext(ctx, `UPDATE `+positionTable+` SET position = ?, phase = ?, data_db = ?, init_id = ?, p = ?, p2 = ?,
-		first_install = ?, updated_at = NOW(6) WHERE source_id = ?`, s.Position, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall, sourceID)
+		first_install = ?, snapshot_locked = ?, updated_at = NOW(6) WHERE source_id = ?`, s.Position, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall, s.SnapshotLocked, sourceID)
 	if err != nil {
 		return err
 	}

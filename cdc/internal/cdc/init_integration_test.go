@@ -188,36 +188,15 @@ func TestInit(t *testing.T) {
 		h.done(false)
 	})
 
-	sub("crash while converging", func(t *testing.T) {
+	sub("refuses to continue a snapshot taken without the source lock", func(t *testing.T) {
 		h.freshForInit(false)
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		// changes between P and the snapshot: in the snapshot already, and replayed by overwriting
-		testHooks.initStep = func(s string) error {
-			if s == "before-snapshot" {
-				for i := 0; i < 5; i++ {
-					h.exec(h.srcDB, "INSERT INTO app.member (created, name, handle, locale) VALUES (NOW(6), 'between', ?, 'KO')", fmt.Sprintf("between-%d", i))
-					h.exec(h.srcDB, "UPDATE app.post SET body = 'between' ORDER BY id LIMIT 3")
-				}
-			}
-			return nil
+		h.crashInit("added-first-index", phaseCatchingUp)
+		h.exec(h.dstDB, "UPDATE "+positionTable+" SET snapshot_locked = 0")
+		err := Init(context.Background(), h.initOpts())
+		var s *StopError
+		if !errors.As(err, &s) || !strings.Contains(err.Error(), "without locking") {
+			t.Fatalf("an init from an earlier version should stop: %v", err)
 		}
-		fired := false
-		testHooks.afterApply = func() error {
-			if !fired && h.phase() == phaseConverging {
-				fired = true
-				cancel()
-				return errCrash
-			}
-			return nil
-		}
-		err := h.initUnderLoad(ctx)
-		testHooks.afterApply = nil
-		if !fired || !errors.Is(err, errCrash) {
-			t.Fatalf("no crash while converging (fired %v): %v", fired, err)
-		}
-		h.resumeInit()
-		h.done(false)
 	})
 
 	sub("crash catching up before the indexes", func(t *testing.T) {

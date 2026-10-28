@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
+	"database/sql/driver"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/go-mysql-org/go-mysql/mysql"
 	gosql "github.com/go-sql-driver/mysql"
 )
 
@@ -110,6 +113,9 @@ func initOnce(parent context.Context, o InitOptions) error {
 	if in.srcDefs, err = readDefs(ctx, in.src, "", in.names); err != nil {
 		return err
 	}
+	if err := noTriggersOrForeignKeys(ctx, in.src, "", in.names, "the source"); err != nil {
+		return err
+	}
 	in.fp = fingerprint(in.srcDefs)
 	err = in.phases(ctx)
 	if err != nil && !in.lock.ok() {
@@ -139,6 +145,12 @@ func (in *initRun) phases(ctx context.Context) error {
 		}
 		if saved.SchemaFP != in.fp {
 			return &StopError{"table definitions changed since this init started; start again from a removed position row"}
+		}
+		switch saved.Phase {
+		case phaseConverging, phaseCatchingUp, phaseSwapping:
+			if !saved.SnapshotLocked {
+				return &StopError{"this init took its snapshot without locking the source tables (an earlier version) and the copy may miss rows; drop " + stagingDB + ", remove the row in " + positionTable + " and run init again"}
+			}
 		}
 		switch saved.Phase {
 		case phaseReady:
@@ -208,7 +220,7 @@ func (in *initRun) where(ctx context.Context, db string) (int, error) {
 	return n, nil
 }
 
-// copy creates the staging tables and fills them from one snapshot, between positions P and P2.
+// copy creates the staging tables and fills them from one snapshot taken at position P.
 func (in *initRun) copy(ctx context.Context, saved *savedState) error {
 	in.o.Logf("copying from a snapshot into %s", stagingDB)
 	if err := in.createStaging(ctx, saved); err != nil {
@@ -269,19 +281,13 @@ func (in *initRun) createStaging(ctx context.Context, saved *savedState) error {
 	})
 }
 
-// snapshot fills the staging tables from one snapshot, between positions P and P2.
+// snapshot fills the staging tables from one snapshot taken at position P.
 func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
 	limit, err := in.copyLimit(ctx)
 	if err != nil {
 		return err
 	}
 
-	// P before the snapshot, P2 after it; the limit counts from P, where the replay starts
-	started := time.Now()
-	p, err := in.o.Source.ReadStatus(ctx)
-	if err != nil {
-		return err
-	}
 	if err := hook("before-snapshot"); err != nil {
 		return err
 	}
@@ -300,11 +306,9 @@ func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
 	if iso != "REPEATABLE-READ" {
 		return &StopError{"the copy connection is not REPEATABLE READ (" + iso + ")"}
 	}
-	if _, err := conn.ExecContext(ctx, "START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY"); err != nil {
-		return err
-	}
 	defer conn.ExecContext(context.Background(), "ROLLBACK")
-	p2, err := in.o.Source.ReadStatus(ctx)
+	// the limit counts from P, where the replay starts
+	p, started, err := in.lockedSnapshot(ctx, conn)
 	if err != nil {
 		return err
 	}
@@ -331,16 +335,150 @@ func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
 	if err := copyTime(started, limit); err != nil {
 		return err
 	}
-	phase := phaseConverging
-	if p.Current.Compare(p2.Current) == 0 {
-		phase = phaseCatchingUp // nothing was written around the snapshot
-	}
-	start := binlogPos{File: p.Current.Name, Pos: p.Current.Pos}
-	end := binlogPos{File: p2.Current.Name, Pos: p2.Current.Pos}
-	in.o.Logf("copied in %s; replay starts at %s:%d (snapshot taken before %s:%d)", time.Since(started).Round(time.Second), start.File, start.Pos, end.File, end.Pos)
+	// the snapshot holds exactly the followed tables' changes up to P, so the replay applies strictly
+	start := binlogPos{File: p.Name, Pos: p.Pos}
+	in.o.Logf("copied in %s; replay starts at the snapshot position %s:%d", time.Since(started).Round(time.Second), start.File, start.Pos)
 	s := *saved
-	s.Position, s.P, s.P2, s.Phase = start.String(), start.String(), end.String(), phase
+	s.Position, s.P, s.P2, s.Phase, s.SnapshotLocked = start.String(), start.String(), start.String(), phaseCatchingUp, true
 	return in.fenced(ctx, func(tx *sql.Tx) error { return setState(ctx, tx, in.uuid, s) })
+}
+
+const (
+	snapshotLockWait  = 5 // seconds one attempt waits for the source table lock
+	snapshotLockTries = 3
+)
+
+// lockedSnapshot starts the snapshot on conn and reads the binlog position while another
+// connection holds the followed tables with LOCK TABLES ... READ. A transaction is in the binlog
+// before its engine commit, so a position read without the lock can include a change the
+// snapshot does not show yet; the lock is granted only once every transaction writing those
+// tables has committed, and keeps new writes out until the position is read.
+func (in *initRun) lockedSnapshot(ctx context.Context, conn *sql.Conn) (mysql.Position, time.Time, error) {
+	var parts []string
+	for _, n := range in.names {
+		schema, table, _ := strings.Cut(n, ".")
+		parts = append(parts, quoteName(schema)+"."+quoteName(table)+" READ")
+	}
+	lockSQL := "LOCK TABLES " + strings.Join(parts, ", ")
+	for try := 1; ; try++ {
+		p, at, waited, err := in.tryLockedSnapshot(ctx, conn, lockSQL)
+		if err == nil {
+			return p, at, nil
+		}
+		var me *gosql.MySQLError
+		switch {
+		case errors.Is(err, errSourceBusy):
+			if try >= snapshotLockTries {
+				return mysql.Position{}, time.Time{}, &StopError{fmt.Sprintf("could not lock the followed tables on the source in %d tries of %d seconds: write transactions kept them busy; run init again later", try, snapshotLockWait)}
+			}
+			in.o.Logf("try %d: the source tables stayed busy for %s; trying again", try, waited.Round(time.Millisecond))
+			select {
+			case <-ctx.Done():
+				return mysql.Position{}, time.Time{}, ctx.Err()
+			case <-time.After(snapshotLockWait * time.Second):
+			}
+		case errors.As(err, &me) && (me.Number == 1044 || me.Number == 1142 || me.Number == 1227):
+			return mysql.Position{}, time.Time{}, &StopError{fmt.Sprintf("the source account needs the LOCK TABLES and SELECT privileges on the followed tables (MySQL error %d)", me.Number)}
+		default:
+			return mysql.Position{}, time.Time{}, err
+		}
+	}
+}
+
+// errSourceBusy means one attempt could not lock the source tables in time.
+var errSourceBusy = errors.New("the source tables stayed busy")
+
+// tryLockedSnapshot makes one attempt. It returns the position, when it was read, and how long
+// the lock statement waited.
+func (in *initRun) tryLockedSnapshot(ctx context.Context, conn *sql.Conn, lockSQL string) (mysql.Position, time.Time, time.Duration, error) {
+	fail := func(waited time.Duration, err error) (mysql.Position, time.Time, time.Duration, error) {
+		return mysql.Position{}, time.Time{}, waited, err
+	}
+	lock, err := in.src.Conn(ctx)
+	if err != nil {
+		return fail(0, err)
+	}
+	// the server frees the lock when the session ends, and a pooled connection keeps its session
+	defer func() {
+		uctx, done := context.WithTimeout(context.Background(), 5*time.Second)
+		defer done()
+		lock.ExecContext(uctx, "UNLOCK TABLES")
+		lock.Raw(func(any) error { return driver.ErrBadConn })
+		lock.Close()
+	}()
+	var id int64
+	if err := lock.QueryRowContext(ctx, "SELECT CONNECTION_ID()").Scan(&id); err != nil {
+		return fail(0, err)
+	}
+	// lock_wait_timeout applies to each table's lock in turn, so the statement as a whole is
+	// stopped from another connection at the limit
+	if _, err := lock.ExecContext(ctx, fmt.Sprintf("SET SESSION lock_wait_timeout = %d", snapshotLockWait)); err != nil {
+		return fail(0, err)
+	}
+	var mu sync.Mutex
+	finished, fired := false, false
+	var killErr error
+	killed := make(chan struct{})
+	asked := time.Now()
+	stop := time.AfterFunc(snapshotLockWait*time.Second, func() {
+		defer close(killed)
+		mu.Lock()
+		if finished {
+			mu.Unlock()
+			return
+		}
+		fired = true
+		mu.Unlock()
+		kctx, done := context.WithTimeout(context.Background(), 5*time.Second)
+		defer done()
+		_, killErr = in.src.ExecContext(kctx, fmt.Sprintf("KILL QUERY %d", id))
+	})
+	// past this the driver drops the connection, should the KILL QUERY fail
+	lctx, done := context.WithTimeout(ctx, (snapshotLockWait+5)*time.Second)
+	_, err = lock.ExecContext(lctx, lockSQL)
+	overran := errors.Is(lctx.Err(), context.DeadlineExceeded) && ctx.Err() == nil
+	done()
+	mu.Lock()
+	finished = true
+	timedOut := fired
+	mu.Unlock()
+	waited := time.Since(asked)
+	if !stop.Stop() {
+		<-killed // a KILL QUERY on its way must not reach a later statement
+	}
+	var me *gosql.MySQLError
+	switch {
+	case timedOut && killErr != nil: // its number only, so a privilege error is not taken for the lock's
+		return fail(waited, &Error{fmt.Sprintf("could not stop the lock statement at its time limit (%s)", SafeError(killErr))})
+	case overran:
+		return fail(waited, &Error{"the lock statement did not end at its time limit"})
+	case timedOut:
+		return fail(waited, errSourceBusy) // even if the lock came: the kill may be on its way
+	case errors.As(err, &me) && me.Number == 1205:
+		return fail(waited, errSourceBusy)
+	case err != nil:
+		return fail(waited, err)
+	}
+	locked := time.Now()
+	if err := hook("source-locked"); err != nil {
+		return fail(0, err)
+	}
+	if _, err := conn.ExecContext(ctx, "START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY"); err != nil {
+		return fail(0, err)
+	}
+	p, err := sourcePos(ctx, lock)
+	if err != nil {
+		return fail(0, err)
+	}
+	at := time.Now()
+	if err := hook("source-position-read"); err != nil {
+		return fail(0, err)
+	}
+	if _, err := lock.ExecContext(ctx, "UNLOCK TABLES"); err != nil {
+		return fail(0, err)
+	}
+	in.o.Logf("locked the source tables after waiting %s, held them %s", waited.Round(time.Millisecond), time.Since(locked).Round(time.Millisecond))
+	return p, at, waited, nil
 }
 
 func copyTime(started time.Time, limit time.Duration) error {

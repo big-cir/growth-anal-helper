@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
+	gosql "github.com/go-sql-driver/mysql"
 )
 
 var followed = []string{"member", "post", "like_mark", "team_member", "label"}
@@ -292,6 +293,9 @@ func (h *harness) background() (stop func() error) {
 					tx.Rollback()
 				}
 			}
+			if isDeadlock(err) {
+				continue // init's source lock can make a writer the deadlock victim; applications retry
+			}
 			if err != nil {
 				result <- err
 				return
@@ -303,6 +307,11 @@ func (h *harness) background() (stop func() error) {
 		close(done)
 		return <-result
 	}
+}
+
+func isDeadlock(err error) bool {
+	var me *gosql.MySQLError
+	return errors.As(err, &me) && me.Number == 1213
 }
 
 // boundary is the end of the last finished transaction on the source, read with inspect.

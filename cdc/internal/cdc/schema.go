@@ -237,9 +237,12 @@ func sameDefs(src, dst map[string]*tableDef, full bool) error {
 	return nil
 }
 
-// noTriggersOrForeignKeys stops when the copy has triggers on, or foreign keys from or to, a followed table:
-// applying a row change there would do more than the source did.
-func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, names []string) error {
+// noTriggersOrForeignKeys stops when side has triggers on, or foreign keys from or to, a followed table.
+// On the copy, applying a row change would do more than the source did; on the source, a cascaded
+// change may not reach the binlog, and locking the table would lock the related ones too.
+// It sees only what the account may see: triggers need the TRIGGER privilege, and a foreign key
+// from another schema needs access to that table.
+func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, names []string, side string) error {
 	for _, n := range names {
 		schema, table, _ := strings.Cut(n, ".")
 		if physDB != "" {
@@ -251,7 +254,7 @@ func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, nam
 			return err
 		}
 		if c > 0 {
-			return &StopError{schema + "." + table + ": the copy has triggers on this table"}
+			return &StopError{schema + "." + table + ": " + side + " has triggers on this table"}
 		}
 		if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE
 			WHERE REFERENCED_TABLE_NAME IS NOT NULL AND (
@@ -260,7 +263,7 @@ func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, nam
 			return err
 		}
 		if c > 0 {
-			return &StopError{schema + "." + table + ": the copy has foreign keys on this table"}
+			return &StopError{schema + "." + table + ": " + side + " has foreign keys on this table"}
 		}
 	}
 	return nil

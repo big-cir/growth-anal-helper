@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
@@ -26,7 +27,12 @@ var usage = `Usage: growth-lab-cdc <command>
                           DBS: comma-separated regular expressions for database names (required)
                           TABLES: comma-separated regular expressions for db.table names; without it,
                           every table of the matched databases. Patterns match whole names, e.g. app\.orders
-                          Defaults: from the oldest kept file to the current position, 200 MB, 600 seconds`
+                          Defaults: from the oldest kept file to the current position, 200 MB, 600 seconds
+  run --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
+      [--host H] [--port N] [--from FILE:POS] [--server-id N]
+                          Apply source changes to the same tables on the target and keep the position there
+                          --from: first run only, the position the target's data was taken at
+                          Stops on anything it cannot apply exactly; Ctrl+C finishes the current transaction`
 
 func main() {
 	os.Exit(run(os.Args[1:]))
@@ -46,6 +52,8 @@ func run(argv []string) int {
 	switch cmd {
 	case "inspect":
 		code, err = inspectCmd(rest)
+	case "run":
+		code, err = runCmd(rest)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n%s\n", cmd, usage)
 		return 2
@@ -318,5 +326,110 @@ func printCounts(m map[string]int64) {
 	sort.Strings(keys)
 	for _, k := range keys {
 		fmt.Printf("  %-40s %10d\n", k, m[k])
+	}
+}
+
+var runFlags = map[string]bool{
+	"--defaults-file": true, "--target-defaults-file": true, "--host": true, "--port": true,
+	"--database": true, "--tables": true, "--from": true, "--server-id": true,
+}
+
+func runCmd(args []string) (int, error) {
+	if err := checkFlags(args, runFlags); err != nil {
+		return 1, err
+	}
+	load := func(flag string) (cdc.Source, error) {
+		file, ok, err := flagValue(args, flag)
+		if err != nil {
+			return cdc.Source{}, err
+		}
+		if !ok {
+			return cdc.Source{}, cdcErrorf("%s is required", flag)
+		}
+		return cdc.LoadSource(file)
+	}
+	src, err := load("--defaults-file")
+	if err != nil {
+		return 1, err
+	}
+	if v, ok, err := flagValue(args, "--host"); err != nil {
+		return 1, err
+	} else if ok {
+		src.Host = v
+	}
+	port, err := intFlag(args, "--port", int64(src.Port), 1, 65535)
+	if err != nil {
+		return 1, err
+	}
+	src.Port = int(port)
+	dst, err := load("--target-defaults-file")
+	if err != nil {
+		return 1, err
+	}
+	o := cdc.RunOptions{Source: src, Target: dst, Logf: func(f string, a ...any) {
+		fmt.Fprintf(os.Stderr, "%s %s\n", time.Now().Format("15:04:05"), fmt.Sprintf(f, a...))
+	}}
+	db, ok, err := flagValue(args, "--database")
+	if err != nil {
+		return 1, err
+	}
+	if !ok || db == "" {
+		return 1, &cdc.Error{Msg: "--database is required"}
+	}
+	o.Database = db
+	v, ok, err := flagValue(args, "--tables")
+	if err != nil {
+		return 1, err
+	}
+	if !ok {
+		return 1, &cdc.Error{Msg: "--tables is required: the exact table names to apply"}
+	}
+	if o.Tables, err = cdc.ParseList("--tables", v); err != nil {
+		return 1, err
+	}
+	if v, ok, err := flagValue(args, "--from"); err != nil {
+		return 1, err
+	} else if ok {
+		name, p, found := strings.Cut(v, ":")
+		n, perr := strconv.ParseUint(p, 10, 32)
+		if !found || name == "" || perr != nil || n < 4 {
+			return 1, &cdc.Error{Msg: "--from must be FILE:POS"}
+		}
+		o.From = &mysql.Position{Name: name, Pos: uint32(n)}
+	}
+	id, err := intFlag(args, "--server-id", 0, 1, math.MaxUint32)
+	if err != nil {
+		return 1, err
+	}
+	o.ServerID = uint32(id)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	sum, err := cdc.Run(ctx, o)
+	printSummary(sum)
+	if err != nil {
+		return 1, err
+	}
+	return 0, nil
+}
+
+func printSummary(s *cdc.RunSummary) {
+	if s == nil {
+		return
+	}
+	saved := s.Saved
+	if saved == "" {
+		saved = "(unchanged)"
+	}
+	fmt.Printf("Saved position  %s\n", saved)
+	fmt.Printf("Skipped         %d transactions without followed rows\n", s.Skipped)
+	fmt.Printf("%-32s %10s %10s %10s\n", "applied", "insert", "update", "delete")
+	names := make([]string, 0, len(s.Applied))
+	for n := range s.Applied {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		c := s.Applied[n]
+		fmt.Printf("%-32s %10d %10d %10d\n", n, c.Inserts, c.Updates, c.Deletes)
 	}
 }

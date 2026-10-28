@@ -231,6 +231,14 @@ func SafeError(err error) error {
 	if errors.As(err, &own) {
 		return own
 	}
+	var stop *StopError
+	if errors.As(err, &stop) {
+		return &Error{stop.Msg}
+	}
+	var unsure *UncertainError
+	if errors.As(err, &unsure) {
+		return &Error{unsure.Error()}
+	}
 	var ee *replication.EventError
 	if errors.As(err, &ee) {
 		if ee.Header == nil {
@@ -258,7 +266,7 @@ func SafeError(err error) error {
 		return &Error{"cancelled"}
 	case errors.Is(err, syscall.ECONNREFUSED):
 		return &Error{"connection refused"}
-	case errors.Is(err, io.EOF), errors.Is(err, io.ErrUnexpectedEOF):
+	case errors.Is(err, io.EOF), errors.Is(err, io.ErrUnexpectedEOF), errors.Is(err, mysql.ErrBadConn), errors.Is(err, gosql.ErrInvalidConn):
 		return &Error{"connection closed by the server"}
 	case errors.As(err, &ne) && ne.Timeout():
 		return &Error{"network timeout"}

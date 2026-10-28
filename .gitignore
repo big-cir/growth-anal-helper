@@ -5,3 +5,5 @@ node_modules/
 examples/demo/.out/
 .claude/
 bin/
+/go.work
+/go.work.sum

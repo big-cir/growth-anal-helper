@@ -55,6 +55,21 @@ bin/growth-lab-cdc run --defaults-file source.cnf --target-defaults-file target.
 
 The target account needs to create the `growth_lab_cdc` database and write the followed tables.
 
+`check` compares the followed tables on the source and the target, chunk by chunk, and counts the rows that differ. It prints counts only, never row or key values.
+
+```bash
+bin/growth-lab-cdc check --defaults-file source.cnf --target-defaults-file target.cnf \
+  --database app --tables orders,users --writes-stopped
+```
+
+- The target must be `ready` (after `init`, or a `run` with `--from`). `check` does not write to the target and takes neither the CDC named lock nor an explicit table lock, so `run` can keep running; its short reads may briefly delay DDL.
+- Chunks follow the source primary key order. Each chunk compares `COUNT(*)` and a 64-bit `BIT_XOR` of row `MD5`s built from each column's NULL flag, byte length and value; chunks that differ are compared row by row.
+- `--writes-stopped`: the source has no uncommitted writes when it starts and no writes until it ends; you ensure this. It waits until the target has applied every transaction before the source position, then reports differences as mismatches. If the source position has moved at the end, or cannot be read, it exits with an error (1) and marks the printed result provisional.
+- Without it, the source may keep writing. Each chunk is read on the target once the target has reached the source position read after it. Differing rows are looked at again `--rounds` more times, 10 seconds apart; those that still differ are suspects, not mismatches.
+- Limits: `--chunk-rows` (10000), `--wait-seconds` for the target to catch up (60), `--rounds` (3), `--max-minutes` for the comparison (60; the final source position check in `--writes-stopped` may add up to 10 seconds). Tables left when time runs out are reported unchecked.
+- Exit codes: 0 no difference and nothing undecided, 1 error, 3 mismatch, 4 suspect, undecided, unchecked, or a provisional result after the time limit.
+- The source needs the same `SELECT`, `REPLICATION CLIENT` and `REPLICATION SLAVE` privileges as `run`; the target needs `SELECT` on the followed tables and `growth_lab_cdc.position`. A primary key with an `enum` column is not supported. Hash comparison is probabilistic.
+
 ### Integration tests
 
 They need two disposable MySQL servers and administrative accounts. They create and drop the databases `app`, `app_other`, `growth_lab_cdc`, `growth_lab_cdc_staging` and `growth_lab_cdc_old`. The snapshot tests also create and drop a test user on the source, install the semi-sync source plugin there and turn it on for a few seconds (it is left installed but off):

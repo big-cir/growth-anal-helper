@@ -70,3 +70,5 @@ scripts/go test ./...
 node --test test/web/charts.test.js
 bin/growth-lab public-check --require-denylist
 ```
+
+`cdc/` is a separate Go module with its own tests (`cd cdc && go test ./...`); the commands above do not include it.

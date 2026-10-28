@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
+	gosql "github.com/go-sql-driver/mysql"
 )
 
 var followed = []string{"member", "post", "like_mark", "team_member", "label"}
@@ -31,13 +32,14 @@ var schema = []string{
 		name varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL, handle varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
 		locale enum('EN','KO','JA') COLLATE utf8mb4_general_ci NOT NULL, UNIQUE KEY handle (handle)) ENGINE=InnoDB`,
 	`CREATE TABLE app.post (id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, member_id bigint DEFAULT NULL,
-		body varchar(2000) COLLATE utf8mb4_general_ci DEFAULT NULL, created datetime(6) DEFAULT NULL, changed datetime(6) DEFAULT NULL) ENGINE=InnoDB`,
+		body varchar(2000) COLLATE utf8mb4_general_ci DEFAULT NULL, created datetime(6) DEFAULT NULL, changed datetime(6) DEFAULT NULL,
+		KEY member (member_id), KEY body_prefix (body(20) DESC)) ENGINE=InnoDB`,
 	`CREATE TABLE app.like_mark (id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, member_id bigint NOT NULL, post_id bigint NOT NULL,
 		created datetime NOT NULL, UNIQUE KEY member_post (member_id, post_id)) ENGINE=InnoDB`,
 	`CREATE TABLE app.team_member (team_id bigint NOT NULL, member_id bigint NOT NULL, rank_no int NOT NULL DEFAULT 0,
 		changed datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), PRIMARY KEY (team_id, member_id)) ENGINE=InnoDB`,
 	`CREATE TABLE app.label (id bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, title varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
-		color tinyint NOT NULL, changed datetime(6) DEFAULT NULL) ENGINE=InnoDB`,
+		color tinyint NOT NULL, changed datetime(6) DEFAULT NULL, KEY color (color) INVISIBLE) ENGINE=InnoDB`,
 }
 
 var seed = []string{
@@ -233,6 +235,13 @@ func (h *harness) load(n int) {
 
 func (h *harness) change(tx *sql.Tx) {
 	h.t.Helper()
+	if err := h.changeErr(tx); err != nil {
+		h.t.Fatal(err)
+	}
+}
+
+// changeErr writes one random change; it does not touch the test, so it can run off the test goroutine.
+func (h *harness) changeErr(tx *sql.Tx) error {
 	h.seq++
 	big := 900_000_000 + h.seq
 	locales := []string{"KO", "EN", "JA"}
@@ -256,8 +265,53 @@ func (h *harness) change(tx *sql.Tx) {
 	}
 	s := stmts[h.rng.Intn(len(stmts))]
 	if _, err := tx.Exec(s.q, s.args...); err != nil {
-		h.t.Fatalf("%s: %v", s.q, err)
+		return fmt.Errorf("%s: %w", s.q, err)
 	}
+	return nil
+}
+
+// background keeps writing changes until stop is called, which returns the first error.
+func (h *harness) background() (stop func() error) {
+	done := make(chan struct{})
+	result := make(chan error, 1)
+	go func() {
+		for {
+			select {
+			case <-done:
+				result <- nil
+				return
+			default:
+			}
+			tx, err := h.srcDB.Begin()
+			if err == nil {
+				for k := 1 + h.rng.Intn(4); k > 0 && err == nil; k-- {
+					err = h.changeErr(tx)
+				}
+				if err == nil {
+					err = tx.Commit()
+				} else {
+					tx.Rollback()
+				}
+			}
+			if isDeadlock(err) {
+				continue // init's source lock can make a writer the deadlock victim; applications retry
+			}
+			if err != nil {
+				result <- err
+				return
+			}
+			time.Sleep(5 * time.Millisecond)
+		}
+	}()
+	return func() error {
+		close(done)
+		return <-result
+	}
+}
+
+func isDeadlock(err error) bool {
+	var me *gosql.MySQLError
+	return errors.As(err, &me) && me.Number == 1213
 }
 
 // boundary is the end of the last finished transaction on the source, read with inspect.

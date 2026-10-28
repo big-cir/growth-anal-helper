@@ -319,3 +319,55 @@ func (s Source) SelectTables(ctx context.Context, f Filter) (map[string]TableInf
 	}
 	return out, nil
 }
+
+func sourcePos(ctx context.Context, conn *sql.Conn) (mysql.Position, error) {
+	cur, err := connRows(ctx, conn, "SHOW BINARY LOG STATUS", 0)
+	if err != nil {
+		return mysql.Position{}, err
+	}
+	if len(cur) != 1 || len(cur[0]) < 2 || cur[0][0] == "" {
+		return mysql.Position{}, &Error{"binary logging is off on the source"}
+	}
+	pos, err := strconv.ParseUint(cur[0][1], 10, 32)
+	if err != nil {
+		return mysql.Position{}, &Error{"SHOW BINARY LOG STATUS: position is not a number"}
+	}
+	return mysql.Position{Name: cur[0][0], Pos: uint32(pos)}, nil
+}
+
+// errTooManyRows stops a read past its row limit.
+var errTooManyRows = &Error{"too many rows"}
+
+// connRows returns the rows of a query on one connection as text, NULL as "", failing with
+// errTooManyRows past max rows (0: no limit).
+func connRows(ctx context.Context, conn *sql.Conn, q string, max int, args ...any) ([][]string, error) {
+	rows, err := conn.QueryContext(ctx, q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+	var out [][]string
+	for rows.Next() {
+		vals := make([]sql.NullString, len(cols))
+		ptrs := make([]any, len(cols))
+		for i := range vals {
+			ptrs[i] = &vals[i]
+		}
+		if err := rows.Scan(ptrs...); err != nil {
+			return nil, err
+		}
+		r := make([]string, len(cols))
+		for i, v := range vals {
+			r[i] = v.String
+		}
+		out = append(out, r)
+		if max > 0 && len(out) > max {
+			return nil, errTooManyRows
+		}
+	}
+	return out, rows.Err()
+}

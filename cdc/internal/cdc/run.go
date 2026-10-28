@@ -2,6 +2,7 @@ package cdc
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
@@ -10,6 +11,7 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,6 +38,12 @@ type RunOptions struct {
 	// StopWait is how long an open source transaction may take to finish after a stop request.
 	StopWait time.Duration
 	Retries  int
+
+	// set by init
+	lock     *copyLock // held by the caller; nil: each session takes its own
+	catchUp  bool      // return once the copy has reached the source position seen at the start
+	phases   []string  // stored phases a session may continue from; nil: ready only
+	baseOnly bool      // compare the copy without secondary indexes (a staging copy)
 }
 
 // RunSummary is what a run applied before it returned.
@@ -101,11 +109,17 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 	for attempt := 0; ; attempt++ {
 		started := time.Now()
 		err := session(ctx, &o, &from, sum)
+		if o.catchUp && ctx.Err() != nil && (err == nil || errors.Is(err, context.Canceled)) {
+			return sum, ctx.Err() // init must not take a stop for having caught up
+		}
 		if err == nil || errors.Is(err, context.Canceled) && ctx.Err() != nil {
 			return sum, nil
 		}
 		if ctx.Err() != nil {
 			return sum, err // a failure while stopping is reported, not retried
+		}
+		if o.lock != nil && errors.Is(err, errLockLost) {
+			return sum, err // the caller holds the lock and takes it again
 		}
 		if !retryable(err) {
 			return sum, err
@@ -120,6 +134,9 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 		o.Logf("reconnecting in %s after: %s", wait, SafeError(err))
 		select {
 		case <-ctx.Done():
+			if o.catchUp {
+				return sum, ctx.Err()
+			}
 			return sum, nil
 		case <-time.After(wait):
 		}
@@ -142,7 +159,7 @@ func retryable(err error) bool {
 	var re *mysql.MyError
 	var ne net.Error
 	switch {
-	case errors.As(err, &u):
+	case errors.As(err, &u), errors.Is(err, errLockLost):
 		return true
 	case errors.As(err, &me):
 		return me.Number == 1205 || me.Number == 1213 || me.Number == 1927 || me.Number == 2006 || me.Number == 2013
@@ -184,38 +201,37 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 		return err
 	}
 	defer dst.Close()
+	lock := o.lock
+	if lock == nil {
+		if lock, err = takeLock(ctx, dst); err != nil {
+			return err
+		}
+		defer lock.release()
+	} else if !lock.ok() {
+		return errLockLost
+	}
 	names := o.names()
-	srcDefs, err := readDefs(ctx, src, names)
+	srcDefs, err := readDefs(ctx, src, "", names)
 	if err != nil {
 		return err
 	}
-	dstDefs, err := readDefs(ctx, dst, names)
-	if err != nil {
-		return err
-	}
-	fp, err := sameDefs(srcDefs, dstDefs)
-	if err != nil {
-		return err
-	}
-	if err := noTriggersOrForeignKeys(ctx, dst, names); err != nil {
-		return err
-	}
-	saved, err := loadState(ctx, dst, st.ServerUUID)
+	fp := fingerprint(srcDefs)
+	saved, err := loadState(ctx, dst, st.ServerUUID, o.Database)
 	if err != nil {
 		return err
 	}
 	tables := strings.Join(names, ",")
+	dataDB := o.Database
 	var pos binlogPos
+	create := false
 	switch {
 	case saved == nil && from == nil:
-		return &StopError{"the copy has no stored position; give --from with the position its data was taken at"}
+		return &StopError{"the copy has no stored position; run init, or give --from with the position its data was taken at"}
 	case saved == nil:
 		pos = binlogPos{File: from.Name, Pos: from.Pos}
-		if err := initState(ctx, dst, st.ServerUUID, savedState{Position: pos.String(), Tables: tables, SchemaFP: fp}); err != nil {
-			return err
-		}
-		*fromp = nil
-		o.Logf("starting at %s:%d (trusted as given until the first transaction is stored with its event checksum)", pos.File, pos.Pos)
+		create = true // stored once the copy passes the checks below
+	case saved.Phase == phaseLegacy:
+		return &StopError{"the stored position is from before init existed; remove its row in " + positionTable + " and run init"}
 	case from != nil && saved.Position == (binlogPos{File: from.Name, Pos: from.Pos}).String() && saved.Tables == tables && saved.SchemaFP == fp:
 		// the first run stored it but lost the reply
 		pos = binlogPos{File: from.Name, Pos: from.Pos}
@@ -232,6 +248,29 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 			return err
 		}
 	}
+	if saved != nil {
+		phases := o.phases
+		if phases == nil {
+			phases = []string{phaseReady}
+		}
+		if !slices.Contains(phases, saved.Phase) {
+			return &StopError{"the copy is in the middle of an init (" + saved.Phase + "); run init to finish it"}
+		}
+		dataDB = saved.DataDB
+	}
+	dstDefs, err := readDefs(ctx, dst, dataDB, names)
+	if err != nil {
+		return err
+	}
+	if err := sameDefs(srcDefs, dstDefs, !o.baseOnly); err != nil {
+		return err
+	}
+	if err := noTriggersOrForeignKeys(ctx, dst, dataDB, names, "the copy"); err != nil {
+		return err
+	}
+	if err := noTriggersOrForeignKeys(ctx, src, "", names, "the source"); err != nil {
+		return err
+	}
 	if err := continuity(st, pos); err != nil {
 		return err
 	}
@@ -239,9 +278,27 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 	if err != nil {
 		return err
 	}
+	if create {
+		s := savedState{Position: pos.String(), Tables: tables, SchemaFP: fp, Phase: phaseReady, DataDB: dataDB}
+		if err := fenced(ctx, dst, lock.epoch, func(tx *sql.Tx) error { return initState(ctx, tx, st.ServerUUID, s) }); err != nil {
+			return err
+		}
+		*fromp = nil
+		o.Logf("starting at %s:%d (trusted as given until the first transaction is stored with its event checksum)", pos.File, pos.Pos)
+	}
 	r := &reader{
-		o: o, sink: newTarget(dst, st.ServerUUID, dstDefs), defs: srcDefs, parser: parser.New(),
-		version: st.Version, saved: pos, last: pos, sum: sum, open: map[string]*Counts{},
+		o: o, sink: newTarget(dst, st.ServerUUID, dataDB, dstDefs, lock.epoch), defs: srcDefs, parser: parser.New(),
+		version: st.Version, saved: pos, last: pos, sum: sum, open: map[string]*Counts{}, lock: lock,
+		readPos: pos.position(),
+	}
+	if saved != nil && saved.Phase == phaseConverging {
+		r.converging = true
+		if r.p2, err = parsePos(saved.P2); err != nil {
+			return err
+		}
+	}
+	if o.catchUp {
+		r.goal = st.Current
 	}
 	return r.stream(parent, id)
 }
@@ -299,6 +356,21 @@ type reader struct {
 	sinkOpen bool
 	open     map[string]*Counts
 	stopping atomic.Bool
+	lock     *copyLock
+
+	converging bool      // apply by overwriting until the first transaction end at or after p2
+	p2         binlogPos // source position just after an init snapshot
+	txMode     ApplyMode // decided when a source transaction starts
+	goal       mysql.Position
+	readPos    mysql.Position // end of the last event read, for catching up
+}
+
+// mode is how a transaction starting now is applied.
+func (r *reader) mode() ApplyMode {
+	if r.converging {
+		return Converge
+	}
+	return Strict
 }
 
 func (r *reader) stream(parent context.Context, id uint32) error {
@@ -331,10 +403,21 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 	var stopBy time.Time
 	stopped, finished := make(chan struct{}), make(chan struct{})
 	defer close(finished)
+	var lost <-chan struct{}
+	if r.lock != nil {
+		lost = r.lock.Lost()
+	}
+	var lockLost atomic.Bool
 	go func() {
 		select {
 		case <-parent.Done():
 		case <-finished:
+			return
+		case <-lost:
+			// stop writing at once; the open copy transaction rolls back
+			lockLost.Store(true)
+			cancel()
+			copyCancel()
 			return
 		}
 		stopBy = time.Now().Add(r.o.StopWait)
@@ -360,10 +443,16 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 		}
 	}()
 	for {
+		if done, err := r.caughtUp(copyCtx); err != nil || done {
+			return err
+		}
 		ev, err := streamer.GetEvent(ctx)
 		if err != nil {
 			r.sink.Rollback()
 			r.sinkOpen = false
+			if lockLost.Load() {
+				return errLockLost
+			}
 			if r.stopping.Load() && errors.Is(err, context.Canceled) {
 				<-stopped
 				// an unfinished source transaction is dropped; the copy keeps the last finished one
@@ -371,7 +460,7 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 				clear(r.open)
 				saveCtx, done := context.WithDeadline(copyCtx, stopBy.Add(5*time.Second))
 				defer done()
-				return r.saveLast(saveCtx)
+				return r.saveLast(saveCtx, "")
 			}
 			return err
 		}
@@ -379,6 +468,9 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 		if err != nil {
 			r.sink.Rollback()
 			r.sinkOpen = false
+			if lockLost.Load() {
+				return errLockLost
+			}
 			return err
 		}
 		if done {
@@ -387,12 +479,33 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 	}
 }
 
-// saveLast stores the end of the last finished transaction if it is past the stored one.
-func (r *reader) saveLast(ctx context.Context) error {
-	if r.sinkOpen || r.inTx.Load() || r.last.position().Compare(r.saved.position()) <= 0 {
+// caughtUp stores the last finished transaction and reports true once an init replay has read up to
+// the source position seen at its start, also before any event arrives.
+func (r *reader) caughtUp(ctx context.Context) (bool, error) {
+	if r.goal.Name == "" || r.inTx.Load() || r.sinkOpen || r.readPos.Compare(r.goal) < 0 {
+		return false, nil
+	}
+	// if the source had no transaction after p2, converging ends here
+	phase := ""
+	if r.converging && r.readPos.Compare(r.p2.position()) >= 0 {
+		phase = phaseCatchingUp
+	}
+	if err := r.saveLast(ctx, phase); err != nil {
+		return false, err
+	}
+	if phase != "" {
+		r.converging = false
+	}
+	return true, nil
+}
+
+// saveLast stores the end of the last finished transaction if it is past the stored one,
+// or with a phase change even when it is not. Never while a transaction is open.
+func (r *reader) saveLast(ctx context.Context, phase string) error {
+	if r.sinkOpen || r.inTx.Load() || phase == "" && r.last.position().Compare(r.saved.position()) <= 0 {
 		return nil
 	}
-	if err := r.sink.Save(ctx, r.last.String()); err != nil {
+	if err := r.sink.Save(ctx, r.last.String(), phase); err != nil {
 		return err
 	}
 	r.saved, r.lastSave = r.last, time.Now()
@@ -419,7 +532,11 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 			return false, &StopError{fmt.Sprintf("binlog rotated from %s to %s:%d, not the start of the next file", r.file, next, rot.Position)}
 		}
 		r.file = next
+		r.readPos = mysql.Position{Name: next, Pos: 4}
 		return false, nil
+	}
+	if ev == outer && h.LogPos > 0 {
+		r.readPos = mysql.Position{Name: r.file, Pos: h.LogPos}
 	}
 	switch h.EventType {
 	case replication.FORMAT_DESCRIPTION_EVENT, replication.PREVIOUS_GTIDS_EVENT, replication.HEARTBEAT_EVENT, replication.HEARTBEAT_LOG_EVENT_V2,
@@ -477,6 +594,7 @@ func (r *reader) query(ctx context.Context, schema, text string, pos binlogPos) 
 			return false, &StopError{"BEGIN inside an open transaction"}
 		}
 		r.inTx.Store(true)
+		r.txMode = r.mode()
 		return false, nil
 	case q == "COMMIT":
 		return r.boundary(ctx, pos, true)
@@ -504,9 +622,14 @@ func (r *reader) query(ctx context.Context, schema, text string, pos binlogPos) 
 // boundary ends a source transaction at pos: commits the copy transaction with the position, or just
 // remembers the position and saves it now and then.
 func (r *reader) boundary(ctx context.Context, pos binlogPos, committed bool) (bool, error) {
+	// the first transaction end at or after p2 ends converging, stored with that end
+	phase := ""
+	if r.converging && pos.position().Compare(r.p2.position()) >= 0 {
+		phase = phaseCatchingUp
+	}
 	if r.sinkOpen {
 		r.sinkOpen = false
-		err := r.sink.Commit(ctx, pos.String())
+		err := r.sink.Commit(ctx, pos.String(), phase)
 		r.inTx.Store(false)
 		if err != nil {
 			clear(r.open)
@@ -525,14 +648,17 @@ func (r *reader) boundary(ctx context.Context, pos binlogPos, committed bool) (b
 			r.sum.Skipped++
 		}
 		// the first stored position gets its event checksum as soon as possible
-		if r.saved.EventStart == 0 || time.Since(r.lastSave) >= r.o.SaveEvery {
-			if err := r.saveLast(ctx); err != nil {
+		if phase != "" || r.saved.EventStart == 0 || time.Since(r.lastSave) >= r.o.SaveEvery {
+			if err := r.saveLast(ctx, phase); err != nil {
 				return false, err
 			}
 		}
 	}
+	if phase != "" {
+		r.converging = false
+	}
 	if r.stopping.Load() {
-		return true, r.saveLast(ctx)
+		return true, r.saveLast(ctx, "")
 	}
 	return false, nil
 }
@@ -586,7 +712,7 @@ func (r *reader) rows(ctx context.Context, e *replication.RowsEvent, h *replicat
 		rows[i] = out
 	}
 	if !r.sinkOpen {
-		if err := r.sink.Begin(ctx); err != nil {
+		if err := r.sink.Begin(ctx, r.txMode); err != nil {
 			return err
 		}
 		r.sinkOpen = true

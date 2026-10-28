@@ -28,6 +28,10 @@ var usage = `Usage: growth-lab-cdc <command>
                           TABLES: comma-separated regular expressions for db.table names; without it,
                           every table of the matched databases. Patterns match whole names, e.g. app\.orders
                           Defaults: from the oldest kept file to the current position, 200 MB, 600 seconds
+  init --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
+       [--host H] [--port N] [--server-id N] [--max-copy-minutes N]
+                          Build a fresh copy of the tables from one snapshot, catch up with the binlog and
+                          swap it in; the previous tables move to growth_lab_cdc_old. Resumes after a stop
   run --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
       [--host H] [--port N] [--from FILE:POS] [--server-id N]
                           Apply source changes to the same tables on the target and keep the position there
@@ -54,6 +58,8 @@ func run(argv []string) int {
 		code, err = inspectCmd(rest)
 	case "run":
 		code, err = runCmd(rest)
+	case "init":
+		code, err = initCmd(rest)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n%s\n", cmd, usage)
 		return 2
@@ -338,53 +344,8 @@ func runCmd(args []string) (int, error) {
 	if err := checkFlags(args, runFlags); err != nil {
 		return 1, err
 	}
-	load := func(flag string) (cdc.Source, error) {
-		file, ok, err := flagValue(args, flag)
-		if err != nil {
-			return cdc.Source{}, err
-		}
-		if !ok {
-			return cdc.Source{}, cdcErrorf("%s is required", flag)
-		}
-		return cdc.LoadSource(file)
-	}
-	src, err := load("--defaults-file")
+	o, err := copyOptions(args)
 	if err != nil {
-		return 1, err
-	}
-	if v, ok, err := flagValue(args, "--host"); err != nil {
-		return 1, err
-	} else if ok {
-		src.Host = v
-	}
-	port, err := intFlag(args, "--port", int64(src.Port), 1, 65535)
-	if err != nil {
-		return 1, err
-	}
-	src.Port = int(port)
-	dst, err := load("--target-defaults-file")
-	if err != nil {
-		return 1, err
-	}
-	o := cdc.RunOptions{Source: src, Target: dst, Logf: func(f string, a ...any) {
-		fmt.Fprintf(os.Stderr, "%s %s\n", time.Now().Format("15:04:05"), fmt.Sprintf(f, a...))
-	}}
-	db, ok, err := flagValue(args, "--database")
-	if err != nil {
-		return 1, err
-	}
-	if !ok || db == "" {
-		return 1, &cdc.Error{Msg: "--database is required"}
-	}
-	o.Database = db
-	v, ok, err := flagValue(args, "--tables")
-	if err != nil {
-		return 1, err
-	}
-	if !ok {
-		return 1, &cdc.Error{Msg: "--tables is required: the exact table names to apply"}
-	}
-	if o.Tables, err = cdc.ParseList("--tables", v); err != nil {
 		return 1, err
 	}
 	if v, ok, err := flagValue(args, "--from"); err != nil {
@@ -397,11 +358,6 @@ func runCmd(args []string) (int, error) {
 		}
 		o.From = &mysql.Position{Name: name, Pos: uint32(n)}
 	}
-	id, err := intFlag(args, "--server-id", 0, 1, math.MaxUint32)
-	if err != nil {
-		return 1, err
-	}
-	o.ServerID = uint32(id)
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	sum, err := cdc.Run(ctx, o)
@@ -432,4 +388,95 @@ func printSummary(s *cdc.RunSummary) {
 		c := s.Applied[n]
 		fmt.Printf("%-32s %10d %10d %10d\n", n, c.Inserts, c.Updates, c.Deletes)
 	}
+}
+
+var initFlags = map[string]bool{
+	"--defaults-file": true, "--target-defaults-file": true, "--host": true, "--port": true,
+	"--database": true, "--tables": true, "--server-id": true, "--max-copy-minutes": true,
+}
+
+func initCmd(args []string) (int, error) {
+	if err := checkFlags(args, initFlags); err != nil {
+		return 1, err
+	}
+	ro, err := copyOptions(args)
+	if err != nil {
+		return 1, err
+	}
+	o := cdc.InitOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables, ServerID: ro.ServerID, Logf: ro.Logf}
+	mins, err := intFlag(args, "--max-copy-minutes", 0, 1, 7*24*60)
+	if err != nil {
+		return 1, err
+	}
+	o.MaxCopy = time.Duration(mins) * time.Minute
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	if err := cdc.Init(ctx, o); err != nil {
+		if ctx.Err() != nil {
+			fmt.Fprintln(os.Stderr, "init stopped; run it again to resume")
+			return 1, nil
+		}
+		return 1, err
+	}
+	return 0, nil
+}
+
+// copyOptions reads the flags run and init share.
+func copyOptions(args []string) (cdc.RunOptions, error) {
+	load := func(flag string) (cdc.Source, error) {
+		file, ok, err := flagValue(args, flag)
+		if err != nil {
+			return cdc.Source{}, err
+		}
+		if !ok {
+			return cdc.Source{}, cdcErrorf("%s is required", flag)
+		}
+		return cdc.LoadSource(file)
+	}
+	var o cdc.RunOptions
+	src, err := load("--defaults-file")
+	if err != nil {
+		return o, err
+	}
+	if v, ok, err := flagValue(args, "--host"); err != nil {
+		return o, err
+	} else if ok {
+		src.Host = v
+	}
+	port, err := intFlag(args, "--port", int64(src.Port), 1, 65535)
+	if err != nil {
+		return o, err
+	}
+	src.Port = int(port)
+	dst, err := load("--target-defaults-file")
+	if err != nil {
+		return o, err
+	}
+	o = cdc.RunOptions{Source: src, Target: dst, Logf: func(f string, a ...any) {
+		fmt.Fprintf(os.Stderr, "%s %s\n", time.Now().Format("15:04:05"), fmt.Sprintf(f, a...))
+	}}
+	db, ok, err := flagValue(args, "--database")
+	if err != nil {
+		return o, err
+	}
+	if !ok || db == "" {
+		return o, &cdc.Error{Msg: "--database is required"}
+	}
+	o.Database = db
+	v, ok, err := flagValue(args, "--tables")
+	if err != nil {
+		return o, err
+	}
+	if !ok {
+		return o, &cdc.Error{Msg: "--tables is required: the exact table names"}
+	}
+	if o.Tables, err = cdc.ParseList("--tables", v); err != nil {
+		return o, err
+	}
+	id, err := intFlag(args, "--server-id", 0, 1, math.MaxUint32)
+	if err != nil {
+		return o, err
+	}
+	o.ServerID = uint32(id)
+	return o, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"hash/crc32"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -19,14 +20,17 @@ type fakeSink struct {
 	pending []*Change
 	commits []string
 	saves   []string
+	phases  []string // phase passed with each commit or save
+	modes   []ApplyMode
 	failOn  ChangeKind
 }
 
-func (f *fakeSink) Begin(context.Context) error {
+func (f *fakeSink) Begin(_ context.Context, mode ApplyMode) error {
 	if f.open {
 		return errors.New("already open")
 	}
 	f.open = true
+	f.modes = append(f.modes, mode)
 	return nil
 }
 
@@ -38,8 +42,9 @@ func (f *fakeSink) Apply(_ context.Context, c *Change) error {
 	return nil
 }
 
-func (f *fakeSink) Commit(_ context.Context, p string) error {
+func (f *fakeSink) Commit(_ context.Context, p, phase string) error {
 	f.open = false
+	f.phases = append(f.phases, phase)
 	f.applied = append(f.applied, f.pending...)
 	f.pending = nil
 	f.commits = append(f.commits, p)
@@ -48,10 +53,11 @@ func (f *fakeSink) Commit(_ context.Context, p string) error {
 
 func (f *fakeSink) Rollback() { f.open, f.pending = false, nil }
 
-func (f *fakeSink) Save(_ context.Context, p string) error {
+func (f *fakeSink) Save(_ context.Context, p, phase string) error {
 	if f.open {
 		return errors.New("save inside a transaction")
 	}
+	f.phases = append(f.phases, phase)
 	f.saves = append(f.saves, p)
 	return nil
 }
@@ -169,7 +175,7 @@ func TestReaderSavesOnlyFinishedTransactions(t *testing.T) {
 	if err := feed(t, r, query(280, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 330, "user", []any{int64(2), int64(1)})); err != nil {
 		t.Fatal(err)
 	}
-	if err := r.saveLast(context.Background()); err != nil || len(sink.saves) != 1 {
+	if err := r.saveLast(context.Background(), ""); err != nil || len(sink.saves) != 1 {
 		t.Fatalf("saved inside an open transaction: %v %v", err, sink.saves)
 	}
 }
@@ -308,13 +314,13 @@ func TestReaderDoesNotSaveInsideASourceTransaction(t *testing.T) {
 	if err := feed(t, r, query(150, "app", "BEGIN"), xid(181), query(220, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 260, "other", []any{int64(1)})); err != nil {
 		t.Fatal(err)
 	}
-	if err := r.saveLast(context.Background()); err != nil || len(sink.saves) != 0 {
+	if err := r.saveLast(context.Background(), ""); err != nil || len(sink.saves) != 0 {
 		t.Fatalf("saved while a source transaction was open: %v %v", err, sink.saves)
 	}
 	if err := feed(t, r, xid(291)); err != nil {
 		t.Fatal(err)
 	}
-	if err := r.saveLast(context.Background()); err != nil || len(sink.saves) != 1 {
+	if err := r.saveLast(context.Background(), ""); err != nil || len(sink.saves) != 1 {
 		t.Fatalf("expected one save after the transaction ended: %v %v", err, sink.saves)
 	}
 }
@@ -330,5 +336,50 @@ func TestReaderStoresTheFirstBoundaryAtOnce(t *testing.T) {
 	}
 	if p, _ := parsePos(sink.saves[0]); p.EventStart == 0 || p.EventCRC == 0 {
 		t.Errorf("stored without a checksum: %+v", p)
+	}
+}
+
+func TestReaderConvergesUntilTheFirstEndAfterP2(t *testing.T) {
+	sink := &fakeSink{}
+	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 300}
+	tx := func(begin, row, end uint32) []*replication.BinlogEvent {
+		return []*replication.BinlogEvent{query(begin, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, row, "user", []any{int64(row), int64(1)}), xid(end)}
+	}
+	var evs []*replication.BinlogEvent
+	evs = append(evs, tx(150, 180, 211)...) // ends before p2: converge
+	evs = append(evs, tx(250, 280, 331)...) // starts before, ends after p2: still converge, and ends converging
+	evs = append(evs, tx(380, 410, 441)...) // strict
+	if err := feed(t, r, evs...); err != nil {
+		t.Fatal(err)
+	}
+	if want := []ApplyMode{Converge, Converge, Strict}; !reflect.DeepEqual(sink.modes, want) {
+		t.Errorf("modes %v, want %v", sink.modes, want)
+	}
+	if want := []string{"", phaseCatchingUp, ""}; !reflect.DeepEqual(sink.phases, want) {
+		t.Errorf("phases %v, want %v", sink.phases, want)
+	}
+	if r.converging {
+		t.Error("still converging")
+	}
+}
+
+func TestReaderEndsConvergingOnAnUnfollowedTransaction(t *testing.T) {
+	sink := &fakeSink{}
+	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 200}
+	r.o.SaveEvery = time.Hour
+	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 180, "other", []any{int64(1)}), xid(211)); err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.saves) != 1 || sink.phases[0] != phaseCatchingUp || r.converging {
+		t.Fatalf("the phase change should be saved at once with that end: saves %v phases %v", sink.saves, sink.phases)
+	}
+}
+
+func TestAddIndexSQL(t *testing.T) {
+	got := addIndexSQL("stage", "t", indexDef{Name: "k", Unique: true, Visible: false, Parts: []indexPart{{Column: "a", SubPart: "10"}, {Column: "b", Desc: true}}})
+	if want := "ALTER TABLE `stage`.`t` ADD UNIQUE INDEX `k` (`a`(10), `b` DESC) INVISIBLE"; got != want {
+		t.Errorf("got %s", got)
 	}
 }

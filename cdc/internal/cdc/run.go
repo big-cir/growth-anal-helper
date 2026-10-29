@@ -37,7 +37,9 @@ type RunOptions struct {
 	SaveEvery time.Duration
 	// StopWait is how long an open source transaction may take to finish after a stop request.
 	StopWait time.Duration
-	Retries  int
+	// HeartbeatPeriod is how often an idle source sends a heartbeat; each one stores a waiting position.
+	HeartbeatPeriod time.Duration
+	Retries         int
 
 	// set by init
 	lock     *copyLock // held by the caller; nil: each session takes its own
@@ -97,6 +99,9 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 	}
 	if o.StopWait == 0 {
 		o.StopWait = 30 * time.Second
+	}
+	if o.HeartbeatPeriod == 0 {
+		o.HeartbeatPeriod = 30 * time.Second
 	}
 	if o.Retries == 0 {
 		o.Retries = 8
@@ -385,7 +390,7 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 		ServerID: id, Flavor: mysql.MySQLFlavor,
 		Host: r.o.Source.Host, Port: uint16(r.o.Source.Port), User: r.o.Source.User, Password: r.o.Source.Password,
 		TLSConfig: tlsConfig(), DisableRetrySync: true, EventCacheCount: 256,
-		HeartbeatPeriod: 30 * time.Second, ReadTimeout: 90 * time.Second,
+		HeartbeatPeriod: r.o.HeartbeatPeriod, ReadTimeout: 3 * r.o.HeartbeatPeriod,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
 	defer func() { go syncer.Close() }()
@@ -539,7 +544,10 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 		r.readPos = mysql.Position{Name: r.file, Pos: h.LogPos}
 	}
 	switch h.EventType {
-	case replication.FORMAT_DESCRIPTION_EVENT, replication.PREVIOUS_GTIDS_EVENT, replication.HEARTBEAT_EVENT, replication.HEARTBEAT_LOG_EVENT_V2,
+	case replication.HEARTBEAT_EVENT, replication.HEARTBEAT_LOG_EVENT_V2:
+		// the source is idle: store the end of a skipped transaction that waited for SaveEvery
+		return false, r.saveLast(ctx, "")
+	case replication.FORMAT_DESCRIPTION_EVENT, replication.PREVIOUS_GTIDS_EVENT,
 		replication.ANONYMOUS_GTID_EVENT, replication.GTID_EVENT, replication.TABLE_MAP_EVENT, replication.ROWS_QUERY_EVENT,
 		replication.INTVAR_EVENT, replication.RAND_EVENT, replication.USER_VAR_EVENT, replication.STOP_EVENT, replication.IGNORABLE_EVENT:
 		return false, nil // no row change of their own; a statement they belong to is judged by its query event

@@ -26,10 +26,11 @@ type InitOptions struct {
 	ServerID uint32
 	Logf     func(format string, a ...any)
 	// MaxCopy bounds the snapshot copy; 0 means half the source's binlog retention.
-	MaxCopy   time.Duration
-	SaveEvery time.Duration
-	StopWait  time.Duration
-	Retries   int
+	MaxCopy         time.Duration
+	SaveEvery       time.Duration
+	StopWait        time.Duration
+	HeartbeatPeriod time.Duration
+	Retries         int
 }
 
 // Init copies the followed tables from one snapshot into a staging database on the target,
@@ -86,7 +87,7 @@ func initOnce(parent context.Context, o InitOptions) error {
 	}
 	in := &initRun{o: o, uuid: st.ServerUUID}
 	in.ro = RunOptions{Source: o.Source, Target: o.Target, Database: o.Database, Tables: o.Tables, ServerID: o.ServerID,
-		Logf: o.Logf, SaveEvery: o.SaveEvery, StopWait: o.StopWait, Retries: o.Retries}
+		Logf: o.Logf, SaveEvery: o.SaveEvery, StopWait: o.StopWait, HeartbeatPeriod: o.HeartbeatPeriod, Retries: o.Retries}
 	in.names = in.ro.names()
 	if in.src, err = o.Source.open(); err != nil {
 		return err

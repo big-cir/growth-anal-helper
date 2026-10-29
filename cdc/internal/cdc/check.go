@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -94,6 +95,9 @@ type checker struct {
 	uuid     string
 	pt       binlogPos     // writes stopped: the copy position every read must see
 	srcTook  time.Duration // the last source query of read
+	why      string        // why the last read could not decide
+	// the binlog from quietFrom up to quietTo holds no transaction
+	quietFrom, quietTo mysql.Position
 }
 
 // checkTable is the SQL for one table: its name, key, chunk hash and row hashes.
@@ -391,6 +395,7 @@ type suspect struct {
 	s       span
 	keys    map[string]byte // key bytes → 'm' missing, 'e' extra, 'd' differ
 	decided bool            // the last look at the chunk finished
+	chunk   int64
 }
 
 func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) error {
@@ -410,9 +415,13 @@ func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) err
 			return err
 		}
 		tc.Chunks++
+		undecided := func(why string) {
+			tc.Undecided++
+			c.o.Logf("%s chunk %d undecided: %s", ct.srcName, tc.Chunks, why)
+		}
 		switch {
 		case !ok:
-			tc.Undecided++
+			undecided(c.why)
 		default:
 			if len(src) != 1 || len(dst) != 1 {
 				return &Error{"chunk hash: expected one row"}
@@ -427,7 +436,7 @@ func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) err
 				break
 			}
 			if rows > limit || copyRows > limit {
-				tc.Undecided++
+				undecided(fmt.Sprintf("the hashes differ and the chunk has more than %d rows", limit))
 				break
 			}
 			keys, ok, err := c.diff(ctx, ct, s)
@@ -436,13 +445,13 @@ func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) err
 			}
 			switch {
 			case !ok:
-				tc.Undecided++
+				undecided(c.why)
 			case c.o.WritesStopped:
 				count(tc, keys)
 			case len(keys) > maxSuspects:
-				tc.Undecided++
+				undecided(fmt.Sprintf("%d rows differ, more than %d", len(keys), maxSuspects))
 			case len(keys) > 0:
-				suspects = append(suspects, suspect{s, keys, true})
+				suspects = append(suspects, suspect{s: s, keys: keys, decided: true, chunk: tc.Chunks})
 			}
 		}
 		// keep one source query near half a second
@@ -467,6 +476,7 @@ func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) err
 			count(tc, sp.keys)
 		} else {
 			tc.Undecided++
+			c.o.Logf("%s chunk %d undecided: its rows still differed or could not be read after %d more looks", ct.srcName, sp.chunk, c.o.Rounds)
 		}
 	}
 	return nil
@@ -558,13 +568,14 @@ func diffRows(src, dst [][]string) map[string]byte {
 }
 
 // read runs a query on both sides so that the copy is read at a known position: with writes
-// stopped, the one it reached; otherwise one at or past the source position after the source
-// read, since a row the source read showed was written to the binlog before it.
+// stopped, the one it reached; otherwise one that has applied every transaction before the source
+// position after the source read, since a row the source read showed was written to the binlog before it.
 // ok is false when the copy did not get there in time or a side has more than max rows.
 func (c *checker) read(ctx context.Context, ct *checkTable, tmpl string, s span, max int) (src, dst [][]string, ok bool, err error) {
 	q, args := ct.sql(tmpl, s, false)
 	started := time.Now()
 	if src, err = connRows(ctx, c.src, q, max, args...); err == errTooManyRows {
+		c.why = fmt.Sprintf("the source has more than %d rows here", max)
 		return nil, nil, false, nil
 	} else if err != nil {
 		return nil, nil, false, err
@@ -582,6 +593,7 @@ func (c *checker) read(ctx context.Context, ct *checkTable, tmpl string, s span,
 	q, args = ct.sql(tmpl, s, true)
 	pt, dst, err := c.copyRead(ctx, q, args, max)
 	if err == errTooManyRows {
+		c.why = fmt.Sprintf("the copy has more than %d rows here", max)
 		return nil, nil, false, nil
 	} else if err != nil {
 		return nil, nil, false, err
@@ -618,18 +630,46 @@ func (c *checker) copyPos(ctx context.Context) (binlogPos, error) {
 	return parsePos(s)
 }
 
-// waitCopy waits until the copy's stored position is at or past want.
+// waitCopy waits until the copy has applied every transaction before want: its stored position
+// is at or past want, or only events without a transaction lie between the two. run stores the
+// end of the last finished transaction, so after a rotation or a quiet spell it can stay behind
+// want with nothing left to apply. The binlog is read once the copy has lagged 200ms, from
+// where the last quiet stretch ended, and again only after the copy's position moved.
 func (c *checker) waitCopy(ctx context.Context, want mysql.Position) (bool, error) {
 	end := time.Now().Add(c.o.Wait)
+	var looked mysql.Position // the copy position with transactions after it, read from the binlog
+	lookAfter := time.Now().Add(200 * time.Millisecond)
 	for {
 		pt, err := c.copyPos(ctx)
 		if err != nil {
 			return false, err
 		}
-		if pt.position().Compare(want) >= 0 {
+		p := pt.position()
+		if p.Compare(want) >= 0 {
 			return true, nil
 		}
+		if p != looked && time.Now().After(lookAfter) {
+			from := p
+			if p == c.quietFrom && c.quietTo.Compare(want) <= 0 {
+				from = c.quietTo
+			}
+			done, err := c.noTransactions(ctx, from, want)
+			if err != nil {
+				return false, err
+			}
+			if done {
+				c.quietFrom, c.quietTo = p, want
+				return true, nil
+			}
+			looked, lookAfter = p, time.Now().Add(time.Second)
+		}
 		if time.Now().After(end) {
+			c.why = fmt.Sprintf("the copy stayed at %s:%d, behind the source position %s:%d, for %s", p.Name, p.Pos, want.Name, want.Pos, c.o.Wait)
+			if looked == p {
+				c.why += ", with transactions between them"
+			} else {
+				c.why += "; the binlog between them was not read"
+			}
 			return false, nil
 		}
 		select {

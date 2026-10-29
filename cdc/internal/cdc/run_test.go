@@ -23,6 +23,7 @@ type fakeSink struct {
 	phases  []string // phase passed with each commit or save
 	modes   []ApplyMode
 	failOn  ChangeKind
+	saveErr error
 }
 
 func (f *fakeSink) Begin(_ context.Context, mode ApplyMode) error {
@@ -56,6 +57,9 @@ func (f *fakeSink) Rollback() { f.open, f.pending = false, nil }
 func (f *fakeSink) Save(_ context.Context, p, phase string) error {
 	if f.open {
 		return errors.New("save inside a transaction")
+	}
+	if f.saveErr != nil {
+		return f.saveErr
 	}
 	f.phases = append(f.phases, phase)
 	f.saves = append(f.saves, p)
@@ -374,6 +378,66 @@ func TestReaderEndsConvergingOnAnUnfollowedTransaction(t *testing.T) {
 	}
 	if len(sink.saves) != 1 || sink.phases[0] != phaseCatchingUp || r.converging {
 		t.Fatalf("the phase change should be saved at once with that end: saves %v phases %v", sink.saves, sink.phases)
+	}
+}
+
+func TestReaderSavesAtAHeartbeat(t *testing.T) {
+	heartbeat := func(end uint32) *replication.BinlogEvent { return ev(replication.HEARTBEAT_EVENT, end, 0, nil) }
+	skipped := func(begin, row, end uint32) []*replication.BinlogEvent {
+		return []*replication.BinlogEvent{query(begin, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, row, "other", []any{int64(1)}), xid(end)}
+	}
+	sink := &fakeSink{}
+	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	if err := feed(t, r, skipped(150, 180, 211)...); err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.saves) != 0 {
+		t.Fatalf("a skipped transaction was stored before SaveEvery: %v", sink.saves)
+	}
+	// inside the next transaction a heartbeat stores nothing
+	if err := feed(t, r, query(250, "app", "BEGIN"), heartbeat(250)); err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.saves) != 0 {
+		t.Fatalf("stored inside a source transaction: %v", sink.saves)
+	}
+	if err := feed(t, r, rowsEv(replication.WRITE_ROWS_EVENTv2, 280, "other", []any{int64(2)}), xid(311), heartbeat(311)); err != nil {
+		t.Fatal(err)
+	}
+	if p, _ := parsePos(sink.saves[len(sink.saves)-1]); len(sink.saves) != 1 || p.Pos != 311 || sink.phases[0] != "" {
+		t.Fatalf("the heartbeat should store the skipped end 311 with no phase: %v %v", sink.saves, sink.phases)
+	}
+	// nothing new: no second save
+	if err := feed(t, r, heartbeat(311)); err != nil || len(sink.saves) != 1 {
+		t.Fatalf("a heartbeat with nothing new saved again: %v %v", err, sink.saves)
+	}
+	// a failed save ends the stream with its error
+	failed := errors.New("copy gone")
+	sink.saveErr = failed
+	if err := feed(t, r, skipped(350, 380, 411)...); err != nil {
+		t.Fatal(err)
+	}
+	if err := feed(t, r, heartbeat(411)); !errors.Is(err, failed) {
+		t.Fatalf("the save error should end the stream: %v", err)
+	}
+}
+
+func TestReaderKeepsConvergingAtAHeartbeat(t *testing.T) {
+	sink := &fakeSink{}
+	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 500}
+	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 180, "other", []any{int64(1)}), xid(211),
+		ev(replication.HEARTBEAT_EVENT, 211, 0, nil)); err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.saves) != 1 || sink.phases[0] != "" || !r.converging {
+		t.Fatalf("a heartbeat before p2 should store the end and keep converging: %v %v %v", sink.saves, sink.phases, r.converging)
+	}
+	if err := feed(t, r, query(550, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 580, "other", []any{int64(2)}), xid(611)); err != nil {
+		t.Fatal(err)
+	}
+	if sink.phases[len(sink.phases)-1] != phaseCatchingUp || r.converging {
+		t.Fatalf("the first end after p2 should still end converging: %v %v", sink.phases, r.converging)
 	}
 }
 

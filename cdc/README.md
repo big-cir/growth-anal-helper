@@ -51,6 +51,7 @@ bin/growth-lab-cdc run --defaults-file source.cnf --target-defaults-file target.
 - Each source transaction becomes one target transaction together with the new position, so a crash or a lost connection never applies a transaction twice or skips one.
 - Inserts are inserted, updates and deletes match the row's previous values (strings by bytes). A duplicate key, or an update or delete that does not match exactly one row, means the target differs from the source, and the run stops instead of overwriting.
 - It also stops on schema changes, statement-format changes outside the system databases, tables with triggers or cascading foreign keys in the source, triggers or any foreign keys in the target, unsupported column types, and a binlog that does not continue from the stored position. Connection failures and uncertain commits reconnect from the stored position.
+- A skipped transaction's end is stored with the next event 10 seconds after the last save. While the source is idle it sends a heartbeat every 30 seconds, and run stores that end then.
 - Ctrl+C or SIGTERM finishes the transaction being applied, stores the position and exits.
 
 The target account needs to create the `growth_lab_cdc` database and write the followed tables.
@@ -65,7 +66,7 @@ bin/growth-lab-cdc check --defaults-file source.cnf --target-defaults-file targe
 - The target must be `ready` (after `init`, or a `run` with `--from`). `check` does not write to the target and takes neither the CDC named lock nor an explicit table lock, so `run` can keep running; its short reads may briefly delay DDL.
 - Chunks follow the source primary key order. Each chunk compares `COUNT(*)` and a 64-bit `BIT_XOR` of row `MD5`s built from each column's NULL flag, byte length and value; chunks that differ are compared row by row.
 - `--writes-stopped`: the source has no uncommitted writes when it starts and no writes until it ends; you ensure this. It waits until the target has applied every transaction before the source position, then reports differences as mismatches. If the source position has moved at the end, or cannot be read, it exits with an error (1) and marks the printed result provisional.
-- Without it, the source may keep writing. Each chunk is read on the target once the target has reached the source position read after it. Differing rows are looked at again `--rounds` more times, 10 seconds apart; those that still differ are suspects, not mismatches.
+- Without it, the source may keep writing. Each chunk is read on the target once the target has reached the source position read after it, or only events without a transaction (a rotation, an idle stretch) lie between the two; that is read from the source binlog with `SHOW BINLOG EVENTS`. A chunk left undecided is logged with its number and the reason, with the positions when the copy lagged; never row values. Differing rows are looked at again `--rounds` more times, 10 seconds apart; those that still differ are suspects, not mismatches.
 - Limits: `--chunk-rows` (10000), `--wait-seconds` for the target to catch up (60), `--rounds` (3), `--max-minutes` for the comparison (60; the final source position check in `--writes-stopped` may add up to 10 seconds). Tables left when time runs out are reported unchecked.
 - Exit codes: 0 no difference and nothing undecided, 1 error, 3 mismatch, 4 suspect, undecided, unchecked, or a provisional result after the time limit.
 - The source needs the same `SELECT`, `REPLICATION CLIENT` and `REPLICATION SLAVE` privileges as `run`; the target needs `SELECT` on the followed tables and `growth_lab_cdc.position`. A primary key with an `enum` column is not supported. Hash comparison is probabilistic.
@@ -77,5 +78,5 @@ They need two disposable MySQL servers and administrative accounts. They create 
 ```bash
 cd cdc
 go build -o ../bin/growth-lab-cdc ./cmd/growth-lab-cdc
-CDC_SRC_CNF=source.cnf CDC_DST_CNF=target.cnf CDC_BIN=$PWD/../bin/growth-lab-cdc go test -tags integration ./internal/cdc/
+CDC_SRC_CNF=source.cnf CDC_DST_CNF=target.cnf CDC_BIN=$PWD/../bin/growth-lab-cdc go test -tags integration -timeout 30m ./internal/cdc/
 ```

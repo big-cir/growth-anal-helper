@@ -268,7 +268,7 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 	if err := noTriggersOrForeignKeys(ctx, dst, dataDB, names, "the copy"); err != nil {
 		return err
 	}
-	if err := noTriggersOrForeignKeys(ctx, src, "", names, "the source"); err != nil {
+	if err := noTriggersOrCascades(ctx, src, names); err != nil {
 		return err
 	}
 	if err := continuity(st, pos); err != nil {

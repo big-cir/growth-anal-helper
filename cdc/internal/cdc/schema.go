@@ -237,9 +237,8 @@ func sameDefs(src, dst map[string]*tableDef, full bool) error {
 	return nil
 }
 
-// noTriggersOrForeignKeys stops when side has triggers on, or foreign keys from or to, a followed table.
-// On the copy, applying a row change would do more than the source did; on the source, a cascaded
-// change may not reach the binlog, and locking the table would lock the related ones too.
+// noTriggersOrForeignKeys stops when the copy has triggers on, or foreign keys from or to, a
+// followed table: applying a row change there would do more than the source did.
 // It sees only what the account may see: triggers need the TRIGGER privilege, and a foreign key
 // from another schema needs access to that table.
 func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, names []string, side string) error {
@@ -248,14 +247,10 @@ func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, nam
 		if physDB != "" {
 			schema = physDB
 		}
-		var c int
-		if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.TRIGGERS
-			WHERE BINARY EVENT_OBJECT_SCHEMA = BINARY ? AND BINARY EVENT_OBJECT_TABLE = BINARY ?`, schema, table).Scan(&c); err != nil {
+		if err := noTriggers(ctx, db, schema, table, side); err != nil {
 			return err
 		}
-		if c > 0 {
-			return &StopError{schema + "." + table + ": " + side + " has triggers on this table"}
-		}
+		var c int
 		if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE
 			WHERE REFERENCED_TABLE_NAME IS NOT NULL AND (
 			  (BINARY TABLE_SCHEMA = BINARY ? AND BINARY TABLE_NAME = BINARY ?) OR
@@ -265,6 +260,40 @@ func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, nam
 		if c > 0 {
 			return &StopError{schema + "." + table + ": " + side + " has foreign keys on this table"}
 		}
+	}
+	return nil
+}
+
+// noTriggersOrCascades stops when the source has triggers on, or foreign keys with cascading
+// actions from or to, a followed table: the rows those actions change are not in the binlog.
+func noTriggersOrCascades(ctx context.Context, db *sql.DB, names []string) error {
+	for _, n := range names {
+		schema, table, _ := strings.Cut(n, ".")
+		if err := noTriggers(ctx, db, schema, table, "the source"); err != nil {
+			return err
+		}
+		var c int
+		if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.REFERENTIAL_CONSTRAINTS
+			WHERE ((BINARY CONSTRAINT_SCHEMA = BINARY ? AND BINARY TABLE_NAME = BINARY ?) OR
+			  (BINARY UNIQUE_CONSTRAINT_SCHEMA = BINARY ? AND BINARY REFERENCED_TABLE_NAME = BINARY ?))
+			AND (DELETE_RULE NOT IN ('NO ACTION', 'RESTRICT') OR UPDATE_RULE NOT IN ('NO ACTION', 'RESTRICT'))`, schema, table, schema, table).Scan(&c); err != nil {
+			return err
+		}
+		if c > 0 {
+			return &StopError{schema + "." + table + ": the source has foreign keys with cascading actions on this table"}
+		}
+	}
+	return nil
+}
+
+func noTriggers(ctx context.Context, db *sql.DB, schema, table, side string) error {
+	var c int
+	if err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM information_schema.TRIGGERS
+		WHERE BINARY EVENT_OBJECT_SCHEMA = BINARY ? AND BINARY EVENT_OBJECT_TABLE = BINARY ?`, schema, table).Scan(&c); err != nil {
+		return err
+	}
+	if c > 0 {
+		return &StopError{schema + "." + table + ": " + side + " has triggers on this table"}
 	}
 	return nil
 }

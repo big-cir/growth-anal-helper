@@ -21,14 +21,48 @@ import (
 type Config struct {
 	// Events are event tables and their time column; the gap copies drop their rows before a gap's end.
 	Events []Column `json:"events"`
-	// Kinds is the event kind column; kinds whose first record is after the last gap are named in the guide.
-	Kinds *struct {
-		Table, Column, Time string
-	} `json:"kinds"`
+	// Kinds are event kind columns (one object or a list); kinds that first appear late are named in the guide.
+	Kinds KindSources `json:"kinds"`
 	// GA4 is the daily GA4 table, its date column and the prefix of all GA4 tables.
 	GA4 *struct {
 		Table, Date, Prefix string
 	} `json:"ga4"`
+}
+
+// KindSource is an event kind column. After "gap" (default) names kinds first recorded after the last data gap;
+// "ga4_start" names kinds first recorded after the first GA4 day.
+type KindSource struct {
+	Table, Column, Time, After string
+}
+
+// KindSources accept one object or a list of them.
+type KindSources []KindSource
+
+func (k *KindSources) UnmarshalJSON(b []byte) error {
+	decode := func(raw []byte, v any) error {
+		dec := json.NewDecoder(strings.NewReader(string(raw)))
+		dec.DisallowUnknownFields()
+		return dec.Decode(v)
+	}
+	t := strings.TrimSpace(string(b))
+	if t == "null" {
+		*k = nil
+		return nil
+	}
+	if strings.HasPrefix(t, "[") {
+		var list []KindSource
+		if err := decode(b, &list); err != nil {
+			return err
+		}
+		*k = list
+		return nil
+	}
+	var one KindSource
+	if err := decode(b, &one); err != nil {
+		return err
+	}
+	*k = KindSources{one}
+	return nil
 }
 
 // Column is a table and its time column.
@@ -60,8 +94,17 @@ func LoadConfig(dir string) (*Config, []byte, error) {
 	for i, e := range c.Events {
 		names[fmt.Sprintf("events[%d].table", i)], names[fmt.Sprintf("events[%d].time", i)] = e.Table, e.Time
 	}
-	if c.Kinds != nil {
-		names["kinds.table"], names["kinds.column"], names["kinds.time"] = c.Kinds.Table, c.Kinds.Column, c.Kinds.Time
+	for i, k := range c.Kinds {
+		names[fmt.Sprintf("kinds[%d].table", i)], names[fmt.Sprintf("kinds[%d].column", i)], names[fmt.Sprintf("kinds[%d].time", i)] = k.Table, k.Column, k.Time
+		switch k.After {
+		case "", "gap":
+		case "ga4_start":
+			if c.GA4 == nil {
+				return nil, nil, fmt.Errorf("coverage.json kinds[%d].after: ga4_start needs ga4", i)
+			}
+		default:
+			return nil, nil, fmt.Errorf("coverage.json kinds[%d].after: must be gap or ga4_start", i)
+		}
 	}
 	if c.GA4 != nil {
 		names["ga4.table"], names["ga4.date"] = c.GA4.Table, c.GA4.Date
@@ -78,15 +121,20 @@ func LoadConfig(dir string) (*Config, []byte, error) {
 }
 
 // Resolved is the coverage of one snapshot. Dates are YYYY-MM-DD and inclusive; gaps are [start, end) timestamps.
+// KindFirst is a kind column ("table.column") and the first record day of each late kind.
+type KindFirst struct {
+	Column string
+	First  map[string]string
+}
+
 type Resolved struct {
 	AppEnd           string
 	GA4Start, GA4End string
 	GA4Prefix        string
 	Gaps             [][2]string
 	Events           []Column
-	// Kinds are the first record days of event kinds that only have rows after the last gap.
-	Kinds      map[string]string
-	KindColumn string
+	// Kinds are the first record days of kinds that first appear late, per kind column.
+	Kinds []KindFirst
 	// GapPaths are the copies of the real snapshot, one per gap, without event rows before that gap's end.
 	GapPaths []string
 	// GapError is why the gap copies could not be made ("" = made or no gaps).
@@ -113,7 +161,7 @@ func Resolve(c *Config, realPath, asOf string, params jsjson.Object) (*Resolved,
 	if err != nil {
 		return nil, err
 	}
-	r := &Resolved{AppEnd: addDays(asOf[:10], -1), Gaps: gaps, Events: c.Events, Kinds: map[string]string{}}
+	r := &Resolved{AppEnd: addDays(asOf[:10], -1), Gaps: gaps, Events: c.Events}
 	db, err := sqlitec.Open(realPath, true)
 	if err != nil {
 		return nil, err
@@ -133,31 +181,37 @@ func Resolve(c *Config, realPath, asOf string, params jsjson.Object) (*Resolved,
 			r.GA4Start, r.GA4End = rows[0][0].Text[:10], rows[0][1].Text[:10]
 		}
 	}
-	if k := c.Kinds; k != nil {
+	for _, k := range c.Kinds {
 		for _, col := range []string{k.Column, k.Time} {
 			if err := hasColumn(db, k.Table, col); err != nil {
 				return nil, err
 			}
 		}
-		r.KindColumn = k.Table + "." + k.Column
-		if last := r.lastGapEnd(); last != "" {
-			st, err := db.Prepare(fmt.Sprintf("SELECT %q, min(%q) FROM %q GROUP BY 1 HAVING min(%q) >= ? ORDER BY 1", k.Column, k.Time, k.Table, k.Time))
+		// gap: first seen on or after the last gap's end; ga4_start: first seen after the first GA4 day
+		first, cmp, since := fmt.Sprintf("min(%q)", k.Time), ">=", r.lastGapEnd()
+		if k.After == "ga4_start" {
+			first, cmp, since = fmt.Sprintf("substr(min(%q), 1, 10)", k.Time), ">", r.GA4Start
+		}
+		kf := KindFirst{Column: k.Table + "." + k.Column, First: map[string]string{}}
+		if since != "" {
+			st, err := db.Prepare(fmt.Sprintf("SELECT %q, min(%q) FROM %q GROUP BY 1 HAVING %s %s ? ORDER BY 1", k.Column, k.Time, k.Table, first, cmp))
 			if err != nil {
 				return nil, err
 			}
-			if err := st.Bind(last); err == nil {
+			if err := st.Bind(since); err == nil {
 				for {
 					ok, err := st.Step()
 					if err != nil || !ok {
 						break
 					}
 					if kv, v := st.Value(0), st.Value(1); kv.Type == sqlitec.Text && v.Type == sqlitec.Text && len(v.Text) >= 10 {
-						r.Kinds[kv.Text] = v.Text[:10]
+						kf.First[kv.Text] = v.Text[:10]
 					}
 				}
 			}
 			st.Finalize()
 		}
+		r.Kinds = append(r.Kinds, kf)
 	}
 	return r, nil
 }
@@ -209,8 +263,10 @@ func (r *Resolved) Guide() string {
 		}
 		b.WriteString("\n")
 	}
-	for _, k := range sortedKeys(r.Kinds) {
-		fmt.Fprintf(&b, "- %s = '%s': first record in this snapshot on %s. This may not be the launch day or the full start of collection; do not read earlier periods as no use (0), and when comparing use of this kind, count only periods and people observed from that day.\n", r.KindColumn, k, r.Kinds[k])
+	for _, kf := range r.Kinds {
+		for _, k := range sortedKeys(kf.First) {
+			fmt.Fprintf(&b, "- %s = '%s': first record in this snapshot on %s. This may not be the launch day or the full start of collection; do not read earlier periods as no use (0). This date limits only comparisons of this kind's own use; do not narrow the periods of other kinds or other activity because of it.\n", kf.Column, k, kf.First[k])
+		}
 	}
 	b.WriteString("- Relative periods (last N weeks, recent days) end at the source's last complete day, not at :today, when :today is later. State the dates you used.\n")
 	return b.String()

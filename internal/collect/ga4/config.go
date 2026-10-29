@@ -25,7 +25,8 @@ import (
 type Reports struct {
 	Start    string
 	Reports  []string
-	Events   jsjson.Object // GA4 event name → key, in JavaScript key order
+	Events   jsjson.Object // GA4 event name → key, in JavaScript key order (group names included)
+	Groups   jsjson.Object // key → GA4 event names counted as one event (event_groups)
 	MinUsers float64
 	Custom   []CustomReport
 }
@@ -36,7 +37,22 @@ func (r Reports) JS() jsjson.Object {
 	for i, c := range r.Custom {
 		custom[i] = jsjson.Object{{Key: "id", Value: c.ID}, {Key: "range", Value: c.Range}, {Key: "dimensions", Value: c.Dimensions}, {Key: "metrics", Value: c.Metrics}}
 	}
-	return jsjson.Object{{Key: "start", Value: r.Start}, {Key: "reports", Value: r.Reports}, {Key: "events", Value: r.Events}, {Key: "minUsers", Value: r.MinUsers}, {Key: "custom", Value: custom}}
+	o := jsjson.Object{{Key: "start", Value: r.Start}, {Key: "reports", Value: r.Reports}, {Key: "events", Value: r.Events}, {Key: "minUsers", Value: r.MinUsers}, {Key: "custom", Value: custom}}
+	if len(r.Groups) > 0 {
+		o = append(o, jsjson.Member{Key: "eventGroups", Value: r.Groups})
+	}
+	return o
+}
+
+// GroupNames are the GA4 event names of a group key.
+func (r Reports) GroupNames(key string) []string {
+	v, _ := r.Groups.Get(key)
+	arr, _ := v.([]any)
+	out := make([]string, len(arr))
+	for i, n := range arr {
+		out[i], _ = n.(string)
+	}
+	return out
 }
 
 // Credentials are the two values used for signing.
@@ -204,7 +220,7 @@ func ParseReports(raw any) (*Reports, error) {
 	}
 	o = jsKeys(o)
 	for _, m := range o {
-		if !has([]string{"start", "reports", "events", "min_users", "custom"}, m.Key) {
+		if !has([]string{"start", "reports", "events", "event_groups", "min_users", "custom"}, m.Key) {
 			return nil, cfgErr("ga4-reports.json: unknown key " + m.Key)
 		}
 	}
@@ -254,6 +270,45 @@ func ParseReports(raw any) (*Reports, error) {
 			events = append(events, jsjson.Member{Key: m.Key, Value: key})
 		}
 	}
+	// event_groups: one key counted from several GA4 names (renamed events); each name and key is used once overall
+	groups := jsjson.Object{}
+	if gv := prop(o, "event_groups"); gv != undef {
+		bad := cfgErr(`ga4-reports.json: event_groups must be { "key": ["GA4 event name", ...] } with 2 or more names`)
+		gobj, isO := gv.(jsjson.Object)
+		if !isO {
+			return nil, bad
+		}
+		keys := map[string]bool{}
+		for _, m := range events {
+			keys[m.Value.(string)] = true
+		}
+		for _, m := range jsKeys(gobj) {
+			if !eventKeyRE.MatchString(m.Key) {
+				return nil, cfgErr("ga4-reports.json: event keys must be lowercase identifiers (" + m.Key + ")")
+			}
+			if keys[m.Key] {
+				return nil, cfgErr("ga4-reports.json: event key " + m.Key + " is used twice")
+			}
+			keys[m.Key] = true
+			arr, isArr := m.Value.([]any)
+			if !isArr || len(arr) < 2 {
+				return nil, bad
+			}
+			names := make([]any, len(arr))
+			for i, n := range arr {
+				name, isStr := n.(string)
+				if !isStr || !eventNameRE.MatchString(name) {
+					return nil, cfgErr("ga4-reports.json: invalid event name " + jsString(n))
+				}
+				if _, dup := events.Get(name); dup {
+					return nil, cfgErr("ga4-reports.json: event name " + name + " is used twice")
+				}
+				events = append(events, jsjson.Member{Key: name, Value: m.Key})
+				names[i] = name
+			}
+			groups = append(groups, jsjson.Member{Key: m.Key, Value: names})
+		}
+	}
 	if has(reports, "daily_events") && len(events) == 0 {
 		return nil, cfgErr("ga4-reports.json: daily_events needs an events map")
 	}
@@ -272,7 +327,7 @@ func ParseReports(raw any) (*Reports, error) {
 	if len(reports) == 0 && len(custom) == 0 {
 		return nil, cfgErr("ga4-reports.json: reports or custom must have at least one report")
 	}
-	return &Reports{Start: start, Reports: reports, Events: events, MinUsers: minUsers, Custom: custom}, nil
+	return &Reports{Start: start, Reports: reports, Events: events, Groups: groups, MinUsers: minUsers, Custom: custom}, nil
 }
 
 // loadCustom: allow-listed dimensions (0-2) and metrics (1-8) only; at most one fine dimension, which allows user-count metrics only.

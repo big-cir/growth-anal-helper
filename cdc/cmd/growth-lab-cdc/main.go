@@ -36,7 +36,14 @@ var usage = `Usage: growth-lab-cdc <command>
       [--host H] [--port N] [--from FILE:POS] [--server-id N]
                           Apply source changes to the same tables on the target and keep the position there
                           --from: first run only, the position the target's data was taken at
-                          Stops on anything it cannot apply exactly; Ctrl+C finishes the current transaction`
+                          Stops on anything it cannot apply exactly; Ctrl+C finishes the current transaction
+  check --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
+        [--host H] [--port N] [--writes-stopped] [--chunk-rows N] [--wait-seconds N]
+        [--rounds N] [--max-minutes N]
+                          Compare the tables chunk by chunk and count differing rows (values are not shown)
+                          --writes-stopped: no source writes until it ends; differences are mismatches.
+                          Without it, rows that still differ after --rounds more looks are suspects
+                          Exit: 0 same, 3 mismatch, 4 suspect or undecided without a mismatch`
 
 func main() {
 	os.Exit(run(os.Args[1:]))
@@ -60,6 +67,8 @@ func run(argv []string) int {
 		code, err = runCmd(rest)
 	case "init":
 		code, err = initCmd(rest)
+	case "check":
+		code, err = checkCmd(rest)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n%s\n", cmd, usage)
 		return 2
@@ -479,4 +488,84 @@ func copyOptions(args []string) (cdc.RunOptions, error) {
 	}
 	o.ServerID = uint32(id)
 	return o, nil
+}
+
+var checkCmdFlags = map[string]bool{
+	"--defaults-file": true, "--target-defaults-file": true, "--host": true, "--port": true,
+	"--database": true, "--tables": true, "--writes-stopped": false, "--chunk-rows": true,
+	"--wait-seconds": true, "--rounds": true, "--max-minutes": true,
+}
+
+func checkCmd(args []string) (int, error) {
+	if err := checkFlags(args, checkCmdFlags); err != nil {
+		return 1, err
+	}
+	ro, err := copyOptions(args)
+	if err != nil {
+		return 1, err
+	}
+	o := cdc.CheckOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables,
+		WritesStopped: hasFlag(args, "--writes-stopped"), Logf: ro.Logf}
+	rows, err := intFlag(args, "--chunk-rows", 10000, 100, 1000000)
+	if err != nil {
+		return 1, err
+	}
+	o.ChunkRows = int(rows)
+	wait, err := intFlag(args, "--wait-seconds", 60, 1, 3600)
+	if err != nil {
+		return 1, err
+	}
+	o.Wait = time.Duration(wait) * time.Second
+	rounds, err := intFlag(args, "--rounds", 3, 1, 100)
+	if err != nil {
+		return 1, err
+	}
+	o.Rounds = int(rounds)
+	mins, err := intFlag(args, "--max-minutes", 60, 1, 7*24*60)
+	if err != nil {
+		return 1, err
+	}
+	o.MaxTime = time.Duration(mins) * time.Minute
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	rep, err := cdc.Check(ctx, o)
+	printCheck(rep)
+	if err != nil {
+		return 1, err
+	}
+	return rep.ExitCode(), nil
+}
+
+func printCheck(r *cdc.CheckReport) {
+	if r == nil {
+		return
+	}
+	kind := "suspect"
+	switch {
+	case r.WritesStopped && r.Position == "":
+		fmt.Println("Stopped by --max-minutes before the copy reached the source position; nothing was compared")
+	case r.WritesStopped && r.Provisional:
+		kind = "provisional difference"
+		fmt.Printf("Source writes stopped at %s, but it could not be confirmed unchanged at the end; differences are provisional\n", r.Position)
+	case r.WritesStopped:
+		kind = "mismatch"
+		fmt.Printf("Source writes stopped at %s; differences are mismatches\n", r.Position)
+	default:
+		fmt.Println("Source still writing; rows that kept differing are suspects, counted at the last look")
+	}
+	fmt.Printf("%-32s %8s %12s %10s %10s %10s %10s\n", "table", "chunks", "rows", "missing", "extra", "differ", "undecided")
+	names := make([]string, 0, len(r.Tables))
+	for n := range r.Tables {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		t := r.Tables[n]
+		undecided := strconv.FormatInt(t.Undecided, 10)
+		if t.Unchecked {
+			undecided += " +rest"
+		}
+		fmt.Printf("%-32s %8d %12d %10d %10d %10d %10s\n", n, t.Chunks, t.Rows, t.Missing, t.Extra, t.Differ, undecided)
+	}
+	fmt.Printf("missing/extra/differ are %s rows; undecided are chunks (+rest: stopped by --max-minutes)\n", kind)
 }

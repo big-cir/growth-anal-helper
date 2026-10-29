@@ -91,7 +91,7 @@ func TestResolveAndGapCopies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.AppEnd != "2018-09-21" || r.GA4Start != "2016-06-01" || r.GA4End != "2018-09-20" || len(r.Kinds) != 1 || r.Kinds["b"] != "2017-04-03" {
+	if r.AppEnd != "2018-09-21" || r.GA4Start != "2016-06-01" || r.GA4End != "2018-09-20" || len(r.Kinds) != 1 || len(r.Kinds[0].First) != 1 || r.Kinds[0].First["b"] != "2017-04-03" {
 		t.Fatalf("resolved %+v", r)
 	}
 	if err := r.EnsureGapCopies(path); err != nil || len(r.GapPaths) != 2 {
@@ -131,9 +131,15 @@ func TestResolveAndGapCopies(t *testing.T) {
 	}
 }
 
+func TestNullKinds(t *testing.T) {
+	if c := loadConfig(t, `{"kinds": null}`); len(c.Kinds) != 0 {
+		t.Fatalf("kinds %+v", c.Kinds)
+	}
+}
+
 func TestNoConfig(t *testing.T) {
 	c, raw, err := LoadConfig(t.TempDir())
-	if err != nil || raw != nil || len(c.Events) != 0 || c.Kinds != nil || c.GA4 != nil {
+	if err != nil || raw != nil || len(c.Events) != 0 || len(c.Kinds) != 0 || c.GA4 != nil {
 		t.Fatalf("%v %+v", err, c)
 	}
 	path := snapshot(t)
@@ -157,6 +163,9 @@ func TestBadConfig(t *testing.T) {
 		`{"events": [{"table": "e_events", "time": "at"}], "extra": 1}`,
 		`{"events": `,
 		`{"events": []} {"events": []}`,
+		`{"kinds": {"table": "e_events", "column": "kind", "time": "at", "after": "launch"}}`,
+		`{"kinds": [{"table": "g_events", "column": "event_key", "time": "date", "after": "ga4_start"}]}`,
+		`{"kinds": [{"table": "e_events", "column": "kind", "time": "at", "extra": 1}]}`,
 	} {
 		dir := t.TempDir()
 		_ = os.WriteFile(filepath.Join(dir, "coverage.json"), []byte(text), 0o644)
@@ -167,5 +176,37 @@ func TestBadConfig(t *testing.T) {
 	path := snapshot(t, "CREATE TABLE e_events (kind TEXT)")
 	if _, err := Resolve(loadConfig(t, `{"events": [{"table": "e_events", "time": "at"}]}`), path, "2018-09-22 10:00:00.000000", nil); err == nil || !strings.Contains(err.Error(), "e_events.at") {
 		t.Fatalf("missing column accepted: %v", err)
+	}
+}
+
+func TestKindsList(t *testing.T) {
+	path := snapshot(t,
+		"CREATE TABLE e_events (kind TEXT, at TEXT)",
+		"CREATE TABLE g_daily (date TEXT)",
+		"CREATE TABLE g_events (event_key TEXT, date TEXT)",
+		"INSERT INTO e_events VALUES ('a', '2012-01-01 10:00:00.000000'), ('b', '2017-04-03 08:00:00.000000')",
+		"INSERT INTO g_daily VALUES ('2016-06-01'), ('2018-09-20')",
+		"CREATE TABLE g_hits (event_key TEXT, at TEXT)",
+		"INSERT INTO g_events VALUES ('x', '2016-06-01'), ('x', '2018-01-01'), ('y', '2017-02-01')",
+		"INSERT INTO g_hits VALUES ('x', '2016-06-01 09:00:00.000000'), ('y', '2016-06-02 00:00:00.000000')")
+	c := loadConfig(t, `{"kinds": [{"table": "e_events", "column": "kind", "time": "at"}, {"table": "g_events", "column": "event_key", "time": "date", "after": "ga4_start"}, {"table": "g_hits", "column": "event_key", "time": "at", "after": "ga4_start"}],
+ "ga4": {"table": "g_daily", "date": "date", "prefix": "g_"}}`)
+	params := jsjson.Object{{Key: "quality_gap_ranges", Value: []any{"2014-03-01 00:00:00.000000~2016-06-01 00:00:00.000000"}}}
+	r, err := Resolve(c, path, "2018-09-22 10:00:00.000000", params)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A timestamp on the first GA4 day is not late; the next day is
+	if len(r.Kinds) != 3 || len(r.Kinds[0].First) != 1 || r.Kinds[0].First["b"] != "2017-04-03" || len(r.Kinds[1].First) != 1 || r.Kinds[1].First["y"] != "2017-02-01" || len(r.Kinds[2].First) != 1 || r.Kinds[2].First["y"] != "2016-06-02" {
+		t.Fatalf("kinds %+v", r.Kinds)
+	}
+	g := r.Guide()
+	for _, want := range []string{"e_events.kind = 'b': first record in this snapshot on 2017-04-03", "g_events.event_key = 'y': first record in this snapshot on 2017-02-01", "do not narrow the periods of other kinds or other activity"} {
+		if !strings.Contains(g, want) {
+			t.Errorf("guide lacks %q:\n%s", want, g)
+		}
+	}
+	if strings.Contains(g, "'x'") || strings.Contains(g, "count only periods and people observed") {
+		t.Errorf("guide %s", g)
 	}
 }

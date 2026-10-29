@@ -124,7 +124,7 @@ For a SQLite file, set only `host`:
 | ----------------------------------- | ------------------------------------------------------------------------------ |
 | `daily_overview`                  | Daily active, new and total users, sessions, engaged sessions, engagement time |
 | `weekly_users`, `monthly_users` | Active and new users for complete weeks / months                               |
-| `daily_events`                    | Only the events mapped in`events`; daily count and users                     |
+| `daily_events`                    | Only the events mapped in `events` or `event_groups`; daily count and users  |
 | `daily_channel`                   | By first-user default channel group                                            |
 | `daily_platform`                  | By platform and device category                                                |
 | `daily_new_returning`             | New vs returning                                                               |
@@ -137,6 +137,8 @@ For a SQLite file, set only `host`:
 - dimensions (0–2): `firstUserDefaultChannelGroup`, `sessionDefaultChannelGroup`, `platform`, `deviceCategory`, `newVsReturning`, `operatingSystem`, `dayOfWeek`, `countryId`, `languageCode`, `hour`, `eventName`
 - metrics (1–8): `activeUsers`, `totalUsers`, `newUsers`, `sessions`, `engagedSessions`, `eventCount`, `screenPageViews`, `userEngagementDuration`, `averageSessionDuration`, `engagementRate`
 - At most one fine-grained dimension (`countryId`, `languageCode`, `hour`, `eventName`) per report, combined with user-count metrics only (`eventName` requires `totalUsers` and also allows `eventCount`).
+
+**Renamed events.** When an app logs one action under several names (for example after a rename), list them in `event_groups` instead of `events`: `"event_groups": { "post_create": ["POST_CREATE", "post_create_click"] }`. Each group needs two or more names, and a name or key may appear only once across `events` and `event_groups`. Reports with `eventName` fetch each group in its own request without the `eventName` dimension, so GA4 counts a person once for the whole group and `min_users` applies to the group's total. Single-name keys are fetched together as before. Two names that GA4 logs for the same moment (an automatic and a custom event for one tap) are not a rename; keep them as separate keys.
 
 `min_users` (default 10): in broken-down reports, groups smaller than this are dropped and smaller values are stored as NULL.
 

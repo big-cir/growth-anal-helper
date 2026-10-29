@@ -3,6 +3,7 @@ package ga4
 // GA4 import: fetches the configured reports into r_ga4_* tables and r_ga4_collect_log of the temporary snapshot.
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"sort"
@@ -202,6 +203,9 @@ func Import(db DB, plan *Plan, o ImportOptions) error {
 	const insLog = `INSERT INTO r_ga4_collect_log (report, table_name, rows, row_count, dropped_small, dropped_unobserved, dropped_unmapped, dropped_collision, suppressed_cells, subject_to_thresholding, data_loss_from_other_row, sampled, sampling_summary, truncated, schema_restricted, empty_reason, time_zone, data_through, calls, quota_day_remaining, quota_hour_remaining, collected_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
+	if n := plannedCalls(plan, through); n > ClientLimits.MaxCalls {
+		return NewError("limit", 0, fmt.Sprintf("at least %d calls planned", n))
+	}
 	for _, def := range PlanDefs(plan) {
 		kind := def.Key
 		cols := TableColumns(def)
@@ -222,8 +226,8 @@ func Import(db DB, plan *Plan, o ImportOptions) error {
 		}
 		callsBefore := client.Calls
 		opt := RequestOptions{Start: plan.Reports.Start, Through: through, Events: plan.Reports.Events}
-		first := BuildRequest(def, opt, 0)
-		if first == nil {
+		parts := eventParts(def, plan.Reports)
+		if parts[0].request(opt, 0) == nil {
 			if err := db.Exec(insLog, kind, def.Table, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "", "", 0.0, "no_complete_period", plan.Conn.TimeZone, through, 0.0, nil, nil, isoString(now())); err != nil {
 				return err
 			}
@@ -232,153 +236,67 @@ func Import(db DB, plan *Plan, o ImportOptions) error {
 		if o.Log != nil {
 			o.Log("GA4 " + kind + ": fetching")
 		}
-		// Compatibility: every requested dimension and metric must be COMPATIBLE.
+		// Compatibility: every requested dimension and metric must be COMPATIBLE, once per request shape.
 		// Cohort dimensions are not covered by checkCompatibility, so the response headers are checked instead
 		if def.Range != "cohort" {
-			payload := jsjson.Object{{Key: "dimensions", Value: prop(first, "dimensions")}, {Key: "metrics", Value: prop(first, "metrics")}}
-			if f, ok := first.Get("dimensionFilter"); ok {
-				payload = append(payload, jsjson.Member{Key: "dimensionFilter", Value: f})
-			}
-			c, err := client.CheckCompatibility(payload, kind)
-			if err != nil {
-				return err
-			}
-			// Each requested name appears exactly once and is COMPATIBLE (the response also lists other items)
-			allCompatible := func(list any, meta string, want []any) bool {
-				arr, ok := list.([]any)
-				if !ok {
-					return false
+			for i, p := range parts {
+				if i > 0 && p.group != "" && parts[i-1].group != "" {
+					continue
 				}
-				for _, n := range want {
-					var hits []jsjson.Object
-					for _, x := range arr {
-						xo, isO := x.(jsjson.Object)
-						if !isO {
-							continue
-						}
-						mo, isMO := prop(xo, meta).(jsjson.Object)
-						if isMO && prop(mo, "apiName") == n {
-							hits = append(hits, xo)
-						}
-					}
-					if len(hits) != 1 || prop(hits[0], "compatibility") != "COMPATIBLE" {
+				first := p.request(opt, 0)
+				payload := jsjson.Object{{Key: "dimensions", Value: prop(first, "dimensions")}, {Key: "metrics", Value: prop(first, "metrics")}}
+				if f, ok := first.Get("dimensionFilter"); ok {
+					payload = append(payload, jsjson.Member{Key: "dimensionFilter", Value: f})
+				}
+				c, err := client.CheckCompatibility(payload, kind)
+				if err != nil {
+					return err
+				}
+				// Each requested name appears exactly once and is COMPATIBLE (the response also lists other items)
+				allCompatible := func(list any, meta string, want []any) bool {
+					arr, ok := list.([]any)
+					if !ok {
 						return false
 					}
+					for _, n := range want {
+						var hits []jsjson.Object
+						for _, x := range arr {
+							xo, isO := x.(jsjson.Object)
+							if !isO {
+								continue
+							}
+							mo, isMO := prop(xo, meta).(jsjson.Object)
+							if isMO && prop(mo, "apiName") == n {
+								hits = append(hits, xo)
+							}
+						}
+						if len(hits) != 1 || prop(hits[0], "compatibility") != "COMPATIBLE" {
+							return false
+						}
+					}
+					return true
 				}
-				return true
-			}
-			if !allCompatible(prop(c, "dimensionCompatibilities"), "dimensionMetadata", apiNames(def, true)) || !allCompatible(prop(c, "metricCompatibilities"), "metricMetadata", apiNames(def, false)) {
-				return NewError("incompatible", 0, kind)
+				if !allCompatible(prop(c, "dimensionCompatibilities"), "dimensionMetadata", apiNames(p.def, true)) || !allCompatible(prop(c, "metricCompatibilities"), "metricMetadata", apiNames(p.def, false)) {
+					return NewError("incompatible", 0, kind)
+				}
 			}
 		}
 
 		var raw []RawRow
-		offset := 0
-		rowCount := -1.0
-		pages := map[string]bool{}
-		meta := jsjson.Object{}
+		rowCount := 0.0
+		var metas []jsjson.Object
 		var q quota
-		for {
-			req := BuildRequest(def, opt, offset)
-			j, err := client.RunReport(req, kind)
+		for _, p := range parts {
+			pr, rc, meta, pq, err := fetchPart(client, p, opt, kind, plan.Conn.TimeZone)
 			if err != nil {
 				return err
 			}
-			if q, err = checkQuota(j, kind); err != nil {
-				return err
-			}
-			metricHeaders, _ := prop(j, "metricHeaders").([]any)
-			if metricHeaders == nil {
-				metricHeaders = []any{}
-			}
-			if jsjson.MustStringify(names(prop(j, "dimensionHeaders"))) != jsjson.MustStringify(apiNames(def, true)) || jsjson.MustStringify(names(metricHeaders)) != jsjson.MustStringify(apiNames(def, false)) {
-				return NewError("invalid_response", 0, kind+" headers")
-			}
-			if m, ok := prop(j, "metadata").(jsjson.Object); ok {
-				meta = m
-			} else {
-				meta = jsjson.Object{}
-			}
-			if prop(meta, "timeZone") != plan.Conn.TimeZone {
-				return NewError("invalid_response", 0, kind+" time zone differs from the config")
-			}
-			// rowCount is fixed by the first page and must match on every page.
-			// GA4 omits rowCount for empty results, so a missing value is read as 0 only when there are no rows
-			rowsArr, _ := prop(j, "rows").([]any)
-			rcv := prop(j, "rowCount")
-			if rcv == undef && len(rowsArr) > 0 {
-				return NewError("invalid_response", 0, kind+" rowCount")
-			}
-			if rcv == undef {
-				rcv = 0.0
-			}
-			rc, ok := rcv.(float64)
-			if !ok || rc != math.Trunc(rc) || math.Abs(rc) > 1<<53-1 || rc < 0 {
-				return NewError("invalid_response", 0, kind+" rowCount")
-			}
-			if rowCount == -1 {
-				rowCount = rc
-			} else if rc != rowCount {
-				return NewError("invalid_response", 0, kind+" rowCount differs between pages")
-			}
-			if rowsArr == nil {
-				rowsArr = []any{}
-			}
-			// Fail if any earlier page comes back again
-			fp := jsjson.MustStringify(rowsArr)
-			if offset > 0 && (len(rowsArr) == 0 || pages[fp]) {
-				return NewError("invalid_response", 0, kind+" paging")
-			}
-			pages[fp] = true
-			types := make([]string, len(metricHeaders))
-			for i, h := range metricHeaders {
-				if ho, isO := h.(jsjson.Object); isO {
-					types[i] = jsString(prop(ho, "type"))
-				}
-			}
-			strs := func(v any, n int) ([]string, bool) {
-				arr, ok := v.([]any)
-				if !ok || len(arr) != n {
-					return nil, false
-				}
-				out := make([]string, n)
-				for i, x := range arr {
-					xo, isO := x.(jsjson.Object)
-					if !isO {
-						return nil, false
-					}
-					s, isS := prop(xo, "value").(string)
-					if !isS {
-						return nil, false
-					}
-					out[i] = s
-				}
-				return out, true
-			}
-			for _, r := range rowsArr {
-				ro, isO := r.(jsjson.Object)
-				var dims, metrics []string
-				okD, okM := false, false
-				if isO {
-					dims, okD = strs(prop(ro, "dimensionValues"), len(def.Dims))
-					metrics, okM = strs(prop(ro, "metricValues"), len(def.Metrics))
-				}
-				if !isO || !okD || !okM {
-					return NewError("invalid_response", 0, kind+" row format")
-				}
-				raw = append(raw, RawRow{Dims: dims, Metrics: metrics, Types: types})
-			}
-			if float64(len(raw)) > rowCount {
-				return NewError("invalid_response", 0, kind+" more rows than rowCount")
-			}
-			if float64(len(raw)) == rowCount {
-				break
-			}
-			if len(rowsArr) == 0 {
-				return NewError("invalid_response", 0, kind+" paging")
-			}
-			offset += 250_000
+			raw = append(raw, pr...)
+			rowCount += rc
+			metas = append(metas, meta)
+			q = pq
 		}
+		meta := mergeMeta(metas)
 
 		rows, stats, err := TransformRows(def, raw, TransformOptions{Events: plan.Reports.Events, MinUsers: plan.Reports.MinUsers, Through: through})
 		if err != nil {
@@ -415,9 +333,9 @@ func Import(db DB, plan *Plan, o ImportOptions) error {
 			sampled = 1
 		}
 		// Sampling summary: numbers only (samples read / sampling space size)
-		parts := make([]string, len(samples))
+		sampleParts := make([]string, len(samples))
 		for i, x := range samples {
-			parts[i] = countText(prop(x, "samplesReadCount")) + "/" + countText(prop(x, "samplingSpaceSize"))
+			sampleParts[i] = countText(prop(x, "samplesReadCount")) + "/" + countText(prop(x, "samplingSpaceSize"))
 		}
 		truncated := ""
 		if arr, ok := prop(meta, "dataTruncationReasons").([]any); ok {
@@ -429,10 +347,242 @@ func Import(db DB, plan *Plan, o ImportOptions) error {
 		}
 		emptyReason, _ := prop(meta, "emptyReason").(string)
 		if err := db.Exec(insLog, kind, def.Table, float64(len(rows)), rowCount, float64(stats.DroppedSmall), float64(stats.DroppedUnobserved), float64(stats.DroppedUnmapped), float64(stats.DroppedCollision), float64(stats.SuppressedCells),
-			float64(truthy(prop(meta, "subjectToThresholding"))), float64(truthy(prop(meta, "dataLossFromOtherRow"))), sampled, strings.Join(parts, ";"), truncated, float64(truthy(prop(meta, "schemaRestrictionResponse"))),
+			float64(truthy(prop(meta, "subjectToThresholding"))), float64(truthy(prop(meta, "dataLossFromOtherRow"))), sampled, strings.Join(sampleParts, ";"), truncated, float64(truthy(prop(meta, "schemaRestrictionResponse"))),
 			emptyReason, plan.Conn.TimeZone, through, float64(client.Calls-callsBefore), q.day, q.hour, isoString(now())); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// eventPart is one request series of a report. A report with an eventName dimension asks for the
+// single-name keys together, and for each event group separately without eventName (GA4 then counts
+// distinct users of the whole group); group rows get the group's first name back at that dimension.
+type eventPart struct {
+	def   ReportDef
+	names []string
+	group string
+	at    int
+}
+
+func eventParts(def ReportDef, r *Reports) []eventPart {
+	at := -1
+	for i, d := range def.Dims {
+		if d.Kind == "event" {
+			at = i
+		}
+	}
+	if at < 0 {
+		return []eventPart{{def: def, at: -1}}
+	}
+	var parts []eventPart
+	var singles []string
+	for _, m := range r.Events {
+		if _, grouped := r.Groups.Get(m.Value.(string)); !grouped {
+			singles = append(singles, m.Key)
+		}
+	}
+	if len(singles) > 0 {
+		parts = append(parts, eventPart{def: def, names: singles, at: at})
+	}
+	for _, g := range r.Groups {
+		names := r.GroupNames(g.Key)
+		d := def
+		d.Dims = append(append([]Dim{}, def.Dims[:at]...), def.Dims[at+1:]...)
+		parts = append(parts, eventPart{def: d, names: names, group: names[0], at: at})
+	}
+	return parts
+}
+
+func (p eventPart) request(opt RequestOptions, offset int) jsjson.Object {
+	if p.at >= 0 && p.group == "" {
+		opt.Events = jsjson.Object{}
+		for _, n := range p.names {
+			opt.Events = append(opt.Events, jsjson.Member{Key: n, Value: ""})
+		}
+	}
+	req := BuildRequest(p.def, opt, offset)
+	if req != nil && p.group != "" {
+		req = append(req, eventFilter(p.names))
+	}
+	return req
+}
+
+// plannedCalls is the fewest calls the plan needs: a token, one checkCompatibility per request shape and one runReport per request series.
+func plannedCalls(plan *Plan, through string) int {
+	n := 1
+	opt := RequestOptions{Start: plan.Reports.Start, Through: through, Events: plan.Reports.Events}
+	for _, def := range PlanDefs(plan) {
+		parts := eventParts(def, plan.Reports)
+		if parts[0].request(opt, 0) == nil {
+			continue
+		}
+		n += len(parts)
+		if def.Range != "cohort" {
+			for i, p := range parts {
+				if i == 0 || p.group == "" || parts[i-1].group == "" {
+					n++
+				}
+			}
+		}
+	}
+	return n
+}
+
+// fetchPart pages through one request series and checks every page.
+func fetchPart(client *Client, p eventPart, opt RequestOptions, kind, timeZone string) ([]RawRow, float64, jsjson.Object, quota, error) {
+	def := p.def
+	var raw []RawRow
+	offset := 0
+	rowCount := -1.0
+	pages := map[string]bool{}
+	meta := jsjson.Object{}
+	var q quota
+	for {
+		req := p.request(opt, offset)
+		j, err := client.RunReport(req, kind)
+		if err != nil {
+			return nil, 0, nil, q, err
+		}
+		if q, err = checkQuota(j, kind); err != nil {
+			return nil, 0, nil, q, err
+		}
+		metricHeaders, _ := prop(j, "metricHeaders").([]any)
+		if metricHeaders == nil {
+			metricHeaders = []any{}
+		}
+		if jsjson.MustStringify(names(prop(j, "dimensionHeaders"))) != jsjson.MustStringify(apiNames(def, true)) || jsjson.MustStringify(names(metricHeaders)) != jsjson.MustStringify(apiNames(def, false)) {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" headers")
+		}
+		if m, ok := prop(j, "metadata").(jsjson.Object); ok {
+			meta = m
+		} else {
+			meta = jsjson.Object{}
+		}
+		if prop(meta, "timeZone") != timeZone {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" time zone differs from the config")
+		}
+		// rowCount is fixed by the first page and must match on every page.
+		// GA4 omits rowCount for empty results, so a missing value is read as 0 only when there are no rows
+		rowsArr, isArr := prop(j, "rows").([]any)
+		if rv := prop(j, "rows"); rv != undef && !isArr {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" row format")
+		}
+		rcv := prop(j, "rowCount")
+		if rcv == undef && len(rowsArr) > 0 {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" rowCount")
+		}
+		if rcv == undef {
+			rcv = 0.0
+		}
+		rc, ok := rcv.(float64)
+		if !ok || rc != math.Trunc(rc) || math.Abs(rc) > 1<<53-1 || rc < 0 {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" rowCount")
+		}
+		if rowCount == -1 {
+			rowCount = rc
+		} else if rc != rowCount {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" rowCount differs between pages")
+		}
+		if rowsArr == nil {
+			rowsArr = []any{}
+		}
+		// Fail if any earlier page comes back again
+		fp := jsjson.MustStringify(rowsArr)
+		if offset > 0 && (len(rowsArr) == 0 || pages[fp]) {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" paging")
+		}
+		pages[fp] = true
+		types := make([]string, len(metricHeaders))
+		for i, h := range metricHeaders {
+			if ho, isO := h.(jsjson.Object); isO {
+				types[i] = jsString(prop(ho, "type"))
+			}
+		}
+		strs := func(v any, n int) ([]string, bool) {
+			arr, ok := v.([]any)
+			if !ok || len(arr) != n {
+				return nil, false
+			}
+			out := make([]string, n)
+			for i, x := range arr {
+				xo, isO := x.(jsjson.Object)
+				if !isO {
+					return nil, false
+				}
+				s, isS := prop(xo, "value").(string)
+				if !isS {
+					return nil, false
+				}
+				out[i] = s
+			}
+			return out, true
+		}
+		for _, r := range rowsArr {
+			ro, isO := r.(jsjson.Object)
+			var dims, metrics []string
+			okD, okM := false, false
+			if isO {
+				dims, okD = strs(prop(ro, "dimensionValues"), len(def.Dims))
+				metrics, okM = strs(prop(ro, "metricValues"), len(def.Metrics))
+			}
+			if !isO || !okD || !okM {
+				return nil, 0, nil, q, NewError("invalid_response", 0, kind+" row format")
+			}
+			if p.group != "" {
+				dims = append(append(append([]string{}, dims[:p.at]...), p.group), dims[p.at:]...)
+			}
+			raw = append(raw, RawRow{Dims: dims, Metrics: metrics, Types: types})
+		}
+		if float64(len(raw)) > rowCount {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" more rows than rowCount")
+		}
+		if float64(len(raw)) == rowCount {
+			break
+		}
+		if len(rowsArr) == 0 {
+			return nil, 0, nil, q, NewError("invalid_response", 0, kind+" paging")
+		}
+		offset += 250_000
+	}
+	return raw, rowCount, meta, q, nil
+}
+
+// mergeMeta combines the response metadata of a report's request series: flags if any series has them, lists joined.
+func mergeMeta(ms []jsjson.Object) jsjson.Object {
+	if len(ms) == 1 {
+		return ms[0]
+	}
+	out := jsjson.Object{}
+	for _, k := range []string{"subjectToThresholding", "dataLossFromOtherRow", "schemaRestrictionResponse"} {
+		for _, m := range ms {
+			if truthy(prop(m, k)) == 1 {
+				out = append(out, jsjson.Member{Key: k, Value: true})
+				break
+			}
+		}
+	}
+	var samples, reasons []any
+	var empty []string
+	for _, m := range ms {
+		if arr, ok := prop(m, "samplingMetadatas").([]any); ok {
+			samples = append(samples, arr...)
+		}
+		if arr, ok := prop(m, "dataTruncationReasons").([]any); ok {
+			reasons = append(reasons, arr...)
+		}
+		if e, ok := prop(m, "emptyReason").(string); ok && e != "" && !has(empty, e) {
+			empty = append(empty, e)
+		}
+	}
+	if samples != nil {
+		out = append(out, jsjson.Member{Key: "samplingMetadatas", Value: samples})
+	}
+	if reasons != nil {
+		out = append(out, jsjson.Member{Key: "dataTruncationReasons", Value: reasons})
+	}
+	if len(empty) > 0 {
+		out = append(out, jsjson.Member{Key: "emptyReason", Value: strings.Join(empty, ",")})
+	}
+	return out
 }

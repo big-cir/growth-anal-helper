@@ -354,15 +354,24 @@ func BuildRequest(def ReportDef, o RequestOptions, offset int) jsjson.Object {
 	req := append(base, jsjson.Member{Key: "dateRanges", Value: []any{jsjson.Object{{Key: "startDate", Value: r.Start}, {Key: "endDate", Value: r.End}}}})
 	for _, d := range def.Dims {
 		if d.Kind == "event" {
-			names := make([]any, len(o.Events))
+			names := make([]string, len(o.Events))
 			for i, e := range o.Events {
 				names[i] = e.Key
 			}
-			req = append(req, jsjson.Member{Key: "dimensionFilter", Value: jsjson.Object{{Key: "filter", Value: jsjson.Object{{Key: "fieldName", Value: "eventName"}, {Key: "inListFilter", Value: jsjson.Object{{Key: "values", Value: names}, {Key: "caseSensitive", Value: true}}}}}}})
+			req = append(req, eventFilter(names))
 			break
 		}
 	}
 	return req
+}
+
+// eventFilter keeps only the given GA4 event names (case-sensitive).
+func eventFilter(names []string) jsjson.Member {
+	vals := make([]any, len(names))
+	for i, n := range names {
+		vals[i] = n
+	}
+	return jsjson.Member{Key: "dimensionFilter", Value: jsjson.Object{{Key: "filter", Value: jsjson.Object{{Key: "fieldName", Value: "eventName"}, {Key: "inListFilter", Value: jsjson.Object{{Key: "values", Value: vals}, {Key: "caseSensitive", Value: true}}}}}}}
 }
 
 // ── Response → rows ─────────────────────────────────────

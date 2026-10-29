@@ -113,7 +113,7 @@ func initOnce(parent context.Context, o InitOptions) error {
 	if in.srcDefs, err = readDefs(ctx, in.src, "", in.names); err != nil {
 		return err
 	}
-	if err := noTriggersOrForeignKeys(ctx, in.src, "", in.names, "the source"); err != nil {
+	if err := noTriggersOrCascades(ctx, in.src, in.names); err != nil {
 		return err
 	}
 	in.fp = fingerprint(in.srcDefs)

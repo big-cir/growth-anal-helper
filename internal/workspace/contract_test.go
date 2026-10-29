@@ -80,3 +80,23 @@ func TestUserInHost(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestCoverageCheckDefaultAndExplicitOff(t *testing.T) {
+	base := `{"name":"x","datasource":{"host":"mysql://h","user":"u","database":"d"},"policy":{"readablePrefixes":["r_","d_"]}`
+	for _, c := range []struct {
+		agent string
+		want  bool
+		saved any
+	}{{"", true, nil}, {`,"agent":{"coverageCheck":false}`, false, false}, {`,"agent":{"coverageCheck":true}`, true, nil}} {
+		raw, _ := jsjson.Parse(base + c.agent + "}")
+		cfg, err := workspace.ParseConfig(raw, "/ws", "/hh/u")
+		if err != nil {
+			t.Fatal(err)
+		}
+		agent, _ := cfg.JS().Get("agent")
+		saved, _ := agent.(jsjson.Object).Get("coverageCheck")
+		if cfg.Agent.CoverageCheck != c.want || saved != c.saved {
+			t.Errorf("%q: got %v, saved as %v", c.agent, cfg.Agent.CoverageCheck, saved)
+		}
+	}
+}

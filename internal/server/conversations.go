@@ -123,6 +123,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 	blocked := a.Blocked()
 	cancelled := i18n.Tr("Cancelled", "취소됨")
 	t := in.Tracer
+	cov, _ := a.Coverage(snap)
 	return agent.LoopDeps{
 		Call: func(ctx context.Context, input, sessionID string, budget float64) agent.CallResult {
 			t0 := time.Now()
@@ -148,7 +149,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			t0 := time.Now()
 			var r query.Result
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
-				r = query.RunQuery(query.Request{Lease: l, SQL: sql, Path: snap.Agent, Mode: query.Probe, AsOf: snap.AsOf, Today: in.Today, Params: cfg.Params,
+				r = query.RunQuery(query.Request{Lease: l, SQL: sql, Path: snap.Agent, Mode: query.Probe, AsOf: snap.AsOf, Today: in.Today, Params: a.QueryParams(snap),
 					ReadablePrefixes: cfg.ReadablePrefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx})
 				return nil
 			})
@@ -164,7 +165,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			t0 := time.Now()
 			var r panels.RunResult
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
-				r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Today: in.Today, Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
+				r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Today: in.Today, Params: a.QueryParams(snap), PanelPrefix: cfg.PanelPrefixes, Coverage: cov, Lang: a.Lang,
 					Metrics: in.Metrics, Blocked: blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Roles: a.Roles, Lease: l, Ctx: ctx})
 				return nil
 			})
@@ -174,7 +175,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			if t != nil {
 				t.Panel(t0, r.OK, len(r.Real), r.Stage, spec.SQL)
 			}
-			return agent.PanelResult{OK: r.OK, Columns: r.Columns, Real: r.Real, Agent: r.Agent, Ms: r.Ms, Tables: r.Tables, Stage: r.Stage, Message: r.Message, Violations: r.Violations}
+			return agent.PanelResult{OK: r.OK, Columns: r.Columns, Real: r.Real, Agent: r.Agent, Ms: r.Ms, Tables: r.Tables, Stage: r.Stage, Message: r.Message, Violations: r.Violations, Signals: r.Signals}
 		},
 		Sleep: func(ctx context.Context, ms int) {
 			select {

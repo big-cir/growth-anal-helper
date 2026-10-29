@@ -5,9 +5,11 @@ import (
 	"errors"
 	"growth-lab/internal/i18n"
 	"math"
+	"strings"
 	"sync"
 	"time"
 
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
 	"growth-lab/internal/sensitive"
@@ -209,8 +211,11 @@ type Request struct {
 	cancelFn   context.CancelFunc
 	fixPending bool
 	zeroWarned bool
-	work       sync.WaitGroup
-	start      *StartInput
+	// coverageSQL is the panel whose coverage findings were sent back; the same panel again is accepted
+	coverageSQL  string
+	coverageAsks int
+	work         sync.WaitGroup
+	start        *StartInput
 }
 
 // NewRequest creates a request in the calling state.
@@ -673,6 +678,26 @@ func (r *Request) drive(firstInput string) error {
 				}
 				continue
 			}
+			if res.OK && action.Panel.SQL != r.coverageSQL && r.coverageAsks < 2 {
+				var asks []string
+				for _, s := range res.Signals {
+					if s.Ask {
+						asks = append(asks, s.Agent)
+					}
+				}
+				if len(asks) > 0 {
+					r.coverageSQL = action.Panel.SQL
+					r.coverageAsks++
+					r.emit(Event{Type: "step", Kind: "check_failed", Text: i18n.In(lang, "Data coverage check → asking to confirm", "데이터 범위 확인 → 확인 요청")})
+					if input, err = r.deps.Outbound.CoverageCheck(asks); err != nil {
+						return err
+					}
+					continue
+				}
+			}
+			if res.OK && len(res.Signals) > 0 {
+				action.Panel.Caveats = coverageCaveats(action.Panel.Caveats, res.Signals)
+			}
 			if res.OK {
 				if action.Panel.Metric == nil {
 					r.mu.Lock()
@@ -703,4 +728,21 @@ func (r *Request) drive(firstInput string) error {
 			}
 		}
 	}
+}
+
+// coverageCaveats adds the coverage findings as one caveat within the caveat limits.
+func coverageCaveats(caveats []string, signals []coverage.Signal) []string {
+	var parts []string
+	for _, s := range signals {
+		parts = append(parts, s.Caveat)
+	}
+	c := []rune(strings.Join(parts, " / "))
+	if len(c) > panels.Limits.CaveatText {
+		c = append(c[:panels.Limits.CaveatText-1], '…')
+	}
+	out := append([]string{}, caveats...)
+	if len(out) >= panels.Limits.Caveats {
+		out = out[:panels.Limits.Caveats-1]
+	}
+	return append(out, string(c))
 }

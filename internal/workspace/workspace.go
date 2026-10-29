@@ -50,6 +50,8 @@ type Agent struct {
 	BaseURL         *string
 	Pricing         *Pricing
 	MaxOutputTokens int
+	// CoverageCheck adds the data coverage guide and the data gap check (on by default)
+	CoverageCheck bool
 }
 
 // Server is the HTTP server configuration.
@@ -88,10 +90,10 @@ type ConfigError struct{ Msg string }
 func (e *ConfigError) Error() string { return e.Msg }
 
 func defaultAgent() Agent {
-	return Agent{Provider: "claude-code", Bin: "claude", CallBudgetUsd: 0.5, RequestBudget: 1.0, MaxTurns: 8, MaxProbes: 4, MaxFixes: 2, CallTimeoutMs: 90000, Concurrency: 2, DataMode: "pseudonymized", MaxOutputTokens: 8192}
+	return Agent{Provider: "claude-code", Bin: "claude", CallBudgetUsd: 0.5, RequestBudget: 1.0, MaxTurns: 8, MaxProbes: 4, MaxFixes: 2, CallTimeoutMs: 90000, Concurrency: 2, DataMode: "pseudonymized", MaxOutputTokens: 8192, CoverageCheck: true}
 }
 
-var agentKeys = []string{"provider", "bin", "model", "callBudgetUsd", "requestBudgetUsd", "maxTurns", "maxProbes", "maxFixes", "callTimeoutMs", "concurrency", "dataMode", "apiKey", "baseUrl", "pricing", "maxOutputTokens"}
+var agentKeys = []string{"provider", "bin", "model", "callBudgetUsd", "requestBudgetUsd", "maxTurns", "maxProbes", "maxFixes", "callTimeoutMs", "concurrency", "dataMode", "apiKey", "baseUrl", "pricing", "maxOutputTokens", "coverageCheck"}
 
 // FindDir returns GROWTH_LAB_WORKSPACE (relative to cwd), or ./workspace.
 func FindDir(getenv func(string) string, cwd string) string {
@@ -411,6 +413,13 @@ func parseAgent(root jsjson.Object) Agent {
 			agent.Concurrency = n
 		}
 	}
+	if v, ok := get(a, "coverageCheck"); ok {
+		b, isBool := v.(bool)
+		if !isBool {
+			fail(".agent.coverageCheck", "true or false")
+		}
+		agent.CoverageCheck = b
+	}
 	if v, ok := get(a, "provider"); ok {
 		if v != "claude-code" && v != "anthropic" && v != "openai" {
 			fail(".agent.provider", `"claude-code", "anthropic", "openai"`)
@@ -695,6 +704,9 @@ func (c Config) JS() jsjson.Object {
 	agent := jsjson.Object{{Key: "provider", Value: a.Provider}, {Key: "bin", Value: a.Bin}, {Key: "model", Value: ptr(a.Model)}, {Key: "callBudgetUsd", Value: a.CallBudgetUsd}, {Key: "requestBudgetUsd", Value: a.RequestBudget},
 		{Key: "maxTurns", Value: a.MaxTurns}, {Key: "maxProbes", Value: a.MaxProbes}, {Key: "maxFixes", Value: a.MaxFixes}, {Key: "callTimeoutMs", Value: a.CallTimeoutMs}, {Key: "concurrency", Value: a.Concurrency},
 		{Key: "dataMode", Value: a.DataMode}, {Key: "apiKey", Value: a.APIKey}, {Key: "baseUrl", Value: ptr(a.BaseURL)}, {Key: "pricing", Value: pricing}, {Key: "maxOutputTokens", Value: a.MaxOutputTokens}}
+	if !a.CoverageCheck {
+		agent = append(agent, jsjson.Member{Key: "coverageCheck", Value: false})
+	}
 	var g any
 	if c.GA4 != nil {
 		g = c.GA4.JS()

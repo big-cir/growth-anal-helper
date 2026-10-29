@@ -46,6 +46,12 @@ func tsParam(v any, name string) (string, error) {
 	return t, nil
 }
 
+// GapRanges reads params.quality_gap_ranges as [start, end) timestamps.
+func GapRanges(params jsjson.Object) ([][2]string, error) {
+	v, ok := params.Get("quality_gap_ranges")
+	return gapRanges(v, ok)
+}
+
 // gapRanges reads params.quality_gap_ranges: ["start~end", …].
 func gapRanges(v any, present bool) ([][2]string, error) {
 	if !present {

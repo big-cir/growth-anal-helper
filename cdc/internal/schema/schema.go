@@ -1,4 +1,4 @@
-package cdc
+package schema
 
 import (
 	"context"
@@ -9,10 +9,13 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/source"
 )
 
-// column is one column of a followed table.
-type column struct {
+// Column is one column of a followed table.
+type Column struct {
 	Name     string
 	DataType string   // information_schema DATA_TYPE
 	Enum     []string // values in order, for enum columns
@@ -25,15 +28,15 @@ type indexPart struct {
 	Desc    bool
 }
 
-// indexDef is a secondary index, rebuilt on a staging table after the copy.
-type indexDef struct {
+// IndexDef is a secondary index, rebuilt on a staging table after the copy.
+type IndexDef struct {
 	Name    string
 	Unique  bool
 	Visible bool
 	Parts   []indexPart
 }
 
-func (d indexDef) text() string {
+func (d IndexDef) Text() string {
 	var parts []string
 	for _, p := range d.Parts {
 		parts = append(parts, fmt.Sprintf("%s(%s)%v", p.Column, p.SubPart, p.Desc))
@@ -41,11 +44,11 @@ func (d indexDef) text() string {
 	return fmt.Sprintf("index %s unique=%v visible=%v %s", d.Name, d.Unique, d.Visible, strings.Join(parts, ","))
 }
 
-// tableDef is what run checks and uses about a followed table on either side.
-type tableDef struct {
-	Columns []column
+// TableDef is what run checks and uses about a followed table on either side.
+type TableDef struct {
+	Columns []Column
 	PK      []int // column positions of the primary key, in key order
-	Indexes []indexDef
+	Indexes []IndexDef
 	base    []string // engine, columns and primary key
 	full    []string // base plus every secondary index
 }
@@ -55,12 +58,12 @@ var supportedTypes = map[string]bool{
 	"datetime": true, "varchar": true, "enum": true,
 }
 
-// readDefs reads the definitions of the followed tables, named by their source "db.table".
+// ReadDefs reads the definitions of the followed tables, named by their source "db.table".
 // With physDB set the tables are read from that database instead (a staging copy).
 // It stops on a missing table, an engine other than InnoDB, a column type run does not convert,
 // or an index it cannot rebuild.
-func readDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (map[string]*tableDef, error) {
-	defs := map[string]*tableDef{}
+func ReadDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (map[string]*TableDef, error) {
+	defs := map[string]*TableDef{}
 	for _, n := range names {
 		schema, table, _ := strings.Cut(n, ".")
 		if physDB != "" {
@@ -71,14 +74,14 @@ func readDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (m
 		err := db.QueryRowContext(ctx, `SELECT ENGINE FROM information_schema.TABLES
 			WHERE BINARY TABLE_SCHEMA = BINARY ? AND BINARY TABLE_NAME = BINARY ? AND TABLE_TYPE = 'BASE TABLE'`, schema, table).Scan(&engine)
 		if err == sql.ErrNoRows {
-			return nil, &StopError{where + ": table not found"}
+			return nil, &cdc.StopError{Msg: where + ": table not found"}
 		} else if err != nil {
 			return nil, err
 		}
 		if !strings.EqualFold(engine.String, "InnoDB") {
-			return nil, &StopError{where + ": not an InnoDB table"}
+			return nil, &cdc.StopError{Msg: where + ": not an InnoDB table"}
 		}
-		d := &tableDef{base: []string{"engine InnoDB"}}
+		d := &TableDef{base: []string{"engine InnoDB"}}
 		rows, err := db.QueryContext(ctx, `SELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, IS_NULLABLE,
 				IFNULL(CHARACTER_SET_NAME, ''), IFNULL(COLLATION_NAME, '')
 			FROM information_schema.COLUMNS
@@ -97,13 +100,13 @@ func readDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (m
 			dataType = strings.ToLower(dataType)
 			if !supportedTypes[dataType] || strings.Contains(strings.ToLower(colType), "unsigned") {
 				rows.Close()
-				return nil, &StopError{fmt.Sprintf("%s.%s: column type %s is not supported", where, name, colType)}
+				return nil, &cdc.StopError{Msg: fmt.Sprintf("%s.%s: column type %s is not supported", where, name, colType)}
 			}
-			c := column{Name: name, DataType: dataType}
+			c := Column{Name: name, DataType: dataType}
 			if dataType == "enum" {
 				if c.Enum, err = enumValues(colType); err != nil {
 					rows.Close()
-					return nil, &StopError{fmt.Sprintf("%s.%s: %s", where, name, err)}
+					return nil, &cdc.StopError{Msg: fmt.Sprintf("%s.%s: %s", where, name, err)}
 				}
 			}
 			pos[name] = len(d.Columns)
@@ -114,20 +117,20 @@ func readDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (m
 		if err := rows.Err(); err != nil {
 			return nil, err
 		}
-		keys, err := queryRows(ctx, db, fmt.Sprintf(`SELECT INDEX_NAME, NON_UNIQUE, IFNULL(COLUMN_NAME, ''), IFNULL(SUB_PART, ''),
+		keys, err := source.QueryRows(ctx, db, fmt.Sprintf(`SELECT INDEX_NAME, NON_UNIQUE, IFNULL(COLUMN_NAME, ''), IFNULL(SUB_PART, ''),
 				IFNULL(COLLATION, ''), IFNULL(EXPRESSION, ''), INDEX_TYPE, IS_VISIBLE FROM information_schema.STATISTICS
 			WHERE BINARY TABLE_SCHEMA = BINARY '%s' AND BINARY TABLE_NAME = BINARY '%s'
-			ORDER BY INDEX_NAME, SEQ_IN_INDEX`, sqlString(schema), sqlString(table)), 8)
+			ORDER BY INDEX_NAME, SEQ_IN_INDEX`, SQLString(schema), SQLString(table)), 8)
 		if err != nil {
 			return nil, err
 		}
 		var pk []string
-		byName := map[string]*indexDef{}
+		byName := map[string]*IndexDef{}
 		var order []string
 		for _, k := range keys {
 			name, nonUnique, col, sub, coll, expr, typ, visible := k[0], k[1], k[2], k[3], k[4], k[5], k[6], k[7]
 			if expr != "" || col == "" || !strings.EqualFold(typ, "BTREE") {
-				return nil, &StopError{fmt.Sprintf("%s: index %s is not a plain column index", where, name)}
+				return nil, &cdc.StopError{Msg: fmt.Sprintf("%s: index %s is not a plain column index", where, name)}
 			}
 			if name == "PRIMARY" {
 				pk = append(pk, fmt.Sprintf("%s(%s)%s", col, sub, coll))
@@ -136,28 +139,28 @@ func readDefs(ctx context.Context, db *sql.DB, physDB string, names []string) (m
 			}
 			ix := byName[name]
 			if ix == nil {
-				ix = &indexDef{Name: name, Unique: nonUnique == "0", Visible: visible == "YES"}
+				ix = &IndexDef{Name: name, Unique: nonUnique == "0", Visible: visible == "YES"}
 				byName[name] = ix
 				order = append(order, name)
 			}
 			ix.Parts = append(ix.Parts, indexPart{Column: col, SubPart: sub, Desc: coll == "D"})
 		}
 		if len(pk) == 0 {
-			return nil, &StopError{where + ": no primary key"}
+			return nil, &cdc.StopError{Msg: where + ": no primary key"}
 		}
 		d.base = append(d.base, "primary "+strings.Join(pk, ","))
 		d.full = append([]string(nil), d.base...)
 		for _, name := range order {
 			d.Indexes = append(d.Indexes, *byName[name])
-			d.full = append(d.full, byName[name].text())
+			d.full = append(d.full, byName[name].Text())
 		}
 		defs[n] = d
 	}
 	return defs, nil
 }
 
-// sqlString escapes a name for a quoted literal; names come from the command line.
-func sqlString(s string) string { return strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(s) }
+// SQLString escapes a name for a quoted literal; names come from the command line.
+func SQLString(s string) string { return strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(s) }
 
 // enumValues parses enum('a','b') as stored in COLUMN_TYPE.
 func enumValues(colType string) ([]string, error) {
@@ -199,8 +202,8 @@ func enumValues(colType string) ([]string, error) {
 	return out, nil
 }
 
-// fingerprint is the hash of the full definitions.
-func fingerprint(defs map[string]*tableDef) string {
+// Fingerprint is the hash of the full definitions.
+func Fingerprint(defs map[string]*TableDef) string {
 	names := make([]string, 0, len(defs))
 	for n := range defs {
 		names = append(names, n)
@@ -213,9 +216,9 @@ func fingerprint(defs map[string]*tableDef) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// sameDefs reports the first table whose definition differs: everything with full set,
+// SameDefs reports the first table whose definition differs: everything with full set,
 // otherwise engine, columns and primary key only (a staging table before its indexes are rebuilt).
-func sameDefs(src, dst map[string]*tableDef, full bool) error {
+func SameDefs(src, dst map[string]*TableDef, full bool) error {
 	names := make([]string, 0, len(src))
 	for n := range src {
 		names = append(names, n)
@@ -224,24 +227,24 @@ func sameDefs(src, dst map[string]*tableDef, full bool) error {
 	for _, n := range names {
 		d := dst[n]
 		if d == nil {
-			return &StopError{n + ": missing in the copy"}
+			return &cdc.StopError{Msg: n + ": missing in the copy"}
 		}
 		a, b := src[n].base, d.base
 		if full {
 			a, b = src[n].full, d.full
 		}
 		if strings.Join(a, "\n") != strings.Join(b, "\n") {
-			return &StopError{n + ": table definition differs between the source and the copy"}
+			return &cdc.StopError{Msg: n + ": table definition differs between the source and the copy"}
 		}
 	}
 	return nil
 }
 
-// noTriggersOrForeignKeys stops when the copy has triggers on, or foreign keys from or to, a
+// NoTriggersOrForeignKeys stops when the copy has triggers on, or foreign keys from or to, a
 // followed table: applying a row change there would do more than the source did.
 // It sees only what the account may see: triggers need the TRIGGER privilege, and a foreign key
 // from another schema needs access to that table.
-func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, names []string, side string) error {
+func NoTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, names []string, side string) error {
 	for _, n := range names {
 		schema, table, _ := strings.Cut(n, ".")
 		if physDB != "" {
@@ -258,15 +261,15 @@ func noTriggersOrForeignKeys(ctx context.Context, db *sql.DB, physDB string, nam
 			return err
 		}
 		if c > 0 {
-			return &StopError{schema + "." + table + ": " + side + " has foreign keys on this table"}
+			return &cdc.StopError{Msg: schema + "." + table + ": " + side + " has foreign keys on this table"}
 		}
 	}
 	return nil
 }
 
-// noTriggersOrCascades stops when the source has triggers on, or foreign keys with cascading
+// NoTriggersOrCascades stops when the source has triggers on, or foreign keys with cascading
 // actions from or to, a followed table: the rows those actions change are not in the binlog.
-func noTriggersOrCascades(ctx context.Context, db *sql.DB, names []string) error {
+func NoTriggersOrCascades(ctx context.Context, db *sql.DB, names []string) error {
 	for _, n := range names {
 		schema, table, _ := strings.Cut(n, ".")
 		if err := noTriggers(ctx, db, schema, table, "the source"); err != nil {
@@ -280,7 +283,7 @@ func noTriggersOrCascades(ctx context.Context, db *sql.DB, names []string) error
 			return err
 		}
 		if c > 0 {
-			return &StopError{schema + "." + table + ": the source has foreign keys with cascading actions on this table"}
+			return &cdc.StopError{Msg: schema + "." + table + ": the source has foreign keys with cascading actions on this table"}
 		}
 	}
 	return nil
@@ -293,24 +296,24 @@ func noTriggers(ctx context.Context, db *sql.DB, schema, table, side string) err
 		return err
 	}
 	if c > 0 {
-		return &StopError{schema + "." + table + ": " + side + " has triggers on this table"}
+		return &cdc.StopError{Msg: schema + "." + table + ": " + side + " has triggers on this table"}
 	}
 	return nil
 }
 
-// stagingDDL is the source table's CREATE TABLE for physDB, keeping columns, primary key,
+// StagingDDL is the source table's CREATE TABLE for physDB, keeping columns, primary key,
 // engine, charset and comment, and leaving out secondary indexes, foreign keys and the auto-increment counter.
-func stagingDDL(ctx context.Context, src *sql.DB, name, physDB string) (string, error) {
+func StagingDDL(ctx context.Context, src *sql.DB, name, physDB string) (string, error) {
 	schema, table, _ := strings.Cut(name, ".")
 	var tn, ddl string
-	if err := src.QueryRowContext(ctx, "SHOW CREATE TABLE "+quoteName(schema)+"."+quoteName(table)).Scan(&tn, &ddl); err != nil {
+	if err := src.QueryRowContext(ctx, "SHOW CREATE TABLE "+cdc.QuoteName(schema)+"."+cdc.QuoteName(table)).Scan(&tn, &ddl); err != nil {
 		return "", err
 	}
 	lines := strings.Split(ddl, "\n")
 	if len(lines) < 3 || !strings.HasPrefix(lines[0], "CREATE TABLE ") {
-		return "", &StopError{name + ": CREATE TABLE not understood"}
+		return "", &cdc.StopError{Msg: name + ": CREATE TABLE not understood"}
 	}
-	out := []string{"CREATE TABLE " + quoteName(physDB) + "." + quoteName(table) + " ("}
+	out := []string{"CREATE TABLE " + cdc.QuoteName(physDB) + "." + cdc.QuoteName(table) + " ("}
 	for _, l := range lines[1 : len(lines)-1] {
 		t := strings.TrimSpace(l)
 		switch {
@@ -329,11 +332,11 @@ func stagingDDL(ctx context.Context, src *sql.DB, name, physDB string) (string, 
 
 var autoIncrement = regexp.MustCompile(` AUTO_INCREMENT=[0-9]+`)
 
-// addIndexSQL rebuilds one secondary index on physDB.table.
-func addIndexSQL(physDB, table string, ix indexDef) string {
+// AddIndexSQL rebuilds one secondary index on physDB.table.
+func AddIndexSQL(physDB, table string, ix IndexDef) string {
 	var parts []string
 	for _, p := range ix.Parts {
-		s := quoteName(p.Column)
+		s := cdc.QuoteName(p.Column)
 		if p.SubPart != "" {
 			s += "(" + p.SubPart + ")"
 		}
@@ -346,7 +349,7 @@ func addIndexSQL(physDB, table string, ix indexDef) string {
 	if ix.Unique {
 		kind = "UNIQUE INDEX"
 	}
-	q := fmt.Sprintf("ALTER TABLE %s.%s ADD %s %s (%s)", quoteName(physDB), quoteName(table), kind, quoteName(ix.Name), strings.Join(parts, ", "))
+	q := fmt.Sprintf("ALTER TABLE %s.%s ADD %s %s (%s)", cdc.QuoteName(physDB), cdc.QuoteName(table), kind, cdc.QuoteName(ix.Name), strings.Join(parts, ", "))
 	if !ix.Visible {
 		q += " INVISIBLE"
 	}

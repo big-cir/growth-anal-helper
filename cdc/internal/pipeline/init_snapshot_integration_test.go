@@ -1,6 +1,6 @@
 //go:build integration
 
-package cdc
+package pipeline
 
 import (
 	"context"
@@ -12,16 +12,19 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/testenv"
 )
 
 // holdCommits makes the source keep a transaction written to the binlog but not committed in
 // the engine for wait: semi-sync waits for a replica that never acknowledges.
 func (h *harness) holdCommits(wait time.Duration) (undo func()) {
-	h.t.Helper()
+	h.T.Helper()
 	var n int
-	h.srcDB.QueryRow("SELECT COUNT(*) FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'rpl_semi_sync_source'").Scan(&n)
+	h.SrcDB.QueryRow("SELECT COUNT(*) FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'rpl_semi_sync_source'").Scan(&n)
 	if n == 0 {
-		h.exec(h.srcDB, "INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so'")
+		h.Exec(h.SrcDB, "INSTALL PLUGIN rpl_semi_sync_source SONAME 'semisync_source.so'")
 	}
 	for _, q := range []string{
 		"SET GLOBAL rpl_semi_sync_source_wait_point = AFTER_SYNC",
@@ -29,18 +32,18 @@ func (h *harness) holdCommits(wait time.Duration) (undo func()) {
 		"SET GLOBAL rpl_semi_sync_source_timeout = " + strconv.FormatInt(wait.Milliseconds(), 10),
 		"SET GLOBAL rpl_semi_sync_source_enabled = ON",
 	} {
-		h.exec(h.srcDB, q)
+		h.Exec(h.SrcDB, q)
 	}
-	return func() { h.exec(h.srcDB, "SET GLOBAL rpl_semi_sync_source_enabled = OFF") }
+	return func() { h.Exec(h.SrcDB, "SET GLOBAL rpl_semi_sync_source_enabled = OFF") }
 }
 
 // srcPos is the source's current binlog position as text.
 func (h *harness) srcPos() string {
-	h.t.Helper()
+	h.T.Helper()
 	var file, pos string
 	var x1, x2, x3 any
-	if err := h.srcDB.QueryRow("SHOW BINARY LOG STATUS").Scan(&file, &pos, &x1, &x2, &x3); err != nil {
-		h.t.Fatal(err)
+	if err := h.SrcDB.QueryRow("SHOW BINARY LOG STATUS").Scan(&file, &pos, &x1, &x2, &x3); err != nil {
+		h.T.Fatal(err)
 	}
 	return file + ":" + pos
 }
@@ -56,7 +59,7 @@ func TestInitKeepsATransactionCommittingAtTheSnapshot(t *testing.T) {
 	before := h.srcPos()
 	done := make(chan error, 1)
 	go func() {
-		_, err := h.srcDB.Exec("INSERT INTO app.member (created, name, handle, locale) VALUES (NOW(6), 'held', 'held-at-snapshot', 'KO')")
+		_, err := h.SrcDB.Exec("INSERT INTO app.member (created, name, handle, locale) VALUES (NOW(6), 'held', 'held-at-snapshot', 'KO')")
 		done <- err
 	}()
 	// wait until the insert is in the binlog; its commit is still held
@@ -108,7 +111,7 @@ func TestInitKeepsATransactionCommittingAtTheSnapshot(t *testing.T) {
 
 func (h *harness) heldVisible() bool {
 	var n int
-	h.srcDB.QueryRow("SELECT COUNT(*) FROM app.member WHERE handle = 'held-at-snapshot'").Scan(&n)
+	h.SrcDB.QueryRow("SELECT COUNT(*) FROM app.member WHERE handle = 'held-at-snapshot'").Scan(&n)
 	return n == 1
 }
 
@@ -116,16 +119,16 @@ func TestInitSourceLock(t *testing.T) {
 	h := newHarness(t)
 	sub := func(name string, f func(t *testing.T)) {
 		t.Run(name, func(t *testing.T) {
-			parent := h.t
-			h.t = t
-			defer func() { h.t = parent; testHooks.initStep = nil }()
+			parent := h.T
+			h.T = t
+			defer func() { h.T = parent; testHooks.initStep = nil }()
 			h.freshForInit(false)
 			f(t)
 		})
 	}
 
 	sub("stops after the tables stay busy", func(t *testing.T) {
-		tx, err := h.srcDB.Begin()
+		tx, err := h.SrcDB.Begin()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -148,7 +151,7 @@ func TestInitSourceLock(t *testing.T) {
 
 	sub("each try stops at its limit with two busy tables", func(t *testing.T) {
 		for _, q := range []string{"UPDATE app.label SET color = color WHERE id = 1", "UPDATE app.post SET body = body WHERE id = 1"} {
-			tx, err := h.srcDB.Begin()
+			tx, err := h.SrcDB.Begin()
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -202,7 +205,7 @@ func TestInitSourceLock(t *testing.T) {
 			t.Fatalf("init should end with the crash: %v", err)
 		}
 		testHooks.initStep = nil
-		conn, err := h.srcDB.Conn(context.Background())
+		conn, err := h.SrcDB.Conn(context.Background())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -241,23 +244,23 @@ func TestInitSourceLock(t *testing.T) {
 			"CREATE USER 'cdc_nolock'@'%' IDENTIFIED BY 'nolock-pw'",
 			"GRANT SELECT, REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO 'cdc_nolock'@'%'",
 		} {
-			h.exec(h.srcDB, q)
+			h.Exec(h.SrcDB, q)
 		}
-		defer h.exec(h.srcDB, "DROP USER IF EXISTS 'cdc_nolock'@'%'")
+		defer h.Exec(h.SrcDB, "DROP USER IF EXISTS 'cdc_nolock'@'%'")
 		o := h.initOpts()
 		o.Source.User, o.Source.Password = "cdc_nolock", "nolock-pw"
 		err := Init(context.Background(), o)
 		if !strings.Contains(fmt.Sprint(err), "LOCK TABLES and SELECT privileges") {
 			t.Fatalf("init should name the missing privilege: %v", err)
 		}
-		if strings.Contains(fmt.Sprint(SafeError(err)), "cdc_nolock") {
-			t.Fatalf("the error shows the server message: %v", SafeError(err))
+		if strings.Contains(fmt.Sprint(cdc.SafeError(err)), "cdc_nolock") {
+			t.Fatalf("the error shows the server message: %v", cdc.SafeError(err))
 		}
 	})
 
 	sub("stops on a source trigger", func(t *testing.T) {
-		h.exec(h.srcDB, "CREATE TRIGGER app.label_touch BEFORE UPDATE ON app.label FOR EACH ROW SET NEW.changed = NEW.changed")
-		defer h.exec(h.srcDB, "DROP TRIGGER IF EXISTS app.label_touch")
+		h.Exec(h.SrcDB, "CREATE TRIGGER app.label_touch BEFORE UPDATE ON app.label FOR EACH ROW SET NEW.changed = NEW.changed")
+		defer h.Exec(h.SrcDB, "DROP TRIGGER IF EXISTS app.label_touch")
 		err := Init(context.Background(), h.initOpts())
 		if !strings.Contains(fmt.Sprint(err), "the source has triggers") {
 			t.Fatalf("init should stop on a source trigger: %v", err)
@@ -309,7 +312,7 @@ func (h *harness) writer(seed int64, commits *atomic.Int64) (stop func() error) 
 				return
 			default:
 			}
-			tx, err := h.srcDB.Begin()
+			tx, err := h.SrcDB.Begin()
 			if err == nil {
 				_, err = tx.Exec("UPDATE app.post SET body = ? WHERE id = ?", fmt.Sprintf("w%d-%d", seed, n), 1+rng.Intn(1000))
 				if err == nil {
@@ -321,7 +324,7 @@ func (h *harness) writer(seed int64, commits *atomic.Int64) (stop func() error) 
 					tx.Rollback()
 				}
 			}
-			if isDeadlock(err) {
+			if testenv.IsDeadlock(err) {
 				continue
 			}
 			if err != nil {
@@ -340,18 +343,18 @@ func (h *harness) writer(seed int64, commits *atomic.Int64) (stop func() error) 
 // killLockHolder ends the session that holds init's READ lock on the source tables.
 func (h *harness) killLockHolder() error {
 	var id int64
-	if err := h.srcDB.QueryRow(`SELECT t.PROCESSLIST_ID FROM performance_schema.metadata_locks m
+	if err := h.SrcDB.QueryRow(`SELECT t.PROCESSLIST_ID FROM performance_schema.metadata_locks m
 		JOIN performance_schema.threads t ON t.THREAD_ID = m.OWNER_THREAD_ID
 		WHERE m.OBJECT_SCHEMA = 'app' AND m.LOCK_TYPE = 'SHARED_READ_ONLY' LIMIT 1`).Scan(&id); err != nil {
 		return err
 	}
-	_, err := h.srcDB.Exec(fmt.Sprintf("KILL %d", id))
+	_, err := h.SrcDB.Exec(fmt.Sprintf("KILL %d", id))
 	return err
 }
 
 // writeWithin changes a followed source table from its own connection, waiting at most secs for locks.
 func (h *harness) writeWithin(secs int) error {
-	conn, err := h.srcDB.Conn(context.Background())
+	conn, err := h.SrcDB.Conn(context.Background())
 	if err != nil {
 		return err
 	}

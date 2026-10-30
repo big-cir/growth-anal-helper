@@ -1,4 +1,4 @@
-package cdc
+package pipeline
 
 import (
 	"context"
@@ -11,22 +11,27 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/replication"
 	"github.com/pingcap/tidb/pkg/parser"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/schema"
+	"growth-lab-cdc/internal/source"
+	"growth-lab-cdc/internal/target"
 )
 
 // fakeSink records what the reader asks of the copy.
 type fakeSink struct {
 	open    bool
-	applied []*Change
-	pending []*Change
+	applied []*cdc.Change
+	pending []*cdc.Change
 	commits []string
 	saves   []string
 	phases  []string // phase passed with each commit or save
-	modes   []ApplyMode
-	failOn  ChangeKind
+	modes   []cdc.ApplyMode
+	failOn  cdc.ChangeKind
 	saveErr error
 }
 
-func (f *fakeSink) Begin(_ context.Context, mode ApplyMode) error {
+func (f *fakeSink) Begin(_ context.Context, mode cdc.ApplyMode) error {
 	if f.open {
 		return errors.New("already open")
 	}
@@ -35,9 +40,9 @@ func (f *fakeSink) Begin(_ context.Context, mode ApplyMode) error {
 	return nil
 }
 
-func (f *fakeSink) Apply(_ context.Context, c *Change) error {
+func (f *fakeSink) Apply(_ context.Context, c *cdc.Change) error {
 	if c.Kind == f.failOn {
-		return &StopError{"copy differs"}
+		return &cdc.StopError{Msg: "copy differs"}
 	}
 	f.pending = append(f.pending, c)
 	return nil
@@ -66,15 +71,15 @@ func (f *fakeSink) Save(_ context.Context, p, phase string) error {
 	return nil
 }
 
-func testReader(sink Sink, saved binlogPos) *reader {
+func testReader(sink cdc.Sink, saved cdc.Pos) *reader {
 	return &reader{
 		o:    &RunOptions{SaveEvery: time.Hour},
 		sink: sink,
-		defs: map[string]*tableDef{"app.user": {Columns: []column{
+		defs: map[string]*schema.TableDef{"app.user": {Columns: []schema.Column{
 			{Name: "id", DataType: "bigint"}, {Name: "locale", DataType: "enum", Enum: []string{"EN", "KO"}},
 		}}},
 		parser: parser.New(), version: 80408, saved: saved, last: saved, file: saved.File,
-		sum: &RunSummary{Applied: map[string]*Counts{"app.user": {}}}, open: map[string]*Counts{}, lastSave: time.Now(),
+		sum: &RunSummary{Applied: map[string]*cdc.Counts{"app.user": {}}}, open: map[string]*cdc.Counts{}, lastSave: time.Now(),
 	}
 }
 
@@ -111,7 +116,7 @@ func feed(t *testing.T, r *reader, evs ...*replication.BinlogEvent) error {
 
 func TestReaderCommitsWithPosition(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100})
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100})
 	err := feed(t, r,
 		query(150, "app", "BEGIN"),
 		rowsEv(replication.WRITE_ROWS_EVENTv2, 200, "user", []any{int64(1), int64(2)}),
@@ -125,7 +130,7 @@ func TestReaderCommitsWithPosition(t *testing.T) {
 	if len(sink.commits) != 1 || len(sink.applied) != 2 {
 		t.Fatalf("commits %v applied %d", sink.commits, len(sink.applied))
 	}
-	p, _ := parsePos(sink.commits[0])
+	p, _ := cdc.ParsePos(sink.commits[0])
 	if p.Pos != 331 || p.EventStart != 300 || p.EventCRC == 0 {
 		t.Errorf("position %+v", p)
 	}
@@ -139,26 +144,26 @@ func TestReaderCommitsWithPosition(t *testing.T) {
 
 func TestReaderStopsOnBadEnumAndPartialUpdate(t *testing.T) {
 	for _, n := range []int64{0, 3} {
-		r := testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+		r := testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 		err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 200, "user", []any{int64(1), n}))
-		var s *StopError
+		var s *cdc.StopError
 		if !errors.As(err, &s) {
 			t.Errorf("enum %d: %v", n, err)
 		}
 	}
-	r := testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	r := testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.PARTIAL_UPDATE_ROWS_EVENT, 200, "other", []any{int64(1)}, []any{int64(1)}))
-	var s *StopError
+	var s *cdc.StopError
 	if !errors.As(err, &s) {
 		t.Errorf("partial update on any table should stop: %v", err)
 	}
 }
 
 func TestReaderRollsBackOnStop(t *testing.T) {
-	sink := &fakeSink{failOn: Delete}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100})
+	sink := &fakeSink{failOn: cdc.Delete}
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100})
 	err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.DELETE_ROWS_EVENTv2, 200, "user", []any{int64(1), int64(1)}))
-	var s *StopError
+	var s *cdc.StopError
 	if !errors.As(err, &s) || len(sink.commits) != 0 {
 		t.Fatalf("err %v commits %v", err, sink.commits)
 	}
@@ -166,7 +171,7 @@ func TestReaderRollsBackOnStop(t *testing.T) {
 
 func TestReaderSavesOnlyFinishedTransactions(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100})
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100})
 	r.o.SaveEvery = 0
 	// a transaction with no followed rows: its end may be saved
 	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 200, "other", []any{int64(1)}), xid(231)); err != nil {
@@ -186,7 +191,7 @@ func TestReaderSavesOnlyFinishedTransactions(t *testing.T) {
 
 func TestReaderRotateAndVerify(t *testing.T) {
 	boundary := xid(331)
-	saved := binlogPos{File: "bin.000001", Pos: 331, EventStart: 300, EventCRC: crc32.ChecksumIEEE(boundary.RawData)}
+	saved := cdc.Pos{File: "bin.000001", Pos: 331, EventStart: 300, EventCRC: crc32.ChecksumIEEE(boundary.RawData)}
 	fake := &replication.BinlogEvent{Header: &replication.EventHeader{EventType: replication.ROTATE_EVENT}, Event: &replication.RotateEvent{NextLogName: []byte("bin.000001"), Position: 300}}
 	real := ev(replication.ROTATE_EVENT, 400, 40, &replication.RotateEvent{NextLogName: []byte("bin.000002"), Position: 4})
 
@@ -196,7 +201,7 @@ func TestReaderRotateAndVerify(t *testing.T) {
 	if err := feed(t, r, fake, boundary, real, query(200, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 250, "user", []any{int64(3), int64(1)}), xid(281)); err != nil {
 		t.Fatal(err)
 	}
-	p, _ := parsePos(sink.commits[0])
+	p, _ := cdc.ParsePos(sink.commits[0])
 	if r.file != "bin.000002" || p.File != "bin.000002" || p.Pos != 281 || len(sink.applied) != 1 {
 		t.Fatalf("after rotate: file %s commit %+v", r.file, p)
 	}
@@ -205,7 +210,7 @@ func TestReaderRotateAndVerify(t *testing.T) {
 	other.RawData = []byte("different")
 	r = testReader(&fakeSink{}, saved)
 	r.verify = true
-	var s *StopError
+	var s *cdc.StopError
 	if err := feed(t, r, fake, other); !errors.As(err, &s) {
 		t.Errorf("a different boundary event should stop: %v", err)
 	}
@@ -218,7 +223,7 @@ func TestReaderRotateAndVerify(t *testing.T) {
 
 func TestReaderSkipsWhatTheCopyHas(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 500})
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 500})
 	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 200, "user", []any{int64(1), int64(1)}), xid(231)); err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +258,7 @@ func TestJudgeStatement(t *testing.T) {
 		{"app", "THIS IS NOT SQL"},
 	}
 	for _, c := range stop {
-		var s *StopError
+		var s *cdc.StopError
 		if err := judgeStatement(p, c.db, c.q); !errors.As(err, &s) {
 			t.Errorf("%q in %s should stop: %v", c.q, c.db, err)
 		}
@@ -261,7 +266,7 @@ func TestJudgeStatement(t *testing.T) {
 }
 
 func TestReaderStatementInTransaction(t *testing.T) {
-	r := testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	r := testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	if err := feed(t, r, query(150, "app", "BEGIN"), query(200, "mysql", "INSERT INTO rds_heartbeat2 VALUES (1)"), xid(231)); err != nil {
 		t.Errorf("system statement in a transaction should pass: %v", err)
 	}
@@ -270,43 +275,39 @@ func TestReaderStatementInTransaction(t *testing.T) {
 	}
 }
 
-func TestEnumValuesAndFiles(t *testing.T) {
-	v, err := enumValues("enum('DE','it''s','KO')")
-	if err != nil || len(v) != 3 || v[1] != "it's" {
-		t.Errorf("enum %v %v", v, err)
-	}
+func TestFilesAndContinuity(t *testing.T) {
 	if nextFile("mysql-bin-changelog.143338") != "mysql-bin-changelog.143339" || nextFile("bin.000009") != "bin.000010" {
 		t.Error("next file")
 	}
-	st := Status{Files: []LogFile{{"bin.000001", 500}, {"bin.000002", 300}, {"bin.000004", 10}}}
-	var s *StopError
-	if err := continuity(st, binlogPos{File: "bin.000001", Pos: 400}); !errors.As(err, &s) {
+	st := source.Status{Files: []source.LogFile{{Name: "bin.000001", Size: 500}, {Name: "bin.000002", Size: 300}, {Name: "bin.000004", Size: 10}}}
+	var s *cdc.StopError
+	if err := continuity(st, cdc.Pos{File: "bin.000001", Pos: 400}); !errors.As(err, &s) {
 		t.Errorf("a missing file should stop: %v", err)
 	}
 	st.Files[2].Name = "bin.000003"
-	if err := continuity(st, binlogPos{File: "bin.000001", Pos: 400}); err != nil {
+	if err := continuity(st, cdc.Pos{File: "bin.000001", Pos: 400}); err != nil {
 		t.Errorf("consecutive files: %v", err)
 	}
-	if err := continuity(st, binlogPos{File: "bin.000001", Pos: 600}); !errors.As(err, &s) {
+	if err := continuity(st, cdc.Pos{File: "bin.000001", Pos: 600}); !errors.As(err, &s) {
 		t.Errorf("a position past the file end should stop: %v", err)
 	}
 }
 
 func TestReaderStopsOnUnknownEventsAndBadPositions(t *testing.T) {
-	var s *StopError
-	r := testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	var s *cdc.StopError
+	r := testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	if err := feed(t, r, ev(replication.VIEW_CHANGE_EVENT, 150, 20, nil)); !errors.As(err, &s) {
 		t.Errorf("an unknown event should stop: %v", err)
 	}
-	r = testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	r = testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	if err := feed(t, r, query(0, "app", "BEGIN")); !errors.As(err, &s) {
 		t.Errorf("a query event without a position should stop: %v", err)
 	}
-	r = testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	r = testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	if err := feed(t, r, ev(replication.ROTATE_EVENT, 400, 40, &replication.RotateEvent{NextLogName: []byte("bin.000002"), Position: 120})); !errors.As(err, &s) {
 		t.Errorf("a rotate into the middle of the next file should stop: %v", err)
 	}
-	r = testReader(&fakeSink{}, binlogPos{File: "bin.000001", Pos: 100})
+	r = testReader(&fakeSink{}, cdc.Pos{File: "bin.000001", Pos: 100})
 	if err := feed(t, r, ev(replication.TABLE_MAP_EVENT, 120, 20, nil), ev(replication.ANONYMOUS_GTID_EVENT, 140, 20, nil)); err != nil {
 		t.Errorf("table map and gtid events should pass: %v", err)
 	}
@@ -314,7 +315,7 @@ func TestReaderStopsOnUnknownEventsAndBadPositions(t *testing.T) {
 
 func TestReaderDoesNotSaveInsideASourceTransaction(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
 	if err := feed(t, r, query(150, "app", "BEGIN"), xid(181), query(220, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 260, "other", []any{int64(1)})); err != nil {
 		t.Fatal(err)
 	}
@@ -331,22 +332,22 @@ func TestReaderDoesNotSaveInsideASourceTransaction(t *testing.T) {
 
 func TestReaderStoresTheFirstBoundaryAtOnce(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100}) // a --from start has no event checksum
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100}) // a --from start has no event checksum
 	if err := feed(t, r, query(150, "app", "BEGIN"), xid(181)); err != nil {
 		t.Fatal(err)
 	}
 	if len(sink.saves) != 1 {
 		t.Fatalf("the first boundary should be stored with its checksum at once: %v", sink.saves)
 	}
-	if p, _ := parsePos(sink.saves[0]); p.EventStart == 0 || p.EventCRC == 0 {
+	if p, _ := cdc.ParsePos(sink.saves[0]); p.EventStart == 0 || p.EventCRC == 0 {
 		t.Errorf("stored without a checksum: %+v", p)
 	}
 }
 
 func TestReaderConvergesUntilTheFirstEndAfterP2(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
-	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 300}
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, cdc.Pos{File: "bin.000001", Pos: 300}
 	tx := func(begin, row, end uint32) []*replication.BinlogEvent {
 		return []*replication.BinlogEvent{query(begin, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, row, "user", []any{int64(row), int64(1)}), xid(end)}
 	}
@@ -357,10 +358,10 @@ func TestReaderConvergesUntilTheFirstEndAfterP2(t *testing.T) {
 	if err := feed(t, r, evs...); err != nil {
 		t.Fatal(err)
 	}
-	if want := []ApplyMode{Converge, Converge, Strict}; !reflect.DeepEqual(sink.modes, want) {
+	if want := []cdc.ApplyMode{cdc.Converge, cdc.Converge, cdc.Strict}; !reflect.DeepEqual(sink.modes, want) {
 		t.Errorf("modes %v, want %v", sink.modes, want)
 	}
-	if want := []string{"", phaseCatchingUp, ""}; !reflect.DeepEqual(sink.phases, want) {
+	if want := []string{"", target.PhaseCatchingUp, ""}; !reflect.DeepEqual(sink.phases, want) {
 		t.Errorf("phases %v, want %v", sink.phases, want)
 	}
 	if r.converging {
@@ -370,13 +371,13 @@ func TestReaderConvergesUntilTheFirstEndAfterP2(t *testing.T) {
 
 func TestReaderEndsConvergingOnAnUnfollowedTransaction(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
-	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 200}
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, cdc.Pos{File: "bin.000001", Pos: 200}
 	r.o.SaveEvery = time.Hour
 	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 180, "other", []any{int64(1)}), xid(211)); err != nil {
 		t.Fatal(err)
 	}
-	if len(sink.saves) != 1 || sink.phases[0] != phaseCatchingUp || r.converging {
+	if len(sink.saves) != 1 || sink.phases[0] != target.PhaseCatchingUp || r.converging {
 		t.Fatalf("the phase change should be saved at once with that end: saves %v phases %v", sink.saves, sink.phases)
 	}
 }
@@ -387,7 +388,7 @@ func TestReaderSavesAtAHeartbeat(t *testing.T) {
 		return []*replication.BinlogEvent{query(begin, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, row, "other", []any{int64(1)}), xid(end)}
 	}
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
 	if err := feed(t, r, skipped(150, 180, 211)...); err != nil {
 		t.Fatal(err)
 	}
@@ -404,7 +405,7 @@ func TestReaderSavesAtAHeartbeat(t *testing.T) {
 	if err := feed(t, r, rowsEv(replication.WRITE_ROWS_EVENTv2, 280, "other", []any{int64(2)}), xid(311), heartbeat(311)); err != nil {
 		t.Fatal(err)
 	}
-	if p, _ := parsePos(sink.saves[len(sink.saves)-1]); len(sink.saves) != 1 || p.Pos != 311 || sink.phases[0] != "" {
+	if p, _ := cdc.ParsePos(sink.saves[len(sink.saves)-1]); len(sink.saves) != 1 || p.Pos != 311 || sink.phases[0] != "" {
 		t.Fatalf("the heartbeat should store the skipped end 311 with no phase: %v %v", sink.saves, sink.phases)
 	}
 	// nothing new: no second save
@@ -424,8 +425,8 @@ func TestReaderSavesAtAHeartbeat(t *testing.T) {
 
 func TestReaderKeepsConvergingAtAHeartbeat(t *testing.T) {
 	sink := &fakeSink{}
-	r := testReader(sink, binlogPos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
-	r.converging, r.p2 = true, binlogPos{File: "bin.000001", Pos: 500}
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100, EventStart: 90, EventCRC: 1})
+	r.converging, r.p2 = true, cdc.Pos{File: "bin.000001", Pos: 500}
 	if err := feed(t, r, query(150, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 180, "other", []any{int64(1)}), xid(211),
 		ev(replication.HEARTBEAT_EVENT, 211, 0, nil)); err != nil {
 		t.Fatal(err)
@@ -436,14 +437,7 @@ func TestReaderKeepsConvergingAtAHeartbeat(t *testing.T) {
 	if err := feed(t, r, query(550, "app", "BEGIN"), rowsEv(replication.WRITE_ROWS_EVENTv2, 580, "other", []any{int64(2)}), xid(611)); err != nil {
 		t.Fatal(err)
 	}
-	if sink.phases[len(sink.phases)-1] != phaseCatchingUp || r.converging {
+	if sink.phases[len(sink.phases)-1] != target.PhaseCatchingUp || r.converging {
 		t.Fatalf("the first end after p2 should still end converging: %v %v", sink.phases, r.converging)
-	}
-}
-
-func TestAddIndexSQL(t *testing.T) {
-	got := addIndexSQL("stage", "t", indexDef{Name: "k", Unique: true, Visible: false, Parts: []indexPart{{Column: "a", SubPart: "10"}, {Column: "b", Desc: true}}})
-	if want := "ALTER TABLE `stage`.`t` ADD UNIQUE INDEX `k` (`a`(10), `b` DESC) INVISIBLE"; got != want {
-		t.Errorf("got %s", got)
 	}
 }

@@ -1,10 +1,9 @@
-package cdc
+package pipeline
 
 import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"hash/crc32"
@@ -12,7 +11,6 @@ import (
 	"log/slog"
 	"net"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
@@ -22,12 +20,17 @@ import (
 	"github.com/go-mysql-org/go-mysql/replication"
 	gosql "github.com/go-sql-driver/mysql"
 	"github.com/pingcap/tidb/pkg/parser"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/schema"
+	"growth-lab-cdc/internal/source"
+	"growth-lab-cdc/internal/target"
 )
 
 // RunOptions configures a run that applies the source binlog to the copy.
 type RunOptions struct {
-	Source   Source
-	Target   Source
+	Source   source.Source
+	Target   source.Source
 	Database string
 	Tables   []string        // exact table names in Database
 	From     *mysql.Position // first run only: where the copy's data was taken
@@ -45,52 +48,21 @@ type RunOptions struct {
 	initFirst bool
 
 	// set by init
-	lock     *copyLock // held by the caller; nil: each session takes its own
-	catchUp  bool      // return once the copy has reached the source position seen at the start
-	phases   []string  // stored phases a session may continue from; nil: ready only
-	baseOnly bool      // compare the copy without secondary indexes (a staging copy)
+	lock     *target.Lock // held by the caller; nil: each session takes its own
+	catchUp  bool         // return once the copy has reached the source position seen at the start
+	phases   []string     // stored phases a session may continue from; nil: ready only
+	baseOnly bool         // compare the copy without secondary indexes (a staging copy)
 }
 
 // RunSummary is what a run applied before it returned.
 type RunSummary struct {
 	Saved   string // last stored position
-	Applied map[string]*Counts
+	Applied map[string]*cdc.Counts
 	Skipped int64 // transactions with no followed rows
 	reading bool  // a session got past its checks and read the binlog
 }
 
-// binlogPos is the position run stores: the end of the last finished source transaction,
-// and the start and checksum of the event that ended it, to recognise the same binlog on return.
-type binlogPos struct {
-	File       string `json:"file"`
-	Pos        uint32 `json:"pos"`
-	EventStart uint32 `json:"event_start,omitempty"`
-	EventCRC   uint32 `json:"event_crc,omitempty"`
-}
-
-func (p binlogPos) position() mysql.Position { return mysql.Position{Name: p.File, Pos: p.Pos} }
-
-func (p binlogPos) String() string {
-	b, _ := json.Marshal(p)
-	return string(b)
-}
-
-func parsePos(s string) (binlogPos, error) {
-	var p binlogPos
-	if err := json.Unmarshal([]byte(s), &p); err != nil || p.File == "" || p.Pos < 4 {
-		return p, &StopError{"the stored position is not understood"}
-	}
-	return p, nil
-}
-
-func (o *RunOptions) names() []string {
-	out := make([]string, len(o.Tables))
-	for i, t := range o.Tables {
-		out[i] = o.Database + "." + t
-	}
-	sort.Strings(out)
-	return out
-}
+func (o *RunOptions) names() []string { return cdc.TableNames(o.Database, o.Tables) }
 
 // errNeedsInit ends a Follow session that finds no copy, or an unfinished init.
 var errNeedsInit = errors.New("the copy needs init")
@@ -125,7 +97,7 @@ func Follow(ctx context.Context, o RunOptions, maxCopy time.Duration) (*RunSumma
 	}
 	sum, err = Run(ctx, o)
 	if errors.Is(err, errNeedsInit) {
-		return sum, &StopError{"another process left the copy without a finished init; run again"}
+		return sum, &cdc.StopError{Msg: "another process left the copy without a finished init; run again"}
 	}
 	return sum, err
 }
@@ -148,9 +120,9 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 	if o.Retries == 0 {
 		o.Retries = 8
 	}
-	sum := &RunSummary{Applied: map[string]*Counts{}}
+	sum := &RunSummary{Applied: map[string]*cdc.Counts{}}
 	for _, n := range o.names() {
-		sum.Applied[n] = &Counts{}
+		sum.Applied[n] = &cdc.Counts{}
 	}
 	from := o.From // kept until the copy has stored it
 	for attempt := 0; ; attempt++ {
@@ -168,7 +140,7 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 		if ctx.Err() != nil {
 			return sum, err // a failure while stopping is reported, not retried
 		}
-		if o.lock != nil && errors.Is(err, errLockLost) {
+		if o.lock != nil && errors.Is(err, target.ErrLockLost) {
 			return sum, err // the caller holds the lock and takes it again
 		}
 		if !retryable(err) {
@@ -181,7 +153,7 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 			return sum, fmt.Errorf("giving up after %d retries: %w", attempt, err)
 		}
 		wait := min(time.Duration(1<<attempt)*time.Second, time.Minute)
-		o.Logf("reconnecting in %s after: %s", wait, SafeError(err))
+		o.Logf("reconnecting in %s after: %s", wait, cdc.SafeError(err))
 		select {
 		case <-ctx.Done():
 			if o.catchUp {
@@ -194,8 +166,8 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 }
 
 func isStop(err error) bool {
-	var s *StopError
-	var e *Error
+	var s *cdc.StopError
+	var e *cdc.Error
 	return errors.As(err, &s) || errors.As(err, &e)
 }
 
@@ -204,12 +176,12 @@ func retryable(err error) bool {
 	if isStop(err) {
 		return false
 	}
-	var u *UncertainError
+	var u *cdc.UncertainError
 	var me *gosql.MySQLError
 	var re *mysql.MyError
 	var ne net.Error
 	switch {
-	case errors.As(err, &u), errors.Is(err, errLockLost):
+	case errors.As(err, &u), errors.Is(err, target.ErrLockLost):
 		return true
 	case errors.As(err, &me):
 		return me.Number == 1205 || me.Number == 1213 || me.Number == 1927 || me.Number == 2006 || me.Number == 2013
@@ -234,7 +206,7 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 	if err != nil {
 		return err
 	}
-	src, err := o.Source.open()
+	src, err := o.Source.Open()
 	if err != nil {
 		return err
 	}
@@ -244,102 +216,102 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 		return err
 	}
 	if format != "ROW" || image != "FULL" {
-		return &StopError{"the source must use binlog_format=ROW and binlog_row_image=FULL"}
+		return &cdc.StopError{Msg: "the source must use binlog_format=ROW and binlog_row_image=FULL"}
 	}
-	dst, err := openTarget(o.Target)
+	dst, err := target.Open(o.Target)
 	if err != nil {
 		return err
 	}
 	defer dst.Close()
 	lock := o.lock
 	if lock == nil {
-		if lock, err = takeLock(ctx, dst); err != nil {
+		if lock, err = target.TakeLock(ctx, dst); err != nil {
 			return err
 		}
-		defer lock.release()
-	} else if !lock.ok() {
-		return errLockLost
+		defer lock.Release()
+	} else if !lock.OK() {
+		return target.ErrLockLost
 	}
 	names := o.names()
-	srcDefs, err := readDefs(ctx, src, "", names)
+	srcDefs, err := schema.ReadDefs(ctx, src, "", names)
 	if err != nil {
 		return err
 	}
-	fp := fingerprint(srcDefs)
-	saved, err := loadState(ctx, dst, st.ServerUUID, o.Database)
+	fp := schema.Fingerprint(srcDefs)
+	saved, err := target.LoadState(ctx, dst, st.ServerUUID, o.Database)
 	if err != nil {
 		return err
 	}
 	tables := strings.Join(names, ",")
 	dataDB := o.Database
-	var pos binlogPos
+	var pos cdc.Pos
 	create := false
-	initPhase := saved != nil && slices.Contains([]string{phaseCopying, phaseConverging, phaseCatchingUp, phaseSwapping}, saved.Phase)
+	initPhase := saved != nil && slices.Contains([]string{target.PhaseCopying, target.PhaseConverging, target.PhaseCatchingUp, target.PhaseSwapping}, saved.Phase)
 	switch {
 	case o.initFirst && saved == nil && from == nil:
 		return errNeedsInit
 	case o.initFirst && initPhase && from != nil:
-		return &StopError{"the copy is in the middle of an init (" + saved.Phase + "); run again without --from to finish it"}
+		return &cdc.StopError{Msg: "the copy is in the middle of an init (" + saved.Phase + "); run again without --from to finish it"}
 	case o.initFirst && initPhase:
 		return errNeedsInit
 	case saved == nil && from == nil:
-		return &StopError{"the copy has no stored position; run init, or give --from with the position its data was taken at"}
+		return &cdc.StopError{Msg: "the copy has no stored position; run init, or give --from with the position its data was taken at"}
 	case saved == nil:
-		pos = binlogPos{File: from.Name, Pos: from.Pos}
+		pos = cdc.Pos{File: from.Name, Pos: from.Pos}
 		create = true // stored once the copy passes the checks below
-	case saved.Phase == phaseLegacy:
-		return &StopError{"the stored position is from before init existed; remove its row in " + positionTable + " and run init"}
-	case saved.Phase == phaseReady && o.phases == nil && (saved.InitID != "" || saved.DataDB != o.Database):
-		return &StopError{"the copy is ready but its stored row is not what init leaves"}
-	case from != nil && saved.Position == (binlogPos{File: from.Name, Pos: from.Pos}).String() && saved.Tables == tables && saved.SchemaFP == fp:
+	case saved.Phase == target.PhaseLegacy:
+		return &cdc.StopError{Msg: "the stored position is from before init existed; remove its row in " + target.PositionTable + " and run init"}
+	case saved.Phase == target.PhaseReady && o.phases == nil && (saved.InitID != "" || saved.DataDB != o.Database):
+		return &cdc.StopError{Msg: "the copy is ready but its stored row is not what init leaves"}
+	case from != nil && saved.Position == (cdc.Pos{File: from.Name, Pos: from.Pos}).String() && saved.Tables == tables && saved.SchemaFP == fp:
 		// the first run stored it but lost the reply
-		pos = binlogPos{File: from.Name, Pos: from.Pos}
+		pos = cdc.Pos{File: from.Name, Pos: from.Pos}
 		*fromp = nil
 	case from != nil:
-		return &StopError{"the copy already has a stored position; --from is only for the first run"}
+		return &cdc.StopError{Msg: "the copy already has a stored position; --from is only for the first run"}
 	case saved.Tables != tables:
-		return &StopError{"the table list differs from the one stored in the copy (" + saved.Tables + ")"}
+		return &cdc.StopError{Msg: "the table list differs from the one stored in the copy (" + saved.Tables + ")"}
 	default:
 		if saved.SchemaFP != fp {
-			return &StopError{"table definitions changed since the copy started following"}
+			return &cdc.StopError{Msg: "table definitions changed since the copy started following"}
 		}
-		if pos, err = parsePos(saved.Position); err != nil {
+		if pos, err = cdc.ParsePos(saved.Position); err != nil {
 			return err
 		}
 	}
 	if saved != nil {
 		phases := o.phases
 		if phases == nil {
-			phases = []string{phaseReady}
+			phases = []string{target.PhaseReady}
 		}
 		if !slices.Contains(phases, saved.Phase) {
-			return &StopError{"the copy is in the middle of an init (" + saved.Phase + "); run init to finish it"}
+			return &cdc.StopError{Msg: "the copy is in the middle of an init (" + saved.Phase + "); run init to finish it"}
 		}
 		dataDB = saved.DataDB
 	}
-	dstDefs, err := readDefs(ctx, dst, dataDB, names)
+	dstDefs, err := schema.ReadDefs(ctx, dst, dataDB, names)
 	if err != nil {
 		return err
 	}
-	if err := sameDefs(srcDefs, dstDefs, !o.baseOnly); err != nil {
+	if err := schema.SameDefs(srcDefs, dstDefs, !o.baseOnly); err != nil {
 		return err
 	}
-	if err := noTriggersOrForeignKeys(ctx, dst, dataDB, names, "the copy"); err != nil {
+	if err := schema.NoTriggersOrForeignKeys(ctx, dst, dataDB, names, "the copy"); err != nil {
 		return err
 	}
-	if err := noTriggersOrCascades(ctx, src, names); err != nil {
+	if err := schema.NoTriggersOrCascades(ctx, src, names); err != nil {
 		return err
 	}
 	if err := continuity(st, pos); err != nil {
 		return err
 	}
-	id, err := pickServerID(o.ServerID, st)
+	id, err := source.PickServerID(o.ServerID, st)
 	if err != nil {
 		return err
 	}
 	if create {
-		s := savedState{Position: pos.String(), Tables: tables, SchemaFP: fp, Phase: phaseReady, DataDB: dataDB}
-		if err := fenced(ctx, dst, lock.epoch, func(tx *sql.Tx) error { return initState(ctx, tx, st.ServerUUID, s) }); err != nil {
+		s := target.State{Position: pos.String(), Tables: tables, SchemaFP: fp, Phase: target.PhaseReady, DataDB: dataDB}
+		if err := target.Fenced(ctx, dst, lock.Epoch(), func(tx *sql.Tx) error { return target.InitState(ctx, tx, st.ServerUUID, s) }); err != nil {
 			return err
 		}
 		*fromp = nil
@@ -347,13 +319,13 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 	}
 	sum.reading = true
 	r := &reader{
-		o: o, sink: newTarget(dst, st.ServerUUID, dataDB, dstDefs, lock.epoch), defs: srcDefs, parser: parser.New(),
-		version: st.Version, saved: pos, last: pos, sum: sum, open: map[string]*Counts{}, lock: lock,
-		readPos: pos.position(),
+		o: o, sink: target.New(dst, st.ServerUUID, dataDB, dstDefs, lock.Epoch()), defs: srcDefs, parser: parser.New(),
+		version: st.Version, saved: pos, last: pos, sum: sum, open: map[string]*cdc.Counts{}, lock: lock,
+		readPos: pos.Position(),
 	}
-	if saved != nil && saved.Phase == phaseConverging {
+	if saved != nil && saved.Phase == target.PhaseConverging {
 		r.converging = true
-		if r.p2, err = parsePos(saved.P2); err != nil {
+		if r.p2, err = cdc.ParsePos(saved.P2); err != nil {
 			return err
 		}
 	}
@@ -364,22 +336,22 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 }
 
 // continuity checks that the stored position is still in a kept file and that no file is missing after it.
-func continuity(st Status, p binlogPos) error {
+func continuity(st source.Status, p cdc.Pos) error {
 	idx := -1
 	for i, f := range st.Files {
 		if f.Name == p.File {
 			idx = i
 			if uint64(p.Pos) > f.Size {
-				return &StopError{fmt.Sprintf("stored position %s:%d is past the end of that file; the binlog differs, a fresh copy is needed", p.File, p.Pos)}
+				return &cdc.StopError{Msg: fmt.Sprintf("stored position %s:%d is past the end of that file; the binlog differs, a fresh copy is needed", p.File, p.Pos)}
 			}
 		}
 	}
 	if idx < 0 {
-		return &StopError{"binlog file " + p.File + " is no longer kept by the source; a fresh copy is needed"}
+		return &cdc.StopError{Msg: "binlog file " + p.File + " is no longer kept by the source; a fresh copy is needed"}
 	}
 	for i := idx + 1; i < len(st.Files); i++ {
 		if st.Files[i].Name != nextFile(st.Files[i-1].Name) {
-			return &StopError{"binlog files are not consecutive after " + st.Files[i-1].Name + "; a fresh copy is needed"}
+			return &cdc.StopError{Msg: "binlog files are not consecutive after " + st.Files[i-1].Name + "; a fresh copy is needed"}
 		}
 	}
 	return nil
@@ -401,40 +373,40 @@ func nextFile(name string) string {
 // reader turns binlog events into changes for the sink and decides where positions may be stored.
 type reader struct {
 	o       *RunOptions
-	sink    Sink
-	defs    map[string]*tableDef
+	sink    cdc.Sink
+	defs    map[string]*schema.TableDef
 	parser  *parser.Parser
 	version int
 	sum     *RunSummary
 
 	file     string
-	verify   bool      // the first event must match the stored boundary event
-	saved    binlogPos // stored in the copy
-	last     binlogPos // end of the last finished transaction
+	verify   bool    // the first event must match the stored boundary event
+	saved    cdc.Pos // stored in the copy
+	last     cdc.Pos // end of the last finished transaction
 	lastSave time.Time
 	inTx     atomic.Bool
 	sinkOpen bool
-	open     map[string]*Counts
+	open     map[string]*cdc.Counts
 	stopping atomic.Bool
-	lock     *copyLock
+	lock     *target.Lock
 
-	converging bool      // apply by overwriting until the first transaction end at or after p2
-	p2         binlogPos // source position just after an init snapshot
-	txMode     ApplyMode // decided when a source transaction starts
+	converging bool          // apply by overwriting until the first transaction end at or after p2
+	p2         cdc.Pos       // source position just after an init snapshot
+	txMode     cdc.ApplyMode // decided when a source transaction starts
 	goal       mysql.Position
 	readPos    mysql.Position // end of the last event read, for catching up
 }
 
 // mode is how a transaction starting now is applied.
-func (r *reader) mode() ApplyMode {
+func (r *reader) mode() cdc.ApplyMode {
 	if r.converging {
-		return Converge
+		return cdc.Converge
 	}
-	return Strict
+	return cdc.Strict
 }
 
 func (r *reader) stream(parent context.Context, id uint32) error {
-	start := r.saved.position()
+	start := r.saved.Position()
 	r.verify = r.saved.EventStart > 0
 	if r.verify {
 		start.Pos = r.saved.EventStart
@@ -444,7 +416,7 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 	syncer := replication.NewBinlogSyncer(replication.BinlogSyncerConfig{
 		ServerID: id, Flavor: mysql.MySQLFlavor,
 		Host: r.o.Source.Host, Port: uint16(r.o.Source.Port), User: r.o.Source.User, Password: r.o.Source.Password,
-		TLSConfig: tlsConfig(), DisableRetrySync: true, EventCacheCount: 256,
+		TLSConfig: source.TLSConfig(), DisableRetrySync: true, EventCacheCount: 256,
 		HeartbeatPeriod: r.o.HeartbeatPeriod, ReadTimeout: 3 * r.o.HeartbeatPeriod,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
@@ -511,7 +483,7 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 			r.sink.Rollback()
 			r.sinkOpen = false
 			if lockLost.Load() {
-				return errLockLost
+				return target.ErrLockLost
 			}
 			if r.stopping.Load() && errors.Is(err, context.Canceled) {
 				<-stopped
@@ -529,7 +501,7 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 			r.sink.Rollback()
 			r.sinkOpen = false
 			if lockLost.Load() {
-				return errLockLost
+				return target.ErrLockLost
 			}
 			return err
 		}
@@ -547,8 +519,8 @@ func (r *reader) caughtUp(ctx context.Context) (bool, error) {
 	}
 	// if the source had no transaction after p2, converging ends here
 	phase := ""
-	if r.converging && r.readPos.Compare(r.p2.position()) >= 0 {
-		phase = phaseCatchingUp
+	if r.converging && r.readPos.Compare(r.p2.Position()) >= 0 {
+		phase = target.PhaseCatchingUp
 	}
 	if err := r.saveLast(ctx, phase); err != nil {
 		return false, err
@@ -562,7 +534,7 @@ func (r *reader) caughtUp(ctx context.Context) (bool, error) {
 // saveLast stores the end of the last finished transaction if it is past the stored one,
 // or with a phase change even when it is not. Never while a transaction is open.
 func (r *reader) saveLast(ctx context.Context, phase string) error {
-	if r.sinkOpen || r.inTx.Load() || phase == "" && r.last.position().Compare(r.saved.position()) <= 0 {
+	if r.sinkOpen || r.inTx.Load() || phase == "" && r.last.Position().Compare(r.saved.Position()) <= 0 {
 		return nil
 	}
 	if err := r.sink.Save(ctx, r.last.String(), phase); err != nil {
@@ -581,15 +553,15 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 		next := string(rot.NextLogName)
 		if h.Timestamp == 0 || h.LogPos == 0 {
 			if next != r.file {
-				return false, &StopError{"the source started the stream in " + next + " instead of " + r.file}
+				return false, &cdc.StopError{Msg: "the source started the stream in " + next + " instead of " + r.file}
 			}
 			return false, nil
 		}
 		if r.inTx.Load() {
-			return false, &StopError{"binlog rotated inside a transaction"}
+			return false, &cdc.StopError{Msg: "binlog rotated inside a transaction"}
 		}
 		if next != nextFile(r.file) || rot.Position != 4 {
-			return false, &StopError{fmt.Sprintf("binlog rotated from %s to %s:%d, not the start of the next file", r.file, next, rot.Position)}
+			return false, &cdc.StopError{Msg: fmt.Sprintf("binlog rotated from %s to %s:%d, not the start of the next file", r.file, next, rot.Position)}
 		}
 		r.file = next
 		r.readPos = mysql.Position{Name: next, Pos: 4}
@@ -610,21 +582,21 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 		replication.WRITE_ROWS_EVENTv1, replication.WRITE_ROWS_EVENTv2, replication.UPDATE_ROWS_EVENTv1, replication.UPDATE_ROWS_EVENTv2,
 		replication.DELETE_ROWS_EVENTv1, replication.DELETE_ROWS_EVENTv2:
 	default:
-		return false, &StopError{fmt.Sprintf("unsupported event %s at %s:%d", h.EventType, r.file, outer.Header.LogPos)}
+		return false, &cdc.StopError{Msg: fmt.Sprintf("unsupported event %s at %s:%d", h.EventType, r.file, outer.Header.LogPos)}
 	}
 	if outer.Header.LogPos == 0 {
-		return false, &StopError{fmt.Sprintf("%s event without a position in %s", h.EventType, r.file)}
+		return false, &cdc.StopError{Msg: fmt.Sprintf("%s event without a position in %s", h.EventType, r.file)}
 	}
 	oh := outer.Header
-	pos := binlogPos{File: r.file, Pos: oh.LogPos, EventStart: oh.LogPos - oh.EventSize, EventCRC: crc32.ChecksumIEEE(outer.RawData)}
+	pos := cdc.Pos{File: r.file, Pos: oh.LogPos, EventStart: oh.LogPos - oh.EventSize, EventCRC: crc32.ChecksumIEEE(outer.RawData)}
 	if r.verify && ev == outer {
 		r.verify = false
 		if pos.Pos != r.saved.Pos || pos.EventStart != r.saved.EventStart || pos.EventCRC != r.saved.EventCRC {
-			return false, &StopError{"the binlog at the stored position is not the one the copy was built from; a fresh copy is needed"}
+			return false, &cdc.StopError{Msg: "the binlog at the stored position is not the one the copy was built from; a fresh copy is needed"}
 		}
 		return false, nil
 	}
-	if pos.position().Compare(r.saved.position()) <= 0 {
+	if pos.Position().Compare(r.saved.Position()) <= 0 {
 		return false, nil // already in the copy
 	}
 	switch e := ev.Event.(type) {
@@ -641,7 +613,7 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 		return r.query(ctx, string(e.Schema), string(e.Query), pos)
 	case *replication.RowsEvent:
 		if h.EventType == replication.PARTIAL_UPDATE_ROWS_EVENT {
-			return false, &StopError{"partial update row event (binlog_row_value_options=PARTIAL_JSON is not supported)"}
+			return false, &cdc.StopError{Msg: "partial update row event (binlog_row_value_options=PARTIAL_JSON is not supported)"}
 		}
 		return false, r.rows(ctx, e, h)
 	}
@@ -649,12 +621,12 @@ func (r *reader) handle(ctx context.Context, ev, outer *replication.BinlogEvent)
 }
 
 // query handles BEGIN, COMMIT, ROLLBACK, savepoints and statement-format events.
-func (r *reader) query(ctx context.Context, schema, text string, pos binlogPos) (bool, error) {
-	q := strings.ToUpper(strings.TrimSpace(strings.TrimRight(strings.TrimSpace(skipComments(text, r.version)), ";")))
+func (r *reader) query(ctx context.Context, schema, text string, pos cdc.Pos) (bool, error) {
+	q := strings.ToUpper(strings.TrimSpace(strings.TrimRight(strings.TrimSpace(cdc.SkipComments(text, r.version)), ";")))
 	switch {
 	case q == "BEGIN":
 		if r.inTx.Load() {
-			return false, &StopError{"BEGIN inside an open transaction"}
+			return false, &cdc.StopError{Msg: "BEGIN inside an open transaction"}
 		}
 		r.inTx.Store(true)
 		r.txMode = r.mode()
@@ -668,13 +640,13 @@ func (r *reader) query(ctx context.Context, schema, text string, pos binlogPos) 
 		}
 		clear(r.open)
 		return r.boundary(ctx, pos, false)
-	case savepoint(q):
+	case cdc.Savepoint(q):
 		return false, nil
 	case strings.HasPrefix(q, "XA "):
-		return false, &StopError{"XA transactions are not supported"}
+		return false, &cdc.StopError{Msg: "XA transactions are not supported"}
 	}
 	if err := judgeStatement(r.parser, schema, text); err != nil {
-		return false, &StopError{fmt.Sprintf("%s at %s:%d", err, pos.File, pos.Pos)}
+		return false, &cdc.StopError{Msg: fmt.Sprintf("%s at %s:%d", err, pos.File, pos.Pos)}
 	}
 	if r.inTx.Load() {
 		return false, nil
@@ -684,11 +656,11 @@ func (r *reader) query(ctx context.Context, schema, text string, pos binlogPos) 
 
 // boundary ends a source transaction at pos: commits the copy transaction with the position, or just
 // remembers the position and saves it now and then.
-func (r *reader) boundary(ctx context.Context, pos binlogPos, committed bool) (bool, error) {
+func (r *reader) boundary(ctx context.Context, pos cdc.Pos, committed bool) (bool, error) {
 	// the first transaction end at or after p2 ends converging, stored with that end
 	phase := ""
-	if r.converging && pos.position().Compare(r.p2.position()) >= 0 {
-		phase = phaseCatchingUp
+	if r.converging && pos.Position().Compare(r.p2.Position()) >= 0 {
+		phase = target.PhaseCatchingUp
 	}
 	if r.sinkOpen {
 		r.sinkOpen = false
@@ -699,7 +671,7 @@ func (r *reader) boundary(ctx context.Context, pos binlogPos, committed bool) (b
 			return false, err
 		}
 		for n, c := range r.open {
-			r.sum.Applied[n].add(c)
+			r.sum.Applied[n].Add(c)
 		}
 		clear(r.open)
 		r.saved, r.last, r.lastSave = pos, pos, time.Now()
@@ -727,14 +699,14 @@ func (r *reader) boundary(ctx context.Context, pos binlogPos, committed bool) (b
 }
 
 // rowKind maps a MySQL row event type to the change it carries; 0 for anything else.
-func rowKind(t replication.EventType) ChangeKind {
+func rowKind(t replication.EventType) cdc.ChangeKind {
 	switch t {
 	case replication.WRITE_ROWS_EVENTv1, replication.WRITE_ROWS_EVENTv2:
-		return Insert
+		return cdc.Insert
 	case replication.UPDATE_ROWS_EVENTv1, replication.UPDATE_ROWS_EVENTv2:
-		return Update
+		return cdc.Update
 	case replication.DELETE_ROWS_EVENTv1, replication.DELETE_ROWS_EVENTv2:
-		return Delete
+		return cdc.Delete
 	}
 	return 0
 }
@@ -748,17 +720,17 @@ func (r *reader) rows(ctx context.Context, e *replication.RowsEvent, h *replicat
 	}
 	at := fmt.Sprintf(" at %s:%d", r.file, h.LogPos)
 	if !r.inTx.Load() {
-		return &StopError{key + ": row event outside a transaction" + at}
+		return &cdc.StopError{Msg: key + ": row event outside a transaction" + at}
 	}
 	for _, s := range e.SkippedColumns {
 		if len(s) > 0 {
-			return &StopError{key + ": row image is not full (binlog_row_image must be FULL)" + at}
+			return &cdc.StopError{Msg: key + ": row image is not full (binlog_row_image must be FULL)" + at}
 		}
 	}
 	rows := make([][]any, len(e.Rows))
 	for i, row := range e.Rows {
 		if len(row) != len(d.Columns) {
-			return &StopError{fmt.Sprintf("%s: row has %d columns but the table has %d%s", key, len(row), len(d.Columns), at)}
+			return &cdc.StopError{Msg: fmt.Sprintf("%s: row has %d columns but the table has %d%s", key, len(row), len(d.Columns), at)}
 		}
 		out := make([]any, len(row))
 		for j, v := range row {
@@ -766,7 +738,7 @@ func (r *reader) rows(ctx context.Context, e *replication.RowsEvent, h *replicat
 			if c.DataType == "enum" && v != nil {
 				n, ok := v.(int64)
 				if !ok || n < 1 || int(n) > len(c.Enum) {
-					return &StopError{fmt.Sprintf("%s.%s: enum value number out of range%s", key, c.Name, at)}
+					return &cdc.StopError{Msg: fmt.Sprintf("%s.%s: enum value number out of range%s", key, c.Name, at)}
 				}
 				v = c.Enum[n-1]
 			}
@@ -782,37 +754,37 @@ func (r *reader) rows(ctx context.Context, e *replication.RowsEvent, h *replicat
 	}
 	cnt := r.open[key]
 	if cnt == nil {
-		cnt = &Counts{}
+		cnt = &cdc.Counts{}
 		r.open[key] = cnt
 	}
 	schema, table := string(e.Table.Schema), string(e.Table.Table)
 	switch rowKind(h.EventType) {
-	case Insert:
+	case cdc.Insert:
 		for _, row := range rows {
-			if err := r.sink.Apply(ctx, &Change{Schema: schema, Table: table, Kind: Insert, After: row}); err != nil {
+			if err := r.sink.Apply(ctx, &cdc.Change{Schema: schema, Table: table, Kind: cdc.Insert, After: row}); err != nil {
 				return err
 			}
 			cnt.Inserts++
 		}
-	case Delete:
+	case cdc.Delete:
 		for _, row := range rows {
-			if err := r.sink.Apply(ctx, &Change{Schema: schema, Table: table, Kind: Delete, Before: row}); err != nil {
+			if err := r.sink.Apply(ctx, &cdc.Change{Schema: schema, Table: table, Kind: cdc.Delete, Before: row}); err != nil {
 				return err
 			}
 			cnt.Deletes++
 		}
-	case Update:
+	case cdc.Update:
 		if len(rows)%2 != 0 {
-			return &StopError{key + ": update event has an odd number of row images" + at}
+			return &cdc.StopError{Msg: key + ": update event has an odd number of row images" + at}
 		}
 		for i := 0; i < len(rows); i += 2 {
-			if err := r.sink.Apply(ctx, &Change{Schema: schema, Table: table, Kind: Update, Before: rows[i], After: rows[i+1]}); err != nil {
+			if err := r.sink.Apply(ctx, &cdc.Change{Schema: schema, Table: table, Kind: cdc.Update, Before: rows[i], After: rows[i+1]}); err != nil {
 				return err
 			}
 			cnt.Updates++
 		}
 	default:
-		return &StopError{key + ": unsupported row event" + at}
+		return &cdc.StopError{Msg: key + ": unsupported row event" + at}
 	}
 	return nil
 }

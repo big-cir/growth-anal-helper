@@ -1,10 +1,12 @@
-package cdc
+package check
 
 import (
 	"context"
 	"reflect"
 	"strings"
 	"testing"
+
+	"growth-lab-cdc/internal/schema"
 )
 
 func TestHashPartPerType(t *testing.T) {
@@ -14,7 +16,7 @@ func TestHashPartPerType(t *testing.T) {
 		"varchar":  "CAST(`c` AS BINARY)",
 		"enum":     "CAST(`c` + 0 AS CHAR)",
 	} {
-		got := hashPart(column{Name: "c", DataType: typ})
+		got := hashPart(schema.Column{Name: "c", DataType: typ})
 		v := "IFNULL(" + want + ", _binary'')"
 		if got != "ISNULL(`c`), ':', LENGTH("+v+"), ':', "+v {
 			t.Errorf("%s: %s", typ, got)
@@ -23,7 +25,7 @@ func TestHashPartPerType(t *testing.T) {
 }
 
 func TestCheckSQL(t *testing.T) {
-	d := &tableDef{Columns: []column{{Name: "team", DataType: "bigint"}, {Name: "day", DataType: "datetime"},
+	d := &schema.TableDef{Columns: []schema.Column{{Name: "team", DataType: "bigint"}, {Name: "day", DataType: "datetime"},
 		{Name: "note", DataType: "varchar"}}, PK: []int{1, 0}}
 	ct, err := checkSQL(d, "`app`.`t`", "`copy`.`t`")
 	if err != nil {

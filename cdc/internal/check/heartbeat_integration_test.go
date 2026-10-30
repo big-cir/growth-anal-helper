@@ -1,6 +1,6 @@
 //go:build integration
 
-package cdc
+package check
 
 import (
 	"context"
@@ -8,16 +8,19 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"growth-lab-cdc/internal/pipeline"
+	"growth-lab-cdc/internal/testenv"
 )
 
 // sourceRows counts the rows of the followed tables on the source.
 func (h *harness) sourceRows() int64 {
-	h.t.Helper()
+	h.T.Helper()
 	var all int64
-	for _, tb := range followed {
+	for _, tb := range testenv.Followed {
 		var n int64
-		if err := h.srcDB.QueryRow("SELECT COUNT(*) FROM app." + tb).Scan(&n); err != nil {
-			h.t.Fatal(err)
+		if err := h.SrcDB.QueryRow("SELECT COUNT(*) FROM app." + tb).Scan(&n); err != nil {
+			h.T.Fatal(err)
 		}
 		all += n
 	}
@@ -27,62 +30,16 @@ func (h *harness) sourceRows() int64 {
 // checkLogged runs a check with writes going on, waiting at most wait for the copy per chunk,
 // and returns its report and log.
 func (h *harness) checkLogged(wait time.Duration) (*CheckReport, string) {
-	h.t.Helper()
+	h.T.Helper()
 	var logs []string
 	o := h.checkOpts(false)
 	o.Wait = wait
 	o.Logf = func(f string, a ...any) { logs = append(logs, fmt.Sprintf(f, a...)) }
 	rep, err := Check(context.Background(), o)
 	if err != nil {
-		h.t.Fatalf("check: %v", err)
+		h.T.Fatalf("check: %v", err)
 	}
 	return rep, strings.Join(logs, "\n")
-}
-
-func TestRunSavesAtAHeartbeat(t *testing.T) {
-	h := newHarness(t)
-	h.finish()
-	o := h.opts()
-	o.SaveEvery, o.HeartbeatPeriod = time.Hour, time.Second
-	ctx, cancel := context.WithCancel(context.Background())
-	ch := make(chan error, 1)
-	go func() {
-		_, err := Run(ctx, o)
-		ch <- err
-	}()
-	// a followed change is stored with its transaction; the skipped one after it waits for a save
-	h.exec(h.srcDB, "UPDATE app.label SET title = 'hb' WHERE id = 1")
-	h.exec(h.srcDB, "INSERT INTO app_other.note (v) VALUES (1)")
-	want := h.boundary()
-	deadline := time.Now().Add(5 * time.Second)
-	for h.saved().position().Compare(want) < 0 && time.Now().Before(deadline) {
-		time.Sleep(100 * time.Millisecond)
-	}
-	if got := h.saved().position(); got.Compare(want) != 0 {
-		t.Fatalf("stored %s after the source went quiet, want the skipped transaction's end %s", got, want)
-	}
-	cancel()
-	if err := <-ch; err != nil {
-		t.Fatalf("run: %v", err)
-	}
-	// the next run starts at the position a heartbeat stored and finds the same event there
-	h.finish()
-}
-
-func TestInitWithHeartbeats(t *testing.T) {
-	h := newHarness(t)
-	h.freshForInit(false)
-	o := h.initOpts()
-	o.HeartbeatPeriod = time.Second
-	stop := h.background()
-	err := Init(context.Background(), o)
-	if werr := stop(); werr != nil {
-		t.Fatalf("writer: %v", werr)
-	}
-	if err != nil {
-		t.Fatalf("init: %v", err)
-	}
-	h.done(false)
 }
 
 func TestCheckWithWritesGoingOn(t *testing.T) {
@@ -90,8 +47,8 @@ func TestCheckWithWritesGoingOn(t *testing.T) {
 	h.finish() // run is stopped and has stored the source's end
 
 	t.Run("a rotation with no transaction after the copy", func(t *testing.T) {
-		h.t = t
-		h.exec(h.srcDB, "FLUSH BINARY LOGS")
+		h.T = t
+		h.Exec(h.SrcDB, "FLUSH BINARY LOGS")
 		rep, logs := h.checkLogged(3 * time.Second)
 		h.want(rep, 0, 0, 0)
 		if got, all := sum(rep).Rows, h.sourceRows(); got != all {
@@ -100,8 +57,8 @@ func TestCheckWithWritesGoingOn(t *testing.T) {
 	})
 
 	t.Run("a transaction the copy has not applied", func(t *testing.T) {
-		h.t = t
-		h.exec(h.srcDB, "INSERT INTO app_other.note (v) VALUES (2)")
+		h.T = t
+		h.Exec(h.SrcDB, "INSERT INTO app_other.note (v) VALUES (2)")
 		rep, logs := h.checkLogged(500 * time.Millisecond)
 		if sum(rep).Undecided == 0 {
 			t.Fatalf("check went on past a transaction the copy has not applied\n%s", logs)
@@ -115,13 +72,13 @@ func TestCheckWithWritesGoingOn(t *testing.T) {
 	})
 
 	t.Run("run applying while other tables keep changing", func(t *testing.T) {
-		h.t = t
+		h.T = t
 		o := h.opts()
 		o.HeartbeatPeriod = time.Second
 		ctx, cancel := context.WithCancel(context.Background())
 		ch := make(chan error, 1)
 		go func() {
-			_, err := Run(ctx, o)
+			_, err := pipeline.Run(ctx, o)
 			ch <- err
 		}()
 		done := make(chan struct{})
@@ -134,7 +91,7 @@ func TestCheckWithWritesGoingOn(t *testing.T) {
 					return
 				case <-time.After(50 * time.Millisecond):
 				}
-				if _, err := h.srcDB.Exec("INSERT INTO app_other.note (v) VALUES (?)", i); err != nil {
+				if _, err := h.SrcDB.Exec("INSERT INTO app_other.note (v) VALUES (?)", i); err != nil {
 					wrote <- err
 					return
 				}

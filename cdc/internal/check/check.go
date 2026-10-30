@@ -1,4 +1,4 @@
-package cdc
+package check
 
 import (
 	"context"
@@ -10,12 +10,17 @@ import (
 	"time"
 
 	"github.com/go-mysql-org/go-mysql/mysql"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/schema"
+	"growth-lab-cdc/internal/source"
+	"growth-lab-cdc/internal/target"
 )
 
 // CheckOptions configures comparing the followed tables of the source and the copy.
 type CheckOptions struct {
-	Source   Source
-	Target   Source
+	Source   source.Source
+	Target   source.Source
 	Database string
 	Tables   []string
 	// WritesStopped: no source transaction is open or starts until the check ends, so a
@@ -93,7 +98,7 @@ type checker struct {
 	o        CheckOptions
 	src, dst *sql.Conn
 	uuid     string
-	pt       binlogPos     // writes stopped: the copy position every read must see
+	pt       cdc.Pos       // writes stopped: the copy position every read must see
 	srcTook  time.Duration // the last source query of read
 	why      string        // why the last read could not decide
 	// the binlog from quietFrom up to quietTo holds no transaction
@@ -130,8 +135,7 @@ func Check(ctx context.Context, o CheckOptions) (*CheckReport, error) {
 	if o.MaxTime == 0 {
 		o.MaxTime = time.Hour
 	}
-	ro := RunOptions{Database: o.Database, Tables: o.Tables}
-	names := ro.names()
+	names := cdc.TableNames(o.Database, o.Tables)
 	rep := &CheckReport{WritesStopped: o.WritesStopped, Tables: map[string]*TableCheck{}}
 	// past MaxTime the tables left are reported unchecked, not as an error
 	parent := ctx
@@ -162,41 +166,41 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 	if err != nil {
 		return nil, err
 	}
-	srcDB, err := o.Source.open()
+	srcDB, err := o.Source.Open()
 	if err != nil {
 		return nil, err
 	}
 	defer srcDB.Close()
-	dstDB, err := openTarget(o.Target)
+	dstDB, err := target.Open(o.Target)
 	if err != nil {
 		return nil, err
 	}
 	defer dstDB.Close()
 
-	saved, err := loadState(ctx, dstDB, st.ServerUUID, o.Database)
+	saved, err := target.LoadState(ctx, dstDB, st.ServerUUID, o.Database)
 	if err != nil {
 		return nil, err
 	}
 	switch {
 	case saved == nil:
-		return nil, &StopError{"the copy has no stored position for this source"}
-	case saved.Phase != phaseReady:
-		return nil, &StopError{"the copy is not ready (" + saved.Phase + "); finish init first"}
+		return nil, &cdc.StopError{Msg: "the copy has no stored position for this source"}
+	case saved.Phase != target.PhaseReady:
+		return nil, &cdc.StopError{Msg: "the copy is not ready (" + saved.Phase + "); finish init first"}
 	case saved.Tables != strings.Join(names, ","):
-		return nil, &StopError{"the table list differs from the one stored in the copy (" + saved.Tables + ")"}
+		return nil, &cdc.StopError{Msg: "the table list differs from the one stored in the copy (" + saved.Tables + ")"}
 	}
-	srcDefs, err := readDefs(ctx, srcDB, "", names)
+	srcDefs, err := schema.ReadDefs(ctx, srcDB, "", names)
 	if err != nil {
 		return nil, err
 	}
-	if fingerprint(srcDefs) != saved.SchemaFP {
-		return nil, &StopError{"table definitions changed since the copy started following"}
+	if schema.Fingerprint(srcDefs) != saved.SchemaFP {
+		return nil, &cdc.StopError{Msg: "table definitions changed since the copy started following"}
 	}
-	dstDefs, err := readDefs(ctx, dstDB, saved.DataDB, names)
+	dstDefs, err := schema.ReadDefs(ctx, dstDB, saved.DataDB, names)
 	if err != nil {
 		return nil, err
 	}
-	if err := sameDefs(srcDefs, dstDefs, true); err != nil {
+	if err := schema.SameDefs(srcDefs, dstDefs, true); err != nil {
 		return nil, err
 	}
 
@@ -222,7 +226,7 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 		return nil, err
 	}
 	if iso != "REPEATABLE-READ" {
-		return nil, &StopError{"the copy connection is not REPEATABLE READ (" + iso + ")"}
+		return nil, &cdc.StopError{Msg: "the copy connection is not REPEATABLE READ (" + iso + ")"}
 	}
 
 	var q mysql.Position
@@ -245,7 +249,7 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 			continue
 		}
 		_, table, _ := strings.Cut(n, ".")
-		ct, err := checkSQL(srcDefs[n], quoteName(o.Database)+"."+quoteName(table), quoteName(saved.DataDB)+"."+quoteName(table))
+		ct, err := checkSQL(srcDefs[n], cdc.QuoteName(o.Database)+"."+cdc.QuoteName(table), cdc.QuoteName(saved.DataDB)+"."+cdc.QuoteName(table))
 		if err != nil {
 			return nil, err
 		}
@@ -266,7 +270,7 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 		var again mysql.Position
 		conn, err := srcDB.Conn(fctx)
 		if err == nil {
-			again, err = sourcePos(fctx, conn)
+			again, err = source.Position(fctx, conn)
 			conn.Close()
 		}
 		switch {
@@ -278,7 +282,7 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 		case again.Compare(q) != 0:
 			rep.Provisional = true
 			if stopped == nil {
-				return rep, &StopError{"the source was written during the check; the result is not final"}
+				return rep, &cdc.StopError{Msg: "the source was written during the check; the result is not final"}
 			}
 		}
 	}
@@ -286,7 +290,7 @@ func check(ctx context.Context, o CheckOptions, names []string, rep *CheckReport
 }
 
 // checkSQL builds the queries for a table whose definition is the same on both sides.
-func checkSQL(d *tableDef, srcName, dstName string) (*checkTable, error) {
+func checkSQL(d *schema.TableDef, srcName, dstName string) (*checkTable, error) {
 	ct := &checkTable{srcName: srcName, dstName: dstName}
 	var parts, keyParts, order []string
 	for _, c := range d.Columns {
@@ -295,9 +299,9 @@ func checkSQL(d *tableDef, srcName, dstName string) (*checkTable, error) {
 	for _, i := range d.PK {
 		c := d.Columns[i]
 		if c.DataType == "enum" {
-			return nil, &StopError{"check does not support an enum column in a primary key"}
+			return nil, &cdc.StopError{Msg: "check does not support an enum column in a primary key"}
 		}
-		q := quoteName(c.Name)
+		q := cdc.QuoteName(c.Name)
 		ct.keys = append(ct.keys, q)
 		ct.ints = append(ct.ints, c.DataType != "datetime" && c.DataType != "varchar")
 		keyParts = append(keyParts, hashPart(c))
@@ -314,8 +318,8 @@ func checkSQL(d *tableDef, srcName, dstName string) (*checkTable, error) {
 
 // hashPart encodes one column so that different values never give the same bytes:
 // a null flag, the byte length and the bytes.
-func hashPart(c column) string {
-	q := quoteName(c.Name)
+func hashPart(c schema.Column) string {
+	q := cdc.QuoteName(c.Name)
 	conv := "CAST(" + q + " AS CHAR)"
 	switch c.DataType {
 	case "varchar":
@@ -424,10 +428,10 @@ func (c *checker) table(ctx context.Context, ct *checkTable, tc *TableCheck) err
 			undecided(c.why)
 		default:
 			if len(src) != 1 || len(dst) != 1 {
-				return &Error{"chunk hash: expected one row"}
+				return &cdc.Error{Msg: "chunk hash: expected one row"}
 			}
 			if src[0][0] != src[0][1] || dst[0][0] != dst[0][1] {
-				return &StopError{"MD5() returned NULL; check cannot hash rows on this server"}
+				return &cdc.StopError{Msg: "MD5() returned NULL; check cannot hash rows on this server"}
 			}
 			rows, _ := strconv.ParseInt(src[0][0], 10, 64)
 			copyRows, _ := strconv.ParseInt(dst[0][0], 10, 64)
@@ -574,14 +578,14 @@ func diffRows(src, dst [][]string) map[string]byte {
 func (c *checker) read(ctx context.Context, ct *checkTable, tmpl string, s span, max int) (src, dst [][]string, ok bool, err error) {
 	q, args := ct.sql(tmpl, s, false)
 	started := time.Now()
-	if src, err = connRows(ctx, c.src, q, max, args...); err == errTooManyRows {
+	if src, err = source.ConnRows(ctx, c.src, q, max, args...); err == source.ErrTooManyRows {
 		c.why = fmt.Sprintf("the source has more than %d rows here", max)
 		return nil, nil, false, nil
 	} else if err != nil {
 		return nil, nil, false, err
 	}
 	c.srcTook = time.Since(started)
-	want := c.pt.position()
+	want := c.pt.Position()
 	if !c.o.WritesStopped {
 		if want, err = c.sourcePos(ctx); err != nil {
 			return nil, nil, false, err
@@ -592,42 +596,42 @@ func (c *checker) read(ctx context.Context, ct *checkTable, tmpl string, s span,
 	}
 	q, args = ct.sql(tmpl, s, true)
 	pt, dst, err := c.copyRead(ctx, q, args, max)
-	if err == errTooManyRows {
+	if err == source.ErrTooManyRows {
 		c.why = fmt.Sprintf("the copy has more than %d rows here", max)
 		return nil, nil, false, nil
 	} else if err != nil {
 		return nil, nil, false, err
 	}
-	if c.o.WritesStopped && pt.position().Compare(want) != 0 {
-		return nil, nil, false, &StopError{"the copy moved during the check; the source was written"}
+	if c.o.WritesStopped && pt.Position().Compare(want) != 0 {
+		return nil, nil, false, &cdc.StopError{Msg: "the copy moved during the check; the source was written"}
 	}
 	return src, dst, true, nil
 }
 
 // copyRead reads the stored position and the query's rows from one snapshot of the copy.
-func (c *checker) copyRead(ctx context.Context, q string, args []any, max int) (binlogPos, [][]string, error) {
+func (c *checker) copyRead(ctx context.Context, q string, args []any, max int) (cdc.Pos, [][]string, error) {
 	if _, err := c.dst.ExecContext(ctx, "START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY"); err != nil {
-		return binlogPos{}, nil, err
+		return cdc.Pos{}, nil, err
 	}
 	defer c.dst.ExecContext(context.Background(), "ROLLBACK")
 	pt, err := c.copyPos(ctx)
 	if err != nil {
-		return binlogPos{}, nil, err
+		return cdc.Pos{}, nil, err
 	}
-	rows, err := connRows(ctx, c.dst, q, max, args...)
+	rows, err := source.ConnRows(ctx, c.dst, q, max, args...)
 	if err != nil {
-		return binlogPos{}, nil, err
+		return cdc.Pos{}, nil, err
 	}
 	_, err = c.dst.ExecContext(ctx, "COMMIT")
 	return pt, rows, err
 }
 
-func (c *checker) copyPos(ctx context.Context) (binlogPos, error) {
+func (c *checker) copyPos(ctx context.Context) (cdc.Pos, error) {
 	var s string
-	if err := c.dst.QueryRowContext(ctx, "SELECT position FROM "+positionTable+" WHERE source_id = ?", c.uuid).Scan(&s); err != nil {
-		return binlogPos{}, err
+	if err := c.dst.QueryRowContext(ctx, "SELECT position FROM "+target.PositionTable+" WHERE source_id = ?", c.uuid).Scan(&s); err != nil {
+		return cdc.Pos{}, err
 	}
-	return parsePos(s)
+	return cdc.ParsePos(s)
 }
 
 // waitCopy waits until the copy has applied every transaction before want: its stored position
@@ -644,7 +648,7 @@ func (c *checker) waitCopy(ctx context.Context, want mysql.Position) (bool, erro
 		if err != nil {
 			return false, err
 		}
-		p := pt.position()
+		p := pt.Position()
 		if p.Compare(want) >= 0 {
 			return true, nil
 		}
@@ -681,39 +685,39 @@ func (c *checker) waitCopy(ctx context.Context, want mysql.Position) (bool, erro
 }
 
 func (c *checker) sourcePos(ctx context.Context) (mysql.Position, error) {
-	return sourcePos(ctx, c.src)
+	return source.Position(ctx, c.src)
 }
 
 // reach waits until the copy has applied every transaction before q and returns its position.
 // run stores the end of the last finished transaction, so after a rotation with no new
 // transaction the stored position stays behind q; the events in between show whether any
 // transaction is left.
-func (c *checker) reach(ctx context.Context, q mysql.Position) (binlogPos, error) {
+func (c *checker) reach(ctx context.Context, q mysql.Position) (cdc.Pos, error) {
 	end := time.Now().Add(c.o.Wait)
 	for {
 		pt, err := c.copyPos(ctx)
 		if err != nil {
-			return binlogPos{}, err
+			return cdc.Pos{}, err
 		}
-		switch d := pt.position().Compare(q); {
+		switch d := pt.Position().Compare(q); {
 		case d > 0:
-			return binlogPos{}, &StopError{"the copy is past the source position; the source was written"}
+			return cdc.Pos{}, &cdc.StopError{Msg: "the copy is past the source position; the source was written"}
 		case d == 0:
 			return pt, nil
 		}
-		done, err := c.noTransactions(ctx, pt.position(), q)
+		done, err := c.noTransactions(ctx, pt.Position(), q)
 		if err != nil {
-			return binlogPos{}, err
+			return cdc.Pos{}, err
 		}
 		if done {
 			return pt, nil
 		}
 		if time.Now().After(end) {
-			return binlogPos{}, &StopError{"the copy did not reach the source position in time; is run running?"}
+			return cdc.Pos{}, &cdc.StopError{Msg: "the copy did not reach the source position in time; is run running?"}
 		}
 		select {
 		case <-ctx.Done():
-			return binlogPos{}, ctx.Err()
+			return cdc.Pos{}, ctx.Err()
 		case <-time.After(200 * time.Millisecond):
 		}
 	}
@@ -725,7 +729,7 @@ var eventsWithoutTransaction = map[string]bool{"Rotate": true, "Format_desc": tr
 // noTransactions reports whether the binlog from `from` up to `to` holds no transaction.
 // It reads only the event types.
 func (c *checker) noTransactions(ctx context.Context, from, to mysql.Position) (bool, error) {
-	files, err := connRows(ctx, c.src, "SHOW BINARY LOGS", 0)
+	files, err := source.ConnRows(ctx, c.src, "SHOW BINARY LOGS", 0)
 	if err != nil {
 		return false, err
 	}
@@ -747,7 +751,7 @@ func (c *checker) noTransactions(ctx context.Context, from, to mysql.Position) (
 			if name == to.Name && pos >= to.Pos {
 				return true, nil
 			}
-			rows, err := c.src.QueryContext(ctx, "SHOW BINLOG EVENTS IN '"+sqlString(name)+"' FROM "+strconv.FormatUint(uint64(pos), 10)+" LIMIT "+strconv.Itoa(page))
+			rows, err := c.src.QueryContext(ctx, "SHOW BINLOG EVENTS IN '"+schema.SQLString(name)+"' FROM "+strconv.FormatUint(uint64(pos), 10)+" LIMIT "+strconv.Itoa(page))
 			if err != nil {
 				return false, err
 			}
@@ -764,7 +768,7 @@ func (c *checker) noTransactions(ctx context.Context, from, to mysql.Position) (
 			return true, nil
 		}
 	}
-	return false, &StopError{"binlog file " + from.Name + " is no longer kept on the source"}
+	return false, &cdc.StopError{Msg: "binlog file " + from.Name + " is no longer kept on the source"}
 }
 
 // eventTypes reads one page of SHOW BINLOG EVENTS: the event count, where the next page starts,

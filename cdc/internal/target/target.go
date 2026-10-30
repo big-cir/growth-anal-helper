@@ -1,4 +1,4 @@
-package cdc
+package target
 
 import (
 	"context"
@@ -9,41 +9,37 @@ import (
 	"strings"
 
 	gosql "github.com/go-sql-driver/mysql"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/schema"
+	"growth-lab-cdc/internal/source"
 )
 
 const (
-	// positionTable holds one row per source: where the copy is, which tables it follows and their definition.
-	positionTable = "growth_lab_cdc.position"
-	// ownerTable lists the staging tables an init created, so a restart removes only those.
-	ownerTable = "growth_lab_cdc.staging_owner"
-	stagingDB  = "growth_lab_cdc_staging"
-	oldDB      = "growth_lab_cdc_old"
+	// PositionTable holds one row per source: where the copy is, which tables it follows and their definition.
+	PositionTable = "growth_lab_cdc.position"
+	// OwnerTable lists the staging tables an init created, so a restart removes only those.
+	OwnerTable = "growth_lab_cdc.staging_owner"
+	StagingDB  = "growth_lab_cdc_staging"
+	OldDB      = "growth_lab_cdc_old"
 )
 
-// Phases of the stored row. run starts only in phaseReady.
+// Phases of the stored row. run starts only in PhaseReady.
 const (
-	phaseCopying    = "copying"
-	phaseConverging = "converging"
-	phaseCatchingUp = "catching_up"
-	phaseSwapping   = "swapping"
-	phaseReady      = "ready"
-	// phaseLegacy marks a row stored before init existed; its schema fingerprint is in an older form.
-	phaseLegacy = "legacy"
+	PhaseCopying    = "copying"
+	PhaseConverging = "converging"
+	PhaseCatchingUp = "catching_up"
+	PhaseSwapping   = "swapping"
+	PhaseReady      = "ready"
+	// PhaseLegacy marks a row stored before init existed; its schema fingerprint is in an older form.
+	PhaseLegacy = "legacy"
 )
 
-// testHooks stop or fail at fixed points in tests.
-var testHooks struct {
-	afterApply   func() error
-	beforeCommit func(tx *sql.Tx) error
-	afterCommit  func() error
-	initStep     func(step string) error
-}
-
-func hook(step string) error {
-	if h := testHooks.initStep; h != nil {
-		return h(step)
-	}
-	return nil
+// Hooks stop or fail at fixed points in tests.
+var Hooks struct {
+	AfterApply   func() error
+	BeforeCommit func(tx *sql.Tx) error
+	AfterCommit  func() error
 }
 
 // Target is the copy: a MySQL server that receives the changes.
@@ -52,7 +48,7 @@ type Target struct {
 	sourceID string
 	tables   map[string]*targetTable
 	tx       *sql.Tx
-	mode     ApplyMode
+	mode     cdc.ApplyMode
 	epoch    int64
 }
 
@@ -62,8 +58,8 @@ type targetTable struct {
 	pk            []int
 }
 
-// openTarget connects with found-rows counting, so an UPDATE that matches a row counts it even when no value changes.
-func openTarget(s Source) (*sql.DB, error) {
+// Open connects with found-rows counting, so an UPDATE that matches a row counts it even when no value changes.
+func Open(s source.Source) (*sql.DB, error) {
 	cfg := gosql.NewConfig()
 	cfg.User, cfg.Passwd = s.User, s.Password
 	cfg.Net, cfg.Addr = "tcp", fmt.Sprintf("%s:%d", s.Host, s.Port)
@@ -78,16 +74,16 @@ func openTarget(s Source) (*sql.DB, error) {
 	return db, nil
 }
 
-// newTarget prepares the statements for the followed tables, keyed by their source "db.table",
+// New prepares the statements for the followed tables, keyed by their source "db.table",
 // writing into dataDB. Its writes check epoch.
-func newTarget(db *sql.DB, sourceID, dataDB string, defs map[string]*tableDef, epoch int64) *Target {
+func New(db *sql.DB, sourceID, dataDB string, defs map[string]*schema.TableDef, epoch int64) *Target {
 	t := &Target{db: db, sourceID: sourceID, tables: map[string]*targetTable{}, epoch: epoch}
 	for n, d := range defs {
 		_, table, _ := strings.Cut(n, ".")
-		name := quoteName(dataDB) + "." + quoteName(table)
+		name := cdc.QuoteName(dataDB) + "." + cdc.QuoteName(table)
 		var cols, marks, sets, match, news, keyMatch []string
 		for _, c := range d.Columns {
-			q := quoteName(c.Name)
+			q := cdc.QuoteName(c.Name)
 			cols, marks, sets, news = append(cols, q), append(marks, "?"), append(sets, q+" = ?"), append(news, q+" = new."+q)
 			// strings compare by bytes: the column collation ignores case and trailing spaces
 			if c.DataType == "varchar" || c.DataType == "enum" {
@@ -97,7 +93,7 @@ func newTarget(db *sql.DB, sourceID, dataDB string, defs map[string]*tableDef, e
 			}
 		}
 		for _, i := range d.PK {
-			keyMatch = append(keyMatch, quoteName(d.Columns[i].Name)+" = ?")
+			keyMatch = append(keyMatch, cdc.QuoteName(d.Columns[i].Name)+" = ?")
 		}
 		where := strings.Join(match, " AND ")
 		ins := "INSERT INTO " + name + " (" + strings.Join(cols, ", ") + ") VALUES (" + strings.Join(marks, ", ") + ")"
@@ -113,10 +109,8 @@ func newTarget(db *sql.DB, sourceID, dataDB string, defs map[string]*tableDef, e
 	return t
 }
 
-func quoteName(s string) string { return "`" + strings.ReplaceAll(s, "`", "``") + "`" }
-
-// savedState is the stored row for a source.
-type savedState struct {
+// State is the stored row for a source.
+type State struct {
 	Position, Tables, SchemaFP string
 	Phase, DataDB, InitID      string
 	P, P2                      string // positions around the init snapshot
@@ -126,7 +120,7 @@ type savedState struct {
 
 // added columns, by table; a row stored before they existed gets the default
 var stateColumns = []struct{ table, name, def string }{
-	{"position", "phase", "varchar(16) NOT NULL DEFAULT '" + phaseLegacy + "'"},
+	{"position", "phase", "varchar(16) NOT NULL DEFAULT '" + PhaseLegacy + "'"},
 	{"position", "data_db", "varchar(64) NOT NULL DEFAULT ''"},
 	{"position", "init_id", "varchar(32) NOT NULL DEFAULT ''"},
 	{"position", "p", "varchar(512) NOT NULL DEFAULT ''"},
@@ -141,13 +135,13 @@ var stateColumns = []struct{ table, name, def string }{
 func ensureState(ctx context.Context, db *sql.Conn) error {
 	for _, q := range []string{
 		"CREATE DATABASE IF NOT EXISTS growth_lab_cdc",
-		"CREATE TABLE IF NOT EXISTS " + positionTable + ` (
+		"CREATE TABLE IF NOT EXISTS " + PositionTable + ` (
 			source_id varchar(64) NOT NULL PRIMARY KEY,
 			position varchar(512) NOT NULL,
 			tables text NOT NULL,
 			schema_fp char(64) NOT NULL,
 			updated_at datetime(6) NOT NULL) ENGINE=InnoDB`,
-		"CREATE TABLE IF NOT EXISTS " + ownerTable + ` (
+		"CREATE TABLE IF NOT EXISTS " + OwnerTable + ` (
 			table_name varchar(64) NOT NULL PRIMARY KEY,
 			init_id varchar(32) NOT NULL) ENGINE=InnoDB`,
 	} {
@@ -170,22 +164,22 @@ func ensureState(ctx context.Context, db *sql.Conn) error {
 	return nil
 }
 
-// loadState returns the stored state, if any. A stored row for another source stops the run.
-func loadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*savedState, error) {
-	rows, err := db.QueryContext(ctx, "SELECT source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked FROM "+positionTable)
+// LoadState returns the stored state, if any. A stored row for another source stops the run.
+func LoadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*State, error) {
+	rows, err := db.QueryContext(ctx, "SELECT source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked FROM "+PositionTable)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var st *savedState
+	var st *State
 	for rows.Next() {
 		var id string
-		var s savedState
+		var s State
 		if err := rows.Scan(&id, &s.Position, &s.Tables, &s.SchemaFP, &s.Phase, &s.DataDB, &s.InitID, &s.P, &s.P2, &s.FirstInstall, &s.SnapshotLocked); err != nil {
 			return nil, err
 		}
 		if id != sourceID {
-			return nil, &StopError{"the copy follows another source (server uuid " + id + ")"}
+			return nil, &cdc.StopError{Msg: "the copy follows another source (server uuid " + id + ")"}
 		}
 		if s.DataDB == "" {
 			s.DataDB = sourceDB
@@ -195,16 +189,16 @@ func loadState(ctx context.Context, db *sql.DB, sourceID, sourceDB string) (*sav
 	return st, rows.Err()
 }
 
-func initState(ctx context.Context, tx *sql.Tx, sourceID string, s savedState) error {
-	_, err := tx.ExecContext(ctx, `INSERT INTO `+positionTable+` (source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked, updated_at)
+func InitState(ctx context.Context, tx *sql.Tx, sourceID string, s State) error {
+	_, err := tx.ExecContext(ctx, `INSERT INTO `+PositionTable+` (source_id, position, tables, schema_fp, phase, data_db, init_id, p, p2, first_install, snapshot_locked, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(6))`,
 		sourceID, s.Position, s.Tables, s.SchemaFP, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall, s.SnapshotLocked)
 	return err
 }
 
-// setState rewrites the stored row's fields that init moves between phases.
-func setState(ctx context.Context, tx *sql.Tx, sourceID string, s savedState) error {
-	res, err := tx.ExecContext(ctx, `UPDATE `+positionTable+` SET position = ?, phase = ?, data_db = ?, init_id = ?, p = ?, p2 = ?,
+// SetState rewrites the stored row's fields that init moves between phases.
+func SetState(ctx context.Context, tx *sql.Tx, sourceID string, s State) error {
+	res, err := tx.ExecContext(ctx, `UPDATE `+PositionTable+` SET position = ?, phase = ?, data_db = ?, init_id = ?, p = ?, p2 = ?,
 		first_install = ?, snapshot_locked = ?, updated_at = NOW(6) WHERE source_id = ?`, s.Position, s.Phase, s.DataDB, s.InitID, s.P, s.P2, s.FirstInstall, s.SnapshotLocked, sourceID)
 	if err != nil {
 		return err
@@ -216,14 +210,14 @@ func oneRow(res sql.Result) error {
 	if n, err := res.RowsAffected(); err != nil {
 		return err
 	} else if n != 1 {
-		return &StopError{"the position row for this source is missing in the copy"}
+		return &cdc.StopError{Msg: "the position row for this source is missing in the copy"}
 	}
 	return nil
 }
 
-func (t *Target) Begin(ctx context.Context, mode ApplyMode) error {
+func (t *Target) Begin(ctx context.Context, mode cdc.ApplyMode) error {
 	if t.tx != nil {
-		return &Error{"a copy transaction is already open"}
+		return &cdc.Error{Msg: "a copy transaction is already open"}
 	}
 	tx, err := t.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -233,13 +227,13 @@ func (t *Target) Begin(ctx context.Context, mode ApplyMode) error {
 	return nil
 }
 
-func (t *Target) Apply(ctx context.Context, c *Change) error {
+func (t *Target) Apply(ctx context.Context, c *cdc.Change) error {
 	key := c.Schema + "." + c.Table
 	tt := t.tables[key]
 	if tt == nil || t.tx == nil {
-		return &Error{key + ": not a followed table or no open transaction"}
+		return &cdc.Error{Msg: key + ": not a followed table or no open transaction"}
 	}
-	if t.mode == Converge {
+	if t.mode == cdc.Converge {
 		return t.converge(ctx, tt, c)
 	}
 	var (
@@ -247,27 +241,27 @@ func (t *Target) Apply(ctx context.Context, c *Change) error {
 		args []any
 	)
 	switch c.Kind {
-	case Insert:
+	case cdc.Insert:
 		q, args = tt.ins, c.After
-	case Update:
+	case cdc.Update:
 		q, args = tt.upd, append(append([]any{}, c.After...), c.Before...)
-	case Delete:
+	case cdc.Delete:
 		q, args = tt.del, c.Before
 	}
 	res, err := t.tx.ExecContext(ctx, q, args...)
 	if err != nil {
 		var me *gosql.MySQLError
 		if errors.As(err, &me) && me.Number == 1062 {
-			return &StopError{key + ": duplicate key in the copy; the copy differs from the source"}
+			return &cdc.StopError{Msg: key + ": duplicate key in the copy; the copy differs from the source"}
 		}
 		return err
 	}
-	if h := testHooks.afterApply; h != nil {
+	if h := Hooks.AfterApply; h != nil {
 		if err := h(); err != nil {
 			return err
 		}
 	}
-	if c.Kind == Insert {
+	if c.Kind == cdc.Insert {
 		return nil
 	}
 	n, err := res.RowsAffected()
@@ -275,14 +269,14 @@ func (t *Target) Apply(ctx context.Context, c *Change) error {
 		return err
 	}
 	if n != 1 {
-		what := map[ChangeKind]string{Update: "update", Delete: "delete"}[c.Kind]
-		return &StopError{fmt.Sprintf("%s: %s matched %d rows in the copy instead of 1; the copy differs from the source", key, what, n)}
+		what := map[cdc.ChangeKind]string{cdc.Update: "update", cdc.Delete: "delete"}[c.Kind]
+		return &cdc.StopError{Msg: fmt.Sprintf("%s: %s matched %d rows in the copy instead of 1; the copy differs from the source", key, what, n)}
 	}
 	return nil
 }
 
 // converge overwrites by primary key: the row ends as the change left it, whatever the copy had.
-func (t *Target) converge(ctx context.Context, tt *targetTable, c *Change) error {
+func (t *Target) converge(ctx context.Context, tt *targetTable, c *cdc.Change) error {
 	key := func(row []any) []any {
 		out := make([]any, len(tt.pk))
 		for i, p := range tt.pk {
@@ -292,22 +286,22 @@ func (t *Target) converge(ctx context.Context, tt *targetTable, c *Change) error
 	}
 	var err error
 	switch c.Kind {
-	case Insert:
+	case cdc.Insert:
 		_, err = t.tx.ExecContext(ctx, tt.upsert, c.After...)
-	case Update:
+	case cdc.Update:
 		if before, after := key(c.Before), key(c.After); !reflect.DeepEqual(before, after) {
 			if _, err = t.tx.ExecContext(ctx, tt.delPK, before...); err != nil {
 				return err
 			}
 		}
 		_, err = t.tx.ExecContext(ctx, tt.upsert, c.After...)
-	case Delete:
+	case cdc.Delete:
 		_, err = t.tx.ExecContext(ctx, tt.delPK, key(c.Before)...)
 	}
 	if err != nil {
 		return err
 	}
-	if h := testHooks.afterApply; h != nil {
+	if h := Hooks.AfterApply; h != nil {
 		return h()
 	}
 	return nil
@@ -315,7 +309,7 @@ func (t *Target) converge(ctx context.Context, tt *targetTable, c *Change) error
 
 func (t *Target) Commit(ctx context.Context, position, phase string) error {
 	if t.tx == nil {
-		return &Error{"no open copy transaction"}
+		return &cdc.Error{Msg: "no open copy transaction"}
 	}
 	tx := t.tx
 	t.tx = nil
@@ -327,17 +321,17 @@ func (t *Target) Commit(ctx context.Context, position, phase string) error {
 		tx.Rollback()
 		return err
 	}
-	if h := testHooks.beforeCommit; h != nil {
+	if h := Hooks.BeforeCommit; h != nil {
 		if err := h(tx); err != nil {
 			return err
 		}
 	}
 	if err := tx.Commit(); err != nil {
-		return &UncertainError{err}
+		return &cdc.UncertainError{Err: err}
 	}
-	if h := testHooks.afterCommit; h != nil {
+	if h := Hooks.AfterCommit; h != nil {
 		if err := h(); err != nil {
-			return &UncertainError{err}
+			return &cdc.UncertainError{Err: err}
 		}
 	}
 	return nil
@@ -352,15 +346,15 @@ func (t *Target) Rollback() {
 
 func (t *Target) Save(ctx context.Context, position, phase string) error {
 	if t.tx != nil {
-		return &Error{"cannot save a position while a copy transaction is open"}
+		return &cdc.Error{Msg: "cannot save a position while a copy transaction is open"}
 	}
-	return fenced(ctx, t.db, t.epoch, func(tx *sql.Tx) error {
+	return Fenced(ctx, t.db, t.epoch, func(tx *sql.Tx) error {
 		return savePosition(ctx, tx, t.sourceID, position, phase)
 	})
 }
 
 func savePosition(ctx context.Context, tx *sql.Tx, sourceID, position, phase string) error {
-	res, err := tx.ExecContext(ctx, "UPDATE "+positionTable+" SET position = ?, phase = IF(? = '', phase, ?), updated_at = NOW(6) WHERE source_id = ?",
+	res, err := tx.ExecContext(ctx, "UPDATE "+PositionTable+" SET position = ?, phase = IF(? = '', phase, ?), updated_at = NOW(6) WHERE source_id = ?",
 		position, phase, phase, sourceID)
 	if err != nil {
 		return err

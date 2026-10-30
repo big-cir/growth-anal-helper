@@ -18,6 +18,10 @@ import (
 	"github.com/go-mysql-org/go-mysql/mysql"
 
 	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/check"
+	"growth-lab-cdc/internal/inspect"
+	"growth-lab-cdc/internal/pipeline"
+	"growth-lab-cdc/internal/source"
 )
 
 var usage = `Usage: growth-lab-cdc <command>
@@ -160,7 +164,7 @@ func inspectCmd(args []string) (int, error) {
 	if !ok {
 		return 1, &cdc.Error{Msg: "--defaults-file is required"}
 	}
-	src, err := cdc.LoadSource(file)
+	src, err := source.LoadSource(file)
 	if err != nil {
 		return 1, err
 	}
@@ -174,7 +178,7 @@ func inspectCmd(args []string) (int, error) {
 		return 1, err
 	}
 	src.Port = int(port)
-	o := cdc.InspectOptions{Source: src}
+	o := inspect.InspectOptions{Source: src}
 	if o.Filter, err = filterFlags(args); err != nil {
 		return 1, err
 	}
@@ -220,7 +224,7 @@ func inspectCmd(args []string) (int, error) {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
-	rep, err := cdc.Inspect(ctx, o)
+	rep, err := inspect.Inspect(ctx, o)
 	if err != nil {
 		return 1, err
 	}
@@ -280,7 +284,7 @@ func pos(p mysql.Position) string {
 	return fmt.Sprintf("%s:%d", p.Name, p.Pos)
 }
 
-func printReport(r *cdc.Report) {
+func printReport(r *inspect.Report) {
 	state := "complete"
 	if !r.Complete {
 		state = "partial (" + r.Stop + ")"
@@ -376,7 +380,7 @@ func runCmd(args []string) (int, error) {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	sum, err := cdc.Follow(ctx, o, time.Duration(mins)*time.Minute)
+	sum, err := pipeline.Follow(ctx, o, time.Duration(mins)*time.Minute)
 	printSummary(sum)
 	if err != nil {
 		if ctx.Err() != nil && errors.Is(err, context.Canceled) {
@@ -388,7 +392,7 @@ func runCmd(args []string) (int, error) {
 	return 0, nil
 }
 
-func printSummary(s *cdc.RunSummary) {
+func printSummary(s *pipeline.RunSummary) {
 	if s == nil {
 		return
 	}
@@ -423,7 +427,7 @@ func initCmd(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
-	o := cdc.InitOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables, ServerID: ro.ServerID, Logf: ro.Logf}
+	o := pipeline.InitOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables, ServerID: ro.ServerID, Logf: ro.Logf}
 	mins, err := intFlag(args, "--max-copy-minutes", 0, 1, 7*24*60)
 	if err != nil {
 		return 1, err
@@ -431,7 +435,7 @@ func initCmd(args []string) (int, error) {
 	o.MaxCopy = time.Duration(mins) * time.Minute
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	if err := cdc.Init(ctx, o); err != nil {
+	if err := pipeline.Init(ctx, o); err != nil {
 		if ctx.Err() != nil {
 			fmt.Fprintln(os.Stderr, "init stopped; run it again to resume")
 			return 1, nil
@@ -442,18 +446,18 @@ func initCmd(args []string) (int, error) {
 }
 
 // copyOptions reads the flags run and init share.
-func copyOptions(args []string) (cdc.RunOptions, error) {
-	load := func(flag string) (cdc.Source, error) {
+func copyOptions(args []string) (pipeline.RunOptions, error) {
+	load := func(flag string) (source.Source, error) {
 		file, ok, err := flagValue(args, flag)
 		if err != nil {
-			return cdc.Source{}, err
+			return source.Source{}, err
 		}
 		if !ok {
-			return cdc.Source{}, cdcErrorf("%s is required", flag)
+			return source.Source{}, cdcErrorf("%s is required", flag)
 		}
-		return cdc.LoadSource(file)
+		return source.LoadSource(file)
 	}
-	var o cdc.RunOptions
+	var o pipeline.RunOptions
 	src, err := load("--defaults-file")
 	if err != nil {
 		return o, err
@@ -472,7 +476,7 @@ func copyOptions(args []string) (cdc.RunOptions, error) {
 	if err != nil {
 		return o, err
 	}
-	o = cdc.RunOptions{Source: src, Target: dst, Logf: func(f string, a ...any) {
+	o = pipeline.RunOptions{Source: src, Target: dst, Logf: func(f string, a ...any) {
 		fmt.Fprintf(os.Stderr, "%s %s\n", time.Now().Format("15:04:05"), fmt.Sprintf(f, a...))
 	}}
 	db, ok, err := flagValue(args, "--database")
@@ -515,7 +519,7 @@ func checkCmd(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
-	o := cdc.CheckOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables,
+	o := check.CheckOptions{Source: ro.Source, Target: ro.Target, Database: ro.Database, Tables: ro.Tables,
 		WritesStopped: hasFlag(args, "--writes-stopped"), Logf: ro.Logf}
 	rows, err := intFlag(args, "--chunk-rows", 10000, 100, 1000000)
 	if err != nil {
@@ -539,7 +543,7 @@ func checkCmd(args []string) (int, error) {
 	o.MaxTime = time.Duration(mins) * time.Minute
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	rep, err := cdc.Check(ctx, o)
+	rep, err := check.Check(ctx, o)
 	printCheck(rep)
 	if err != nil {
 		return 1, err
@@ -547,7 +551,7 @@ func checkCmd(args []string) (int, error) {
 	return rep.ExitCode(), nil
 }
 
-func printCheck(r *cdc.CheckReport) {
+func printCheck(r *check.CheckReport) {
 	if r == nil {
 		return
 	}

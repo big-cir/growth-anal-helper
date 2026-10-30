@@ -1,4 +1,4 @@
-package cdc
+package pipeline
 
 import (
 	"context"
@@ -15,12 +15,17 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/mysql"
 	gosql "github.com/go-sql-driver/mysql"
+
+	"growth-lab-cdc/internal/cdc"
+	"growth-lab-cdc/internal/schema"
+	"growth-lab-cdc/internal/source"
+	"growth-lab-cdc/internal/target"
 )
 
 // InitOptions configures building a fresh copy of the followed tables and swapping it in.
 type InitOptions struct {
-	Source   Source
-	Target   Source
+	Source   source.Source
+	Target   source.Source
 	Database string
 	Tables   []string
 	ServerID uint32
@@ -60,7 +65,7 @@ func Init(ctx context.Context, o InitOptions) error {
 			return fmt.Errorf("giving up after %d retries: %w", attempt, err)
 		}
 		wait := min(time.Duration(1<<attempt)*time.Second, time.Minute)
-		o.Logf("init resumes in %s after: %s", wait, SafeError(err))
+		o.Logf("init resumes in %s after: %s", wait, cdc.SafeError(err))
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -74,9 +79,9 @@ type initRun struct {
 	ro       RunOptions
 	names    []string
 	src, dst *sql.DB
-	lock     *copyLock
+	lock     *target.Lock
 	uuid     string
-	srcDefs  map[string]*tableDef
+	srcDefs  map[string]*schema.TableDef
 	fp       string
 }
 
@@ -89,7 +94,7 @@ func initOnce(parent context.Context, o InitOptions) error {
 	in.ro = RunOptions{Source: o.Source, Target: o.Target, Database: o.Database, Tables: o.Tables, ServerID: o.ServerID,
 		Logf: o.Logf, SaveEvery: o.SaveEvery, StopWait: o.StopWait, HeartbeatPeriod: o.HeartbeatPeriod, Retries: o.Retries}
 	in.names = in.ro.names()
-	if in.src, err = o.Source.open(); err != nil {
+	if in.src, err = o.Source.Open(); err != nil {
 		return err
 	}
 	defer in.src.Close()
@@ -98,29 +103,29 @@ func initOnce(parent context.Context, o InitOptions) error {
 		return err
 	}
 	if format != "ROW" || image != "FULL" {
-		return &StopError{"the source must use binlog_format=ROW and binlog_row_image=FULL"}
+		return &cdc.StopError{Msg: "the source must use binlog_format=ROW and binlog_row_image=FULL"}
 	}
-	if in.dst, err = openTarget(o.Target); err != nil {
+	if in.dst, err = target.Open(o.Target); err != nil {
 		return err
 	}
 	defer in.dst.Close()
-	if in.lock, err = takeLock(parent, in.dst); err != nil {
+	if in.lock, err = target.TakeLock(parent, in.dst); err != nil {
 		return err
 	}
-	defer in.lock.release()
+	defer in.lock.Release()
 	in.ro.lock = in.lock
-	ctx, cancel := in.lock.withLock(parent)
+	ctx, cancel := in.lock.WithLock(parent)
 	defer cancel()
-	if in.srcDefs, err = readDefs(ctx, in.src, "", in.names); err != nil {
+	if in.srcDefs, err = schema.ReadDefs(ctx, in.src, "", in.names); err != nil {
 		return err
 	}
-	if err := noTriggersOrCascades(ctx, in.src, in.names); err != nil {
+	if err := schema.NoTriggersOrCascades(ctx, in.src, in.names); err != nil {
 		return err
 	}
-	in.fp = fingerprint(in.srcDefs)
+	in.fp = schema.Fingerprint(in.srcDefs)
 	err = in.phases(ctx)
-	if err != nil && !in.lock.ok() {
-		return errLockLost
+	if err != nil && !in.lock.OK() {
+		return target.ErrLockLost
 	}
 	return err
 }
@@ -128,7 +133,7 @@ func initOnce(parent context.Context, o InitOptions) error {
 // phases runs from the stored phase to the end.
 func (in *initRun) phases(ctx context.Context) error {
 	for {
-		saved, err := loadState(ctx, in.dst, in.uuid, in.o.Database)
+		saved, err := target.LoadState(ctx, in.dst, in.uuid, in.o.Database)
 		if err != nil {
 			return err
 		}
@@ -138,39 +143,39 @@ func (in *initRun) phases(ctx context.Context) error {
 			}
 			continue
 		}
-		if saved.Phase == phaseLegacy {
-			return &StopError{"the stored position is from before init existed; remove its row in " + positionTable + " and run init"}
+		if saved.Phase == target.PhaseLegacy {
+			return &cdc.StopError{Msg: "the stored position is from before init existed; remove its row in " + target.PositionTable + " and run init"}
 		}
 		if saved.Tables != strings.Join(in.names, ",") {
-			return &StopError{"the table list differs from the one stored in the copy (" + saved.Tables + ")"}
+			return &cdc.StopError{Msg: "the table list differs from the one stored in the copy (" + saved.Tables + ")"}
 		}
 		if saved.SchemaFP != in.fp {
-			return &StopError{"table definitions changed since this init started; start again from a removed position row"}
+			return &cdc.StopError{Msg: "table definitions changed since this init started; start again from a removed position row"}
 		}
 		switch saved.Phase {
-		case phaseConverging, phaseCatchingUp, phaseSwapping:
+		case target.PhaseConverging, target.PhaseCatchingUp, target.PhaseSwapping:
 			if !saved.SnapshotLocked {
-				return &StopError{"this init took its snapshot without locking the source tables (an earlier version) and the copy may miss rows; drop " + stagingDB + ", remove the row in " + positionTable + " and run init again"}
+				return &cdc.StopError{Msg: "this init took its snapshot without locking the source tables (an earlier version) and the copy may miss rows; drop " + target.StagingDB + ", remove the row in " + target.PositionTable + " and run init again"}
 			}
 		}
 		switch saved.Phase {
-		case phaseReady:
+		case target.PhaseReady:
 			if saved.InitID == "" && saved.DataDB == in.o.Database {
 				in.o.Logf("the copy is ready; continue with run")
 				return nil
 			}
-			return &StopError{"the copy is ready but its stored row is not what init leaves"}
-		case phaseCopying:
+			return &cdc.StopError{Msg: "the copy is ready but its stored row is not what init leaves"}
+		case target.PhaseCopying:
 			err = in.copy(ctx, saved)
-		case phaseConverging:
+		case target.PhaseConverging:
 			in.o.Logf("replaying from before the snapshot, overwriting by key")
-			err = in.replay(ctx, phaseConverging, true)
-		case phaseCatchingUp:
+			err = in.replay(ctx, target.PhaseConverging, true)
+		case target.PhaseCatchingUp:
 			err = in.catchUp(ctx, saved)
-		case phaseSwapping:
+		case target.PhaseSwapping:
 			err = in.swap(ctx, saved)
 		default:
-			return &StopError{"unknown stored phase " + saved.Phase}
+			return &cdc.StopError{Msg: "unknown stored phase " + saved.Phase}
 		}
 		if err != nil {
 			return err
@@ -185,25 +190,25 @@ func (in *initRun) start(ctx context.Context) error {
 		return err
 	}
 	if live > 0 && live < len(in.names) {
-		return &StopError{fmt.Sprintf("the copy has %d of the %d followed tables in %s; fix that before init", live, len(in.names), in.o.Database)}
+		return &cdc.StopError{Msg: fmt.Sprintf("the copy has %d of the %d followed tables in %s; fix that before init", live, len(in.names), in.o.Database)}
 	}
-	if old, err := in.where(ctx, oldDB); err != nil {
+	if old, err := in.where(ctx, target.OldDB); err != nil {
 		return err
 	} else if old > 0 {
-		return &StopError{"tables from an earlier swap are still in " + oldDB + "; remove them before init"}
+		return &cdc.StopError{Msg: "tables from an earlier swap are still in " + target.OldDB + "; remove them before init"}
 	}
 	b := make([]byte, 8)
 	rand.Read(b)
 	id := hex.EncodeToString(b)
 	in.o.Logf("init %s: %s", id, map[bool]string{true: "first install", false: "replaces the current tables"}[live == 0])
-	s := savedState{Position: (binlogPos{File: "-", Pos: 4}).String(), Tables: strings.Join(in.names, ","),
-		SchemaFP: in.fp, Phase: phaseCopying, DataDB: stagingDB, InitID: id, FirstInstall: live == 0}
-	return in.fenced(ctx, func(tx *sql.Tx) error { return initState(ctx, tx, in.uuid, s) })
+	s := target.State{Position: (cdc.Pos{File: "-", Pos: 4}).String(), Tables: strings.Join(in.names, ","),
+		SchemaFP: in.fp, Phase: target.PhaseCopying, DataDB: target.StagingDB, InitID: id, FirstInstall: live == 0}
+	return in.fenced(ctx, func(tx *sql.Tx) error { return target.InitState(ctx, tx, in.uuid, s) })
 }
 
 // fenced runs f in a transaction that stops when another process has taken the copy.
 func (in *initRun) fenced(ctx context.Context, f func(tx *sql.Tx) error) error {
-	return fenced(ctx, in.dst, in.lock.epoch, f)
+	return target.Fenced(ctx, in.dst, in.lock.Epoch(), f)
 }
 
 // where counts the followed tables present in a database of the copy.
@@ -222,16 +227,16 @@ func (in *initRun) where(ctx context.Context, db string) (int, error) {
 }
 
 // copy creates the staging tables and fills them from one snapshot taken at position P.
-func (in *initRun) copy(ctx context.Context, saved *savedState) error {
-	in.o.Logf("copying from a snapshot into %s", stagingDB)
+func (in *initRun) copy(ctx context.Context, saved *target.State) error {
+	in.o.Logf("copying from a snapshot into %s", target.StagingDB)
 	if err := in.createStaging(ctx, saved); err != nil {
 		return err
 	}
-	created, err := readDefs(ctx, in.dst, stagingDB, in.names)
+	created, err := schema.ReadDefs(ctx, in.dst, target.StagingDB, in.names)
 	if err != nil {
 		return err
 	}
-	if err := sameDefs(in.srcDefs, created, false); err != nil {
+	if err := schema.SameDefs(in.srcDefs, created, false); err != nil {
 		return err
 	}
 	return in.snapshot(ctx, saved)
@@ -239,9 +244,9 @@ func (in *initRun) copy(ctx context.Context, saved *savedState) error {
 
 // createStaging replaces what an earlier attempt of this init left with empty staging tables.
 // Everything is read first; the lock's connection then only runs the writes.
-func (in *initRun) createStaging(ctx context.Context, saved *savedState) error {
+func (in *initRun) createStaging(ctx context.Context, saved *target.State) error {
 	// remove what an earlier attempt of this init left; anything else stops
-	owners, err := queryRows(ctx, in.dst, "SELECT table_name, init_id FROM "+ownerTable, 2)
+	owners, err := source.QueryRows(ctx, in.dst, "SELECT table_name, init_id FROM "+target.OwnerTable, 2)
 	if err != nil {
 		return err
 	}
@@ -249,7 +254,7 @@ func (in *initRun) createStaging(ctx context.Context, saved *savedState) error {
 	for _, r := range owners {
 		owner[r[0]] = r[1]
 	}
-	staged, err := queryRows(ctx, in.dst, "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '"+stagingDB+"'", 1)
+	staged, err := source.QueryRows(ctx, in.dst, "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '"+target.StagingDB+"'", 1)
 	if err != nil {
 		return err
 	}
@@ -257,22 +262,22 @@ func (in *initRun) createStaging(ctx context.Context, saved *savedState) error {
 		q    string
 		args []any
 	}
-	stmts := []stmt{{q: "CREATE DATABASE IF NOT EXISTS " + quoteName(stagingDB)}}
+	stmts := []stmt{{q: "CREATE DATABASE IF NOT EXISTS " + cdc.QuoteName(target.StagingDB)}}
 	for _, r := range staged {
 		if owner[r[0]] != saved.InitID {
-			return &StopError{stagingDB + "." + r[0] + " was not created by this init; remove it first"}
+			return &cdc.StopError{Msg: target.StagingDB + "." + r[0] + " was not created by this init; remove it first"}
 		}
-		stmts = append(stmts, stmt{q: "DROP TABLE " + quoteName(stagingDB) + "." + quoteName(r[0])})
+		stmts = append(stmts, stmt{q: "DROP TABLE " + cdc.QuoteName(target.StagingDB) + "." + cdc.QuoteName(r[0])})
 	}
 	for _, name := range in.names {
 		_, table, _ := strings.Cut(name, ".")
-		ddl, err := stagingDDL(ctx, in.src, name, stagingDB)
+		ddl, err := schema.StagingDDL(ctx, in.src, name, target.StagingDB)
 		if err != nil {
 			return err
 		}
-		stmts = append(stmts, stmt{"REPLACE INTO " + ownerTable + " (table_name, init_id) VALUES (?, ?)", []any{table, saved.InitID}}, stmt{q: ddl})
+		stmts = append(stmts, stmt{"REPLACE INTO " + target.OwnerTable + " (table_name, init_id) VALUES (?, ?)", []any{table, saved.InitID}}, stmt{q: ddl})
 	}
-	return in.lock.do(func(c *sql.Conn) error {
+	return in.lock.Do(func(c *sql.Conn) error {
 		for _, s := range stmts {
 			if _, err := c.ExecContext(ctx, s.q, s.args...); err != nil {
 				return err
@@ -283,7 +288,7 @@ func (in *initRun) createStaging(ctx context.Context, saved *savedState) error {
 }
 
 // snapshot fills the staging tables from one snapshot taken at position P.
-func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
+func (in *initRun) snapshot(ctx context.Context, saved *target.State) error {
 	limit, err := in.copyLimit(ctx)
 	if err != nil {
 		return err
@@ -305,7 +310,7 @@ func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
 		return err
 	}
 	if iso != "REPEATABLE-READ" {
-		return &StopError{"the copy connection is not REPEATABLE READ (" + iso + ")"}
+		return &cdc.StopError{Msg: "the copy connection is not REPEATABLE READ (" + iso + ")"}
 	}
 	defer conn.ExecContext(context.Background(), "ROLLBACK")
 	// the limit counts from P, where the replay starts
@@ -326,22 +331,22 @@ func (in *initRun) snapshot(ctx context.Context, saved *savedState) error {
 	if _, err := conn.ExecContext(ctx, "COMMIT"); err != nil {
 		return err
 	}
-	again, err := readDefs(ctx, in.src, "", in.names)
+	again, err := schema.ReadDefs(ctx, in.src, "", in.names)
 	if err != nil {
 		return err
 	}
-	if fingerprint(again) != in.fp {
-		return &StopError{"source table definitions changed during the copy"}
+	if schema.Fingerprint(again) != in.fp {
+		return &cdc.StopError{Msg: "source table definitions changed during the copy"}
 	}
 	if err := copyTime(started, limit); err != nil {
 		return err
 	}
 	// the snapshot holds exactly the followed tables' changes up to P, so the replay applies strictly
-	start := binlogPos{File: p.Name, Pos: p.Pos}
+	start := cdc.Pos{File: p.Name, Pos: p.Pos}
 	in.o.Logf("copied in %s; replay starts at the snapshot position %s:%d", time.Since(started).Round(time.Second), start.File, start.Pos)
 	s := *saved
-	s.Position, s.P, s.P2, s.Phase, s.SnapshotLocked = start.String(), start.String(), start.String(), phaseCatchingUp, true
-	return in.fenced(ctx, func(tx *sql.Tx) error { return setState(ctx, tx, in.uuid, s) })
+	s.Position, s.P, s.P2, s.Phase, s.SnapshotLocked = start.String(), start.String(), start.String(), target.PhaseCatchingUp, true
+	return in.fenced(ctx, func(tx *sql.Tx) error { return target.SetState(ctx, tx, in.uuid, s) })
 }
 
 const (
@@ -358,7 +363,7 @@ func (in *initRun) lockedSnapshot(ctx context.Context, conn *sql.Conn) (mysql.Po
 	var parts []string
 	for _, n := range in.names {
 		schema, table, _ := strings.Cut(n, ".")
-		parts = append(parts, quoteName(schema)+"."+quoteName(table)+" READ")
+		parts = append(parts, cdc.QuoteName(schema)+"."+cdc.QuoteName(table)+" READ")
 	}
 	lockSQL := "LOCK TABLES " + strings.Join(parts, ", ")
 	for try := 1; ; try++ {
@@ -370,7 +375,7 @@ func (in *initRun) lockedSnapshot(ctx context.Context, conn *sql.Conn) (mysql.Po
 		switch {
 		case errors.Is(err, errSourceBusy):
 			if try >= snapshotLockTries {
-				return mysql.Position{}, time.Time{}, &StopError{fmt.Sprintf("could not lock the followed tables on the source in %d tries of %d seconds: write transactions kept them busy; run init again later", try, snapshotLockWait)}
+				return mysql.Position{}, time.Time{}, &cdc.StopError{Msg: fmt.Sprintf("could not lock the followed tables on the source in %d tries of %d seconds: write transactions kept them busy; run init again later", try, snapshotLockWait)}
 			}
 			in.o.Logf("try %d: the source tables stayed busy for %s; trying again", try, waited.Round(time.Millisecond))
 			select {
@@ -379,7 +384,7 @@ func (in *initRun) lockedSnapshot(ctx context.Context, conn *sql.Conn) (mysql.Po
 			case <-time.After(snapshotLockWait * time.Second):
 			}
 		case errors.As(err, &me) && (me.Number == 1044 || me.Number == 1142 || me.Number == 1227):
-			return mysql.Position{}, time.Time{}, &StopError{fmt.Sprintf("the source account needs the LOCK TABLES and SELECT privileges on the followed tables (MySQL error %d)", me.Number)}
+			return mysql.Position{}, time.Time{}, &cdc.StopError{Msg: fmt.Sprintf("the source account needs the LOCK TABLES and SELECT privileges on the followed tables (MySQL error %d)", me.Number)}
 		default:
 			return mysql.Position{}, time.Time{}, err
 		}
@@ -450,9 +455,9 @@ func (in *initRun) tryLockedSnapshot(ctx context.Context, conn *sql.Conn, lockSQ
 	var me *gosql.MySQLError
 	switch {
 	case timedOut && killErr != nil: // its number only, so a privilege error is not taken for the lock's
-		return fail(waited, &Error{fmt.Sprintf("could not stop the lock statement at its time limit (%s)", SafeError(killErr))})
+		return fail(waited, &cdc.Error{Msg: fmt.Sprintf("could not stop the lock statement at its time limit (%s)", cdc.SafeError(killErr))})
 	case overran:
-		return fail(waited, &Error{"the lock statement did not end at its time limit"})
+		return fail(waited, &cdc.Error{Msg: "the lock statement did not end at its time limit"})
 	case timedOut:
 		return fail(waited, errSourceBusy) // even if the lock came: the kill may be on its way
 	case errors.As(err, &me) && me.Number == 1205:
@@ -467,7 +472,7 @@ func (in *initRun) tryLockedSnapshot(ctx context.Context, conn *sql.Conn, lockSQ
 	if _, err := conn.ExecContext(ctx, "START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY"); err != nil {
 		return fail(0, err)
 	}
-	p, err := sourcePos(ctx, lock)
+	p, err := source.Position(ctx, lock)
 	if err != nil {
 		return fail(0, err)
 	}
@@ -484,7 +489,7 @@ func (in *initRun) tryLockedSnapshot(ctx context.Context, conn *sql.Conn, lockSQ
 
 func copyTime(started time.Time, limit time.Duration) error {
 	if time.Since(started) > limit {
-		return &StopError{fmt.Sprintf("the copy took longer than %s; the binlog it needs may be removed before the replay", limit)}
+		return &cdc.StopError{Msg: fmt.Sprintf("the copy took longer than %s; the binlog it needs may be removed before the replay", limit)}
 	}
 	return nil
 }
@@ -530,19 +535,19 @@ func (in *initRun) copyTable(ctx context.Context, conn *sql.Conn, name string, s
 	d := in.srcDefs[name]
 	var cols, order []string
 	for _, c := range d.Columns {
-		cols = append(cols, quoteName(c.Name))
+		cols = append(cols, cdc.QuoteName(c.Name))
 	}
 	for _, i := range d.PK {
-		order = append(order, quoteName(d.Columns[i].Name))
+		order = append(order, cdc.QuoteName(d.Columns[i].Name))
 	}
-	rows, err := conn.QueryContext(ctx, "SELECT "+strings.Join(cols, ", ")+" FROM "+quoteName(schema)+"."+quoteName(table)+" ORDER BY "+strings.Join(order, ", "))
+	rows, err := conn.QueryContext(ctx, "SELECT "+strings.Join(cols, ", ")+" FROM "+cdc.QuoteName(schema)+"."+cdc.QuoteName(table)+" ORDER BY "+strings.Join(order, ", "))
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 	const batch = 500
 	row := "(" + strings.TrimSuffix(strings.Repeat("?,", len(cols)), ",") + ")"
-	insert := "INSERT INTO " + quoteName(stagingDB) + "." + quoteName(table) + " (" + strings.Join(cols, ", ") + ") VALUES "
+	insert := "INSERT INTO " + cdc.QuoteName(target.StagingDB) + "." + cdc.QuoteName(table) + " (" + strings.Join(cols, ", ") + ") VALUES "
 	var args []any
 	n, total := 0, 0
 	flush := func() error {
@@ -606,8 +611,8 @@ func (in *initRun) replay(ctx context.Context, phase string, baseOnly bool) erro
 
 // catchUp replays with the primary key only, rebuilds the secondary indexes, and replays again
 // with the full definition. Where it resumes depends on which indexes the staging tables have.
-func (in *initRun) catchUp(ctx context.Context, saved *savedState) error {
-	staged, err := readDefs(ctx, in.dst, stagingDB, in.names)
+func (in *initRun) catchUp(ctx context.Context, saved *target.State) error {
+	staged, err := schema.ReadDefs(ctx, in.dst, target.StagingDB, in.names)
 	if err != nil {
 		return err
 	}
@@ -615,11 +620,11 @@ func (in *initRun) catchUp(ctx context.Context, saved *savedState) error {
 	for _, name := range in.names {
 		want := map[string]string{}
 		for _, ix := range in.srcDefs[name].Indexes {
-			want[ix.Name] = ix.text()
+			want[ix.Name] = ix.Text()
 		}
 		for _, ix := range staged[name].Indexes {
-			if want[ix.Name] != ix.text() {
-				return &StopError{fmt.Sprintf("%s.%s: index %s differs from the source", stagingDB, name, ix.Name)}
+			if want[ix.Name] != ix.Text() {
+				return &cdc.StopError{Msg: fmt.Sprintf("%s.%s: index %s differs from the source", target.StagingDB, name, ix.Name)}
 			}
 			have++
 			delete(want, ix.Name)
@@ -628,7 +633,7 @@ func (in *initRun) catchUp(ctx context.Context, saved *savedState) error {
 	}
 	if have == 0 {
 		in.o.Logf("catching up with the primary key only")
-		if err := in.replay(ctx, phaseCatchingUp, true); err != nil {
+		if err := in.replay(ctx, target.PhaseCatchingUp, true); err != nil {
 			return err
 		}
 	}
@@ -641,10 +646,10 @@ func (in *initRun) catchUp(ctx context.Context, saved *savedState) error {
 		}
 	}
 	in.o.Logf("catching up with the full table definitions")
-	if err := in.replay(ctx, phaseCatchingUp, false); err != nil {
+	if err := in.replay(ctx, target.PhaseCatchingUp, false); err != nil {
 		return err
 	}
-	cur, err := loadState(ctx, in.dst, in.uuid, in.o.Database)
+	cur, err := target.LoadState(ctx, in.dst, in.uuid, in.o.Database)
 	if err != nil {
 		return err
 	}
@@ -652,29 +657,29 @@ func (in *initRun) catchUp(ctx context.Context, saved *savedState) error {
 		return err
 	}
 	s := *cur
-	s.Phase = phaseSwapping
+	s.Phase = target.PhaseSwapping
 	return in.fenced(ctx, func(tx *sql.Tx) error {
 		// InnoDB keeps a table's id through RENAME TABLE: the swap finds this init's tables by it
 		for _, name := range in.names {
 			_, table, _ := strings.Cut(name, ".")
-			id, err := tableID(ctx, tx, stagingDB, table)
+			id, err := tableID(ctx, tx, target.StagingDB, table)
 			if err != nil {
 				return err
 			}
 			if id == 0 {
-				return &StopError{stagingDB + "." + table + " is missing before the swap"}
+				return &cdc.StopError{Msg: target.StagingDB + "." + table + " is missing before the swap"}
 			}
-			res, err := tx.ExecContext(ctx, "UPDATE "+ownerTable+" SET table_id = ? WHERE table_name = ? AND init_id = ?", id, table, s.InitID)
+			res, err := tx.ExecContext(ctx, "UPDATE "+target.OwnerTable+" SET table_id = ? WHERE table_name = ? AND init_id = ?", id, table, s.InitID)
 			if err != nil {
 				return err
 			}
 			if n, err := res.RowsAffected(); err != nil {
 				return err
 			} else if n != 1 {
-				return &StopError{stagingDB + "." + table + " is not listed as this init's"}
+				return &cdc.StopError{Msg: target.StagingDB + "." + table + " is not listed as this init's"}
 			}
 		}
-		return setState(ctx, tx, in.uuid, s)
+		return target.SetState(ctx, tx, in.uuid, s)
 	})
 }
 
@@ -701,7 +706,7 @@ func innodbName(db, table string) (string, error) {
 	for _, n := range []string{db, table} {
 		for _, c := range n {
 			if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_') {
-				return "", &StopError{"init handles only database and table names of letters, digits and _ (" + n + ")"}
+				return "", &cdc.StopError{Msg: "init handles only database and table names of letters, digits and _ (" + n + ")"}
 			}
 		}
 	}
@@ -709,7 +714,7 @@ func innodbName(db, table string) (string, error) {
 }
 
 // restoreIndexes adds the source's secondary indexes the staging tables lack, one at a time.
-func (in *initRun) restoreIndexes(ctx context.Context, staged map[string]*tableDef) error {
+func (in *initRun) restoreIndexes(ctx context.Context, staged map[string]*schema.TableDef) error {
 	added := 0
 	for _, name := range in.names {
 		_, table, _ := strings.Cut(name, ".")
@@ -722,14 +727,14 @@ func (in *initRun) restoreIndexes(ctx context.Context, staged map[string]*tableD
 				continue
 			}
 			in.o.Logf("adding index %s.%s", name, ix.Name)
-			err := in.lock.do(func(c *sql.Conn) error {
-				_, err := c.ExecContext(ctx, addIndexSQL(stagingDB, table, ix))
+			err := in.lock.Do(func(c *sql.Conn) error {
+				_, err := c.ExecContext(ctx, schema.AddIndexSQL(target.StagingDB, table, ix))
 				return err
 			})
 			if err != nil {
 				var me *gosql.MySQLError
 				if errors.As(err, &me) && me.Number == 1062 {
-					return &StopError{fmt.Sprintf("%s: unique index %s has duplicates in the staging copy", name, ix.Name)}
+					return &cdc.StopError{Msg: fmt.Sprintf("%s: unique index %s has duplicates in the staging copy", name, ix.Name)}
 				}
 				return err
 			}
@@ -745,16 +750,16 @@ func (in *initRun) restoreIndexes(ctx context.Context, staged map[string]*tableD
 }
 
 // swapChecks stops before a swap that would move tables over others.
-func (in *initRun) swapChecks(ctx context.Context, s *savedState) error {
+func (in *initRun) swapChecks(ctx context.Context, s *target.State) error {
 	live, err := in.where(ctx, in.o.Database)
 	if err != nil {
 		return err
 	}
-	old, err := in.where(ctx, oldDB)
+	old, err := in.where(ctx, target.OldDB)
 	if err != nil {
 		return err
 	}
-	staged, err := in.where(ctx, stagingDB)
+	staged, err := in.where(ctx, target.StagingDB)
 	if err != nil {
 		return err
 	}
@@ -764,15 +769,15 @@ func (in *initRun) swapChecks(ctx context.Context, s *savedState) error {
 		wantLive = 0
 	}
 	if staged != all || live != wantLive || old != 0 {
-		return &StopError{fmt.Sprintf("cannot swap: %d staged, %d in use, %d in %s (expected %d, %d, 0)", staged, live, old, oldDB, all, wantLive)}
+		return &cdc.StopError{Msg: fmt.Sprintf("cannot swap: %d staged, %d in use, %d in %s (expected %d, %d, 0)", staged, live, old, target.OldDB, all, wantLive)}
 	}
 	return nil
 }
 
 // swap moves the staging tables into place with one RENAME TABLE, or, after a crash, decides from
 // where this init's tables are, found by their InnoDB ids, whether that already happened.
-func (in *initRun) swap(ctx context.Context, s *savedState) error {
-	ids, err := queryRows(ctx, in.dst, "SELECT table_name, table_id FROM "+ownerTable+" WHERE init_id = '"+s.InitID+"'", 2)
+func (in *initRun) swap(ctx context.Context, s *target.State) error {
+	ids, err := source.QueryRows(ctx, in.dst, "SELECT table_name, table_id FROM "+target.OwnerTable+" WHERE init_id = '"+s.InitID+"'", 2)
 	if err != nil {
 		return err
 	}
@@ -787,7 +792,7 @@ func (in *initRun) swap(ctx context.Context, s *savedState) error {
 	inStaging, inLive := 0, 0
 	for _, name := range in.names {
 		_, table, _ := strings.Cut(name, ".")
-		staged, err := tableID(ctx, in.dst, stagingDB, table)
+		staged, err := tableID(ctx, in.dst, target.StagingDB, table)
 		if err != nil {
 			return err
 		}
@@ -797,7 +802,7 @@ func (in *initRun) swap(ctx context.Context, s *savedState) error {
 		}
 		switch id := own[table]; {
 		case id == 0:
-			return &StopError{table + ": this init's table is not recorded; cannot tell whether the swap happened"}
+			return &cdc.StopError{Msg: table + ": this init's table is not recorded; cannot tell whether the swap happened"}
 		case staged == id:
 			inStaging++
 		case live == id:
@@ -808,11 +813,11 @@ func (in *initRun) swap(ctx context.Context, s *savedState) error {
 	if err != nil {
 		return err
 	}
-	old, err := in.where(ctx, oldDB)
+	old, err := in.where(ctx, target.OldDB)
 	if err != nil {
 		return err
 	}
-	staged, err := in.where(ctx, stagingDB)
+	staged, err := in.where(ctx, target.StagingDB)
 	if err != nil {
 		return err
 	}
@@ -827,17 +832,17 @@ func (in *initRun) swap(ctx context.Context, s *savedState) error {
 		for _, name := range in.names {
 			_, table, _ := strings.Cut(name, ".")
 			if !s.FirstInstall {
-				parts = append(parts, quoteName(in.o.Database)+"."+quoteName(table)+" TO "+quoteName(oldDB)+"."+quoteName(table))
+				parts = append(parts, cdc.QuoteName(in.o.Database)+"."+cdc.QuoteName(table)+" TO "+cdc.QuoteName(target.OldDB)+"."+cdc.QuoteName(table))
 			}
-			parts = append(parts, quoteName(stagingDB)+"."+quoteName(table)+" TO "+quoteName(in.o.Database)+"."+quoteName(table))
+			parts = append(parts, cdc.QuoteName(target.StagingDB)+"."+cdc.QuoteName(table)+" TO "+cdc.QuoteName(in.o.Database)+"."+cdc.QuoteName(table))
 		}
 		if err := hook("before-rename"); err != nil {
 			return err
 		}
 		in.o.Logf("swapping the staging tables in")
-		err := in.lock.do(func(c *sql.Conn) error {
-			for _, db := range []string{in.o.Database, oldDB} {
-				if _, err := c.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+quoteName(db)); err != nil {
+		err := in.lock.Do(func(c *sql.Conn) error {
+			for _, db := range []string{in.o.Database, target.OldDB} {
+				if _, err := c.ExecContext(ctx, "CREATE DATABASE IF NOT EXISTS "+cdc.QuoteName(db)); err != nil {
 					return err
 				}
 			}
@@ -853,21 +858,21 @@ func (in *initRun) swap(ctx context.Context, s *savedState) error {
 	case inLive == all && staged == 0 && old == oldAfter:
 		in.o.Logf("the swap had already happened")
 	default:
-		return &StopError{fmt.Sprintf("cannot tell whether the swap happened: of this init's %d tables %d are staged and %d in use; %d staged, %d in use, %d in %s",
-			all, inStaging, inLive, staged, live, old, oldDB)}
+		return &cdc.StopError{Msg: fmt.Sprintf("cannot tell whether the swap happened: of this init's %d tables %d are staged and %d in use; %d staged, %d in use, %d in %s",
+			all, inStaging, inLive, staged, live, old, target.OldDB)}
 	}
 	done := *s
-	done.Phase, done.DataDB, done.InitID, done.P, done.P2, done.FirstInstall = phaseReady, in.o.Database, "", "", "", false
+	done.Phase, done.DataDB, done.InitID, done.P, done.P2, done.FirstInstall = target.PhaseReady, in.o.Database, "", "", "", false
 	err = in.fenced(ctx, func(tx *sql.Tx) error {
-		if err := setState(ctx, tx, in.uuid, done); err != nil {
+		if err := target.SetState(ctx, tx, in.uuid, done); err != nil {
 			return err
 		}
-		_, err := tx.ExecContext(ctx, "DELETE FROM "+ownerTable+" WHERE init_id = ?", s.InitID)
+		_, err := tx.ExecContext(ctx, "DELETE FROM "+target.OwnerTable+" WHERE init_id = ?", s.InitID)
 		return err
 	})
 	if err != nil {
 		return err
 	}
-	in.o.Logf("init done; the previous tables are in %s", oldDB)
+	in.o.Logf("init done; the previous tables are in %s", target.OldDB)
 	return nil
 }

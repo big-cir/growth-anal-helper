@@ -1,4 +1,4 @@
-package cdc
+package source
 
 import (
 	"bufio"
@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"math/rand/v2"
 	"net"
 	"os"
 	"sort"
@@ -16,6 +17,8 @@ import (
 
 	"github.com/go-mysql-org/go-mysql/mysql"
 	gosql "github.com/go-sql-driver/mysql"
+
+	"growth-lab-cdc/internal/cdc"
 )
 
 // Source is the MySQL server whose binlog is read.
@@ -25,11 +28,6 @@ type Source struct {
 	User     string
 	Password string
 }
-
-// Error is a CDC setup or protocol error.
-type Error struct{ Msg string }
-
-func (e *Error) Error() string { return e.Msg }
 
 // LoadSource reads host, port, user and password from the [client] section of a MySQL option file.
 // Includes, inline comments and escapes are rejected rather than guessed.
@@ -49,7 +47,7 @@ func LoadSource(path string) (Source, error) {
 			continue
 		}
 		if line[0] == '!' {
-			return Source{}, &Error{where + ": includes are not supported"}
+			return Source{}, &cdc.Error{Msg: where + ": includes are not supported"}
 		}
 		if strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]") {
 			section = strings.TrimSpace(line[1 : len(line)-1])
@@ -68,7 +66,7 @@ func LoadSource(path string) (Source, error) {
 		}
 		v, err := optionValue(strings.TrimSpace(v))
 		if err != nil {
-			return Source{}, &Error{where + ": " + err.Error()}
+			return Source{}, &cdc.Error{Msg: where + ": " + err.Error()}
 		}
 		switch k {
 		case "host":
@@ -76,7 +74,7 @@ func LoadSource(path string) (Source, error) {
 		case "port":
 			p, err := strconv.Atoi(v)
 			if err != nil || p < 1 || p > 65535 {
-				return Source{}, &Error{where + ": port must be a number"}
+				return Source{}, &cdc.Error{Msg: where + ": port must be a number"}
 			}
 			s.Port = p
 		case "user":
@@ -89,7 +87,7 @@ func LoadSource(path string) (Source, error) {
 		return Source{}, err
 	}
 	if s.Host == "" || s.User == "" {
-		return Source{}, &Error{path + ": [client] needs host and user"}
+		return Source{}, &cdc.Error{Msg: path + ": [client] needs host and user"}
 	}
 	return s, nil
 }
@@ -98,28 +96,28 @@ func optionValue(v string) (string, error) {
 	if len(v) >= 2 && (v[0] == '"' || v[0] == '\'') && v[len(v)-1] == v[0] {
 		inner := v[1 : len(v)-1]
 		if strings.ContainsAny(inner, "\\") || strings.ContainsRune(inner, rune(v[0])) {
-			return "", &Error{"escapes in quoted values are not supported"}
+			return "", &cdc.Error{Msg: "escapes in quoted values are not supported"}
 		}
 		return inner, nil
 	}
 	if strings.ContainsAny(v, "\"'") {
-		return "", &Error{"unbalanced quotes"}
+		return "", &cdc.Error{Msg: "unbalanced quotes"}
 	}
 	if strings.Contains(v, "#") {
-		return "", &Error{"inline comments are not supported"}
+		return "", &cdc.Error{Msg: "inline comments are not supported"}
 	}
 	return v, nil
 }
 
-// tlsConfig requires TLS without checking the certificate, since a tunnel address does not match its name.
-func tlsConfig() *tls.Config { return &tls.Config{InsecureSkipVerify: true} }
+// TLSConfig requires TLS without checking the certificate, since a tunnel address does not match its name.
+func TLSConfig() *tls.Config { return &tls.Config{InsecureSkipVerify: true} }
 
 var registerTLS sync.Once
 
-// open returns a regular client connection for status and schema queries.
-func (s Source) open() (*sql.DB, error) {
+// Open returns a regular client connection for status and schema queries.
+func (s Source) Open() (*sql.DB, error) {
 	var regErr error
-	registerTLS.Do(func() { regErr = gosql.RegisterTLSConfig("cdc", tlsConfig()) })
+	registerTLS.Do(func() { regErr = gosql.RegisterTLSConfig("cdc", TLSConfig()) })
 	if regErr != nil {
 		return nil, regErr
 	}
@@ -165,14 +163,14 @@ func (st Status) Has(name string) bool {
 func versionNumber(v string) (int, error) {
 	var major, minor, patch int
 	if n, _ := fmt.Sscanf(v, "%d.%d.%d", &major, &minor, &patch); n != 3 || minor > 99 || patch > 99 {
-		return 0, &Error{"VERSION(): not in major.minor.patch form"}
+		return 0, &cdc.Error{Msg: "VERSION(): not in major.minor.patch form"}
 	}
 	return major*10000 + minor*100 + patch, nil
 }
 
 // ReadStatus reads the server identity, its binlog files, current position and connected replica IDs.
 func (s Source) ReadStatus(ctx context.Context) (Status, error) {
-	db, err := s.open()
+	db, err := s.Open()
 	if err != nil {
 		return Status{}, err
 	}
@@ -187,48 +185,48 @@ func (s Source) ReadStatus(ctx context.Context) (Status, error) {
 	if st.Version, err = versionNumber(version); err != nil {
 		return Status{}, err
 	}
-	files, err := queryRows(ctx, db, "SHOW BINARY LOGS", 2)
+	files, err := QueryRows(ctx, db, "SHOW BINARY LOGS", 2)
 	if err != nil {
 		return Status{}, err
 	}
 	for _, r := range files {
 		size, err := strconv.ParseUint(r[1], 10, 64)
 		if err != nil {
-			return Status{}, &Error{"SHOW BINARY LOGS: file size is not a number"}
+			return Status{}, &cdc.Error{Msg: "SHOW BINARY LOGS: file size is not a number"}
 		}
 		st.Files = append(st.Files, LogFile{Name: r[0], Size: size})
 	}
-	cur, err := queryRows(ctx, db, "SHOW BINARY LOG STATUS", 2)
+	cur, err := QueryRows(ctx, db, "SHOW BINARY LOG STATUS", 2)
 	if err != nil {
 		return Status{}, err
 	}
 	if len(cur) != 1 || cur[0][0] == "" {
-		return Status{}, &Error{"binary logging is off on the source"}
+		return Status{}, &cdc.Error{Msg: "binary logging is off on the source"}
 	}
 	pos, err := strconv.ParseUint(cur[0][1], 10, 64)
 	if err != nil || pos > math.MaxUint32 {
-		return Status{}, &Error{"SHOW BINARY LOG STATUS: position is not a number"}
+		return Status{}, &cdc.Error{Msg: "SHOW BINARY LOG STATUS: position is not a number"}
 	}
 	st.Current = mysql.Position{Name: cur[0][0], Pos: uint32(pos)}
 	if !st.Has(st.Current.Name) {
-		return Status{}, &Error{"current binlog file " + st.Current.Name + " is not in SHOW BINARY LOGS; try again"}
+		return Status{}, &cdc.Error{Msg: "current binlog file " + st.Current.Name + " is not in SHOW BINARY LOGS; try again"}
 	}
-	reps, err := queryRows(ctx, db, "SHOW REPLICAS", 1)
+	reps, err := QueryRows(ctx, db, "SHOW REPLICAS", 1)
 	if err != nil {
 		return Status{}, err
 	}
 	for _, r := range reps {
 		n, err := strconv.ParseUint(r[0], 10, 32)
 		if err != nil {
-			return Status{}, &Error{"SHOW REPLICAS: server id is not a number"}
+			return Status{}, &cdc.Error{Msg: "SHOW REPLICAS: server id is not a number"}
 		}
 		st.ReplicaIDs = append(st.ReplicaIDs, uint32(n))
 	}
 	return st, nil
 }
 
-// queryRows returns all rows as text; it fails when a row has fewer than min columns.
-func queryRows(ctx context.Context, db *sql.DB, q string, min int) ([][]string, error) {
+// QueryRows returns all rows as text; it fails when a row has fewer than min columns.
+func QueryRows(ctx context.Context, db *sql.DB, q string, min int) ([][]string, error) {
 	rows, err := db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, err
@@ -239,7 +237,7 @@ func queryRows(ctx context.Context, db *sql.DB, q string, min int) ([][]string, 
 		return nil, err
 	}
 	if len(cols) < min {
-		return nil, &Error{fmt.Sprintf("%s: expected at least %d columns, got %d", q, min, len(cols))}
+		return nil, &cdc.Error{Msg: fmt.Sprintf("%s: expected at least %d columns, got %d", q, min, len(cols))}
 	}
 	var out [][]string
 	for rows.Next() {
@@ -262,8 +260,8 @@ func queryRows(ctx context.Context, db *sql.DB, q string, min int) ([][]string, 
 
 // SelectTables lists the base tables this account can see, keeps those the filter follows,
 // and reads their primary key positions and column counts.
-func (s Source) SelectTables(ctx context.Context, f Filter) (map[string]TableInfo, error) {
-	db, err := s.open()
+func (s Source) SelectTables(ctx context.Context, f cdc.Filter) (map[string]cdc.TableInfo, error) {
+	db, err := s.Open()
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +280,7 @@ func (s Source) SelectTables(ctx context.Context, f Filter) (map[string]TableInf
 		return nil, err
 	}
 	defer rows.Close()
-	out := map[string]TableInfo{}
+	out := map[string]cdc.TableInfo{}
 	for rows.Next() {
 		var schema, table string
 		var pos int
@@ -305,7 +303,7 @@ func (s Source) SelectTables(ctx context.Context, f Filter) (map[string]TableInf
 		return nil, err
 	}
 	if len(out) == 0 {
-		return nil, &Error{"no table matches the include lists (or this account cannot see them)"}
+		return nil, &cdc.Error{Msg: "no table matches the include lists (or this account cannot see them)"}
 	}
 	var noKey []string
 	for k, info := range out {
@@ -315,32 +313,33 @@ func (s Source) SelectTables(ctx context.Context, f Filter) (map[string]TableInf
 	}
 	if len(noKey) > 0 {
 		sort.Strings(noKey)
-		return nil, &Error{"tables without a primary key: " + strings.Join(noKey, ", ") + "; leave them out with --table-include-list"}
+		return nil, &cdc.Error{Msg: "tables without a primary key: " + strings.Join(noKey, ", ") + "; leave them out with --table-include-list"}
 	}
 	return out, nil
 }
 
-func sourcePos(ctx context.Context, conn *sql.Conn) (mysql.Position, error) {
-	cur, err := connRows(ctx, conn, "SHOW BINARY LOG STATUS", 0)
+// Position is the source's current binlog position, read on conn.
+func Position(ctx context.Context, conn *sql.Conn) (mysql.Position, error) {
+	cur, err := ConnRows(ctx, conn, "SHOW BINARY LOG STATUS", 0)
 	if err != nil {
 		return mysql.Position{}, err
 	}
 	if len(cur) != 1 || len(cur[0]) < 2 || cur[0][0] == "" {
-		return mysql.Position{}, &Error{"binary logging is off on the source"}
+		return mysql.Position{}, &cdc.Error{Msg: "binary logging is off on the source"}
 	}
 	pos, err := strconv.ParseUint(cur[0][1], 10, 32)
 	if err != nil {
-		return mysql.Position{}, &Error{"SHOW BINARY LOG STATUS: position is not a number"}
+		return mysql.Position{}, &cdc.Error{Msg: "SHOW BINARY LOG STATUS: position is not a number"}
 	}
 	return mysql.Position{Name: cur[0][0], Pos: uint32(pos)}, nil
 }
 
-// errTooManyRows stops a read past its row limit.
-var errTooManyRows = &Error{"too many rows"}
+// ErrTooManyRows stops a read past its row limit.
+var ErrTooManyRows = &cdc.Error{Msg: "too many rows"}
 
-// connRows returns the rows of a query on one connection as text, NULL as "", failing with
-// errTooManyRows past max rows (0: no limit).
-func connRows(ctx context.Context, conn *sql.Conn, q string, max int, args ...any) ([][]string, error) {
+// ConnRows returns the rows of a query on one connection as text, NULL as "", failing with
+// ErrTooManyRows past max rows (0: no limit).
+func ConnRows(ctx context.Context, conn *sql.Conn, q string, max int, args ...any) ([][]string, error) {
 	rows, err := conn.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, err
@@ -366,8 +365,28 @@ func connRows(ctx context.Context, conn *sql.Conn, q string, max int, args ...an
 		}
 		out = append(out, r)
 		if max > 0 && len(out) > max {
-			return nil, errTooManyRows
+			return nil, ErrTooManyRows
 		}
 	}
 	return out, rows.Err()
+}
+
+// PickServerID returns the given ID, or a random one at or above 2^31, if it clashes with neither the source nor its replicas.
+func PickServerID(want uint32, st Status) (uint32, error) {
+	taken := map[uint32]bool{0: true, st.ServerID: true}
+	for _, id := range st.ReplicaIDs {
+		taken[id] = true
+	}
+	if want != 0 {
+		if taken[want] {
+			return 0, &cdc.Error{Msg: fmt.Sprintf("server id %d is already used by the source or a replica", want)}
+		}
+		return want, nil
+	}
+	for {
+		id := uint32(1<<31) + rand.Uint32N(math.MaxUint32-(1<<31))
+		if !taken[id] {
+			return id, nil
+		}
+	}
 }

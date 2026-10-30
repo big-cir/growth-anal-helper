@@ -79,10 +79,10 @@ bin/growth-lab-cdc check --defaults-file source.cnf --target-defaults-file targe
 
 ### Integration tests
 
-They need two disposable MySQL servers and administrative accounts. They create and drop the databases `app`, `app_other`, `growth_lab_cdc`, `growth_lab_cdc_staging` and `growth_lab_cdc_old`. The snapshot tests also create and drop a test user on the source, install the semi-sync source plugin there and turn it on for a few seconds (it is left installed but off):
+They need two disposable MySQL servers and administrative accounts. They create and drop the databases `app`, `app_other`, `growth_lab_cdc`, `growth_lab_cdc_staging` and `growth_lab_cdc_old`. The snapshot tests also create and drop a test user on the source, install the semi-sync source plugin there and turn it on for a few seconds (it is left installed but off). The test packages share the two servers, so `-p 1` runs them one at a time:
 
 ```bash
 cd cdc
 go build -o ../bin/growth-lab-cdc ./cmd/growth-lab-cdc
-CDC_SRC_CNF=source.cnf CDC_DST_CNF=target.cnf CDC_BIN=$PWD/../bin/growth-lab-cdc go test -tags integration -timeout 30m ./internal/cdc/
+CDC_SRC_CNF=source.cnf CDC_DST_CNF=target.cnf CDC_BIN=$PWD/../bin/growth-lab-cdc go test -tags integration -p 1 -timeout 30m ./internal/...
 ```

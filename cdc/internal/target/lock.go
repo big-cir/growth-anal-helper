@@ -1,32 +1,34 @@
-package cdc
+package target
 
 import (
 	"context"
 	"database/sql"
 	"sync"
 	"time"
+
+	"growth-lab-cdc/internal/cdc"
 )
 
 const (
-	lockName = "growth_lab_cdc"
-	// epochTable holds a number raised by every process that takes the lock; writes check it.
-	epochTable = "growth_lab_cdc.lock_epoch"
+	LockName = "growth_lab_cdc"
+	// EpochTable holds a number raised by every process that takes the lock; writes check it.
+	EpochTable = "growth_lab_cdc.lock_epoch"
 	lockWait   = 5 * time.Second
 )
 
-// errLockLost means the copy-wide lock was lost; work stops and resumes only after taking it again.
-var errLockLost = &lockLostError{}
+// ErrLockLost means the copy-wide lock was lost; work stops and resumes only after taking it again.
+var ErrLockLost = &lockLostError{}
 
 type lockLostError struct{}
 
 func (*lockLostError) Error() string { return "lost the copy lock; stopped writing" }
 
-// copyLock keeps run and init from writing to the same copy at once. It is a MySQL named lock held
+// Lock keeps run and init from writing to the same copy at once. It is a MySQL named lock held
 // on its own connection; the server frees it when that connection ends, so the connection is checked
 // and losing it cancels the work. Taking it raises the epoch, so writes of a process that lost it
 // fail even before it notices. DDL runs on the lock's own connection: the server frees the lock only
 // when that session ends, which a running statement holds off.
-type copyLock struct {
+type Lock struct {
 	conn   *sql.Conn
 	mu     sync.Mutex // held while a statement runs on conn
 	epoch  int64
@@ -35,22 +37,22 @@ type copyLock struct {
 	cancel context.CancelFunc
 }
 
-// takeLock takes the lock or stops when another process holds it.
-func takeLock(ctx context.Context, db *sql.DB) (*copyLock, error) {
+// TakeLock takes the lock or stops when another process holds it.
+func TakeLock(ctx context.Context, db *sql.DB) (*Lock, error) {
 	conn, err := db.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
 	var got sql.NullInt64
-	if err := conn.QueryRowContext(ctx, "SELECT GET_LOCK(?, 0)", lockName).Scan(&got); err != nil {
+	if err := conn.QueryRowContext(ctx, "SELECT GET_LOCK(?, 0)", LockName).Scan(&got); err != nil {
 		conn.Close()
 		return nil, err
 	}
 	if !got.Valid || got.Int64 != 1 {
 		conn.Close()
-		return nil, &StopError{"another growth-lab-cdc process is writing to this copy"}
+		return nil, &cdc.StopError{Msg: "another growth-lab-cdc process is writing to this copy"}
 	}
-	l := &copyLock{conn: conn, lost: make(chan struct{})}
+	l := &Lock{conn: conn, lost: make(chan struct{})}
 	if err := l.raiseEpoch(ctx); err != nil {
 		conn.Close()
 		return nil, err
@@ -66,20 +68,20 @@ func takeLock(ctx context.Context, db *sql.DB) (*copyLock, error) {
 }
 
 // raiseEpoch waits for writes of an earlier holder still in flight, then makes them fail.
-func (l *copyLock) raiseEpoch(ctx context.Context) error {
+func (l *Lock) raiseEpoch(ctx context.Context) error {
 	for _, q := range []string{
 		"CREATE DATABASE IF NOT EXISTS growth_lab_cdc",
-		"CREATE TABLE IF NOT EXISTS " + epochTable + " (id tinyint NOT NULL PRIMARY KEY, epoch bigint NOT NULL) ENGINE=InnoDB",
-		"INSERT INTO " + epochTable + " (id, epoch) VALUES (1, 1) ON DUPLICATE KEY UPDATE epoch = epoch + 1",
+		"CREATE TABLE IF NOT EXISTS " + EpochTable + " (id tinyint NOT NULL PRIMARY KEY, epoch bigint NOT NULL) ENGINE=InnoDB",
+		"INSERT INTO " + EpochTable + " (id, epoch) VALUES (1, 1) ON DUPLICATE KEY UPDATE epoch = epoch + 1",
 	} {
 		if _, err := l.conn.ExecContext(ctx, q); err != nil {
 			return err
 		}
 	}
-	return l.conn.QueryRowContext(ctx, "SELECT epoch FROM "+epochTable+" WHERE id = 1").Scan(&l.epoch)
+	return l.conn.QueryRowContext(ctx, "SELECT epoch FROM "+EpochTable+" WHERE id = 1").Scan(&l.epoch)
 }
 
-func (l *copyLock) watch(ctx context.Context) {
+func (l *Lock) watch(ctx context.Context) {
 	t := time.NewTicker(time.Second)
 	defer t.Stop()
 	for {
@@ -92,7 +94,7 @@ func (l *copyLock) watch(ctx context.Context) {
 			}
 			var mine sql.NullInt64
 			qctx, done := context.WithTimeout(ctx, lockWait)
-			err := l.conn.QueryRowContext(qctx, "SELECT IS_USED_LOCK(?) = CONNECTION_ID()", lockName).Scan(&mine)
+			err := l.conn.QueryRowContext(qctx, "SELECT IS_USED_LOCK(?) = CONNECTION_ID()", LockName).Scan(&mine)
 			done()
 			l.mu.Unlock()
 			if ctx.Err() != nil {
@@ -107,10 +109,13 @@ func (l *copyLock) watch(ctx context.Context) {
 }
 
 // Lost is closed when the lock is no longer held.
-func (l *copyLock) Lost() <-chan struct{} { return l.lost }
+func (l *Lock) Lost() <-chan struct{} { return l.lost }
 
-// ok reports whether the lock is still held.
-func (l *copyLock) ok() bool {
+// Epoch is the epoch the lock raised when taken.
+func (l *Lock) Epoch() int64 { return l.epoch }
+
+// OK reports whether the lock is still held.
+func (l *Lock) OK() bool {
 	select {
 	case <-l.lost:
 		return false
@@ -119,31 +124,31 @@ func (l *copyLock) ok() bool {
 	}
 }
 
-// check is for writes outside a position transaction (DDL): the lock and the epoch are still this process's.
-func (l *copyLock) check(ctx context.Context, db *sql.DB) error {
-	if !l.ok() {
-		return errLockLost
+// Check is for writes outside a position transaction (DDL): the lock and the epoch are still this process's.
+func (l *Lock) Check(ctx context.Context, db *sql.DB) error {
+	if !l.OK() {
+		return ErrLockLost
 	}
 	var cur int64
-	if err := db.QueryRowContext(ctx, "SELECT epoch FROM "+epochTable+" WHERE id = 1").Scan(&cur); err != nil {
+	if err := db.QueryRowContext(ctx, "SELECT epoch FROM "+EpochTable+" WHERE id = 1").Scan(&cur); err != nil {
 		return err
 	}
 	if cur != l.epoch {
-		return errLockLost
+		return ErrLockLost
 	}
 	return nil
 }
 
-func (l *copyLock) release() {
+func (l *Lock) Release() {
 	l.cancel()
 	ctx, done := context.WithTimeout(context.Background(), lockWait)
 	defer done()
-	l.conn.ExecContext(ctx, "DO RELEASE_LOCK(?)", lockName)
+	l.conn.ExecContext(ctx, "DO RELEASE_LOCK(?)", LockName)
 	l.conn.Close()
 }
 
-// withLock returns a context cancelled when the lock is lost.
-func (l *copyLock) withLock(parent context.Context) (context.Context, context.CancelFunc) {
+// WithLock returns a context cancelled when the lock is lost.
+func (l *Lock) WithLock(parent context.Context) (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithCancel(parent)
 	go func() {
 		select {
@@ -159,28 +164,28 @@ func (l *copyLock) withLock(parent context.Context) (context.Context, context.Ca
 // newer process wait for this transaction to end before it takes over.
 func fence(ctx context.Context, tx *sql.Tx, epoch int64) error {
 	var cur int64
-	if err := tx.QueryRowContext(ctx, "SELECT epoch FROM "+epochTable+" WHERE id = 1 FOR SHARE").Scan(&cur); err != nil {
+	if err := tx.QueryRowContext(ctx, "SELECT epoch FROM "+EpochTable+" WHERE id = 1 FOR SHARE").Scan(&cur); err != nil {
 		return err
 	}
 	if cur != epoch {
-		return errLockLost
+		return ErrLockLost
 	}
 	return nil
 }
 
-// do runs f with the lock's connection, for DDL and writes outside a position transaction. f only
+// Do runs f with the lock's connection, for DDL and writes outside a position transaction. f only
 // runs statements on that connection: while it does, the watch skips its check.
-func (l *copyLock) do(f func(c *sql.Conn) error) error {
+func (l *Lock) Do(f func(c *sql.Conn) error) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if !l.ok() {
-		return errLockLost
+	if !l.OK() {
+		return ErrLockLost
 	}
 	return f(l.conn)
 }
 
-// fenced runs f in a transaction that first checks the epoch.
-func fenced(ctx context.Context, db *sql.DB, epoch int64, f func(tx *sql.Tx) error) error {
+// Fenced runs f in a transaction that first checks the epoch.
+func Fenced(ctx context.Context, db *sql.DB, epoch int64, f func(tx *sql.Tx) error) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -193,7 +198,7 @@ func fenced(ctx context.Context, db *sql.DB, epoch int64, f func(tx *sql.Tx) err
 		return err
 	}
 	if err := tx.Commit(); err != nil {
-		return &UncertainError{err}
+		return &cdc.UncertainError{Err: err}
 	}
 	return nil
 }

@@ -1,2 +1,2 @@
-// Package cdc follows a MySQL binlog and applies row changes to another MySQL server.
+// Package cdc holds what the CDC packages share: row changes, the sink, errors and table filters.
 package cdc

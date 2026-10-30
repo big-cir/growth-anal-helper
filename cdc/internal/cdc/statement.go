@@ -1,52 +1,59 @@
 package cdc
 
 import (
-	"github.com/pingcap/tidb/pkg/parser"
-	"github.com/pingcap/tidb/pkg/parser/ast"
-	_ "github.com/pingcap/tidb/pkg/parser/test_driver" // literal values for the parser
+	"strconv"
+	"strings"
 )
 
-// judgeStatement decides whether run may pass over a statement-format event.
-// It returns nil only for account and privilege statements, and for data changes
-// whose every table is in a system database. Anything else stops the run.
-func judgeStatement(p *parser.Parser, defaultDB, q string) error {
-	stmts, _, err := p.Parse(q, "", "")
-	if err != nil || len(stmts) == 0 {
-		return &StopError{"a statement the SQL parser cannot read"}
+// Savepoint reports SAVEPOINT, RELEASE SAVEPOINT and ROLLBACK [WORK] TO, which change no data.
+func Savepoint(q string) bool {
+	f := strings.Fields(q)
+	switch {
+	case len(f) >= 2 && f[0] == "SAVEPOINT":
+		return true
+	case len(f) >= 3 && f[0] == "RELEASE" && f[1] == "SAVEPOINT":
+		return true
+	case len(f) >= 3 && f[0] == "ROLLBACK" && (f[1] == "TO" || f[1] == "WORK" && f[2] == "TO"):
+		return true
 	}
-	for _, s := range stmts {
-		switch s.(type) {
-		case *ast.GrantStmt, *ast.RevokeStmt, *ast.CreateUserStmt, *ast.AlterUserStmt, *ast.DropUserStmt, *ast.SetPwdStmt, *ast.FlushStmt:
-			continue
-		case *ast.InsertStmt, *ast.UpdateStmt, *ast.DeleteStmt, *ast.LoadDataStmt:
-			var c tableCollector
-			s.Accept(&c)
-			if len(c.names) == 0 {
-				return &StopError{"a statement-format data change whose tables cannot be read"}
+	return false
+}
+
+// SkipComments drops leading whitespace and comments so the first word is the statement's own.
+// An executable comment /*!NNNNN … */ is read when the server runs it (no version, or one up to the server's).
+func SkipComments(q string, version int) string {
+	for {
+		q = strings.TrimSpace(q)
+		if strings.HasPrefix(q, "/*!") {
+			body := strings.TrimLeft(q[3:], "0123456789")
+			if digits := q[3 : len(q)-len(body)]; digits == "" || atoiOr(digits, version+1) <= version {
+				q = body
+				continue
 			}
-			for _, t := range c.names {
-				db := t.Schema.O
-				if db == "" {
-					db = defaultDB
-				}
-				if !systemDatabases[db] {
-					return &StopError{"a statement-format data change outside the system databases (the copy cannot apply it)"}
-				}
+		}
+		switch {
+		case strings.HasPrefix(q, "/*"):
+			end := strings.Index(q, "*/")
+			if end < 0 {
+				return ""
 			}
+			q = q[end+2:]
+		case strings.HasPrefix(q, "--"), strings.HasPrefix(q, "#"):
+			end := strings.IndexByte(q, '\n')
+			if end < 0 {
+				return ""
+			}
+			q = q[end+1:]
 		default:
-			return &StopError{"a statement-format event of a kind run does not pass over"}
+			return q
 		}
 	}
-	return nil
 }
 
-type tableCollector struct{ names []*ast.TableName }
-
-func (c *tableCollector) Enter(n ast.Node) (ast.Node, bool) {
-	if t, ok := n.(*ast.TableName); ok {
-		c.names = append(c.names, t)
+func atoiOr(s string, def int) int {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return def
 	}
-	return n, false
+	return n
 }
-
-func (c *tableCollector) Leave(n ast.Node) (ast.Node, bool) { return n, true }

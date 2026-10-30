@@ -23,9 +23,29 @@ bin/growth-lab-cdc inspect --defaults-file client.cnf --database-include-list ap
 - Only row events are counted. A statement-format change in a followed database is counted as a statement record and left out of the row counts. A statement is matched by the database selected when it ran, so one that names a followed table while another database is selected is not seen.
 - A schema change (`CREATE`, `ALTER`, `DROP`, `RENAME`, `TRUNCATE`) in a followed database stops the read.
 
-The source account needs `REPLICATION SLAVE`, `REPLICATION CLIENT` and `SELECT` on the followed databases. The server must use `binlog_format=ROW` and `binlog_row_image=FULL`. `init` also needs `LOCK TABLES` on the followed tables. Triggers on a followed table, and foreign keys from or to one with a cascading action (`CASCADE`, `SET NULL`, `SET DEFAULT`), stop `init` and `run`: InnoDB applies those actions itself and the rows they change never reach the binlog. Foreign keys with `NO ACTION` or `RESTRICT` change no rows and are allowed; every change still comes from a statement and is logged, as long as no binlog filter or `sql_log_bin=OFF` session leaves it out. Only what the accounts can see is checked; compare with a privileged account before production use.
+The source account needs `REPLICATION SLAVE`, `REPLICATION CLIENT` and `SELECT` on the followed databases. The server must use `binlog_format=ROW` and `binlog_row_image=FULL`. Building the copy (`init`, or `run` on a new target) also needs `LOCK TABLES` on the followed tables. Triggers on a followed table, and foreign keys from or to one with a cascading action (`CASCADE`, `SET NULL`, `SET DEFAULT`), stop `init` and `run`: InnoDB applies those actions itself and the rows they change never reach the binlog. Foreign keys with `NO ACTION` or `RESTRICT` change no rows and are allowed; every change still comes from a statement and is logged, as long as no binlog filter or `sql_log_bin=OFF` session leaves it out. Only what the accounts can see is checked; compare with a privileged account before production use.
 
-`init` builds a fresh copy of the tables on a target MySQL server and swaps it in; `run` then keeps it up to date.
+`run` keeps a copy of the tables on a target MySQL server up to date and stores its position there. When the copy has none yet, or an `init` that did not finish, it first builds one as `init` does below and then goes on; a ready copy goes straight to applying changes.
+
+```bash
+bin/growth-lab-cdc run --defaults-file source.cnf --target-defaults-file target.cnf \
+  --database app --tables orders,users
+```
+
+- Each step decides from the state it reads under the named lock on the target. Another process that holds the lock makes it stop at once; one that finished and let go leaves work it then finds done. Nothing is applied twice.
+- Building the copy needs `LOCK TABLES` on the source, as `init` does; following it needs only the privileges above. `--max-copy-minutes` bounds the copy as in `init`.
+- Ctrl+C or SIGTERM before the copy is ready exits with 1 and a later `run` resumes it.
+- With a fixed `--server-id`, the switch from building the copy to following it can find the previous connection still registered and stop with "server id … is already used"; run it again and it follows the ready copy.
+- `--from FILE:POS` takes over a copy whose data was taken at that source position, without building one; it is refused while an `init` is unfinished.
+- `--tables` are exact names. Later runs continue from the position stored in the target (`growth_lab_cdc.position`). The table set and the table definitions are stored too, and a later run with a different set or changed definitions stops. A position stored by a version without `init` stops too: remove its row and run `init`.
+- Each source transaction becomes one target transaction together with the new position, so a crash or a lost connection never applies a transaction twice or skips one.
+- Inserts are inserted, updates and deletes match the row's previous values (strings by bytes). A duplicate key, or an update or delete that does not match exactly one row, means the target differs from the source, and the run stops instead of overwriting.
+- It also stops on schema changes, statement-format changes outside the system databases, tables with triggers or cascading foreign keys in the source, triggers or any foreign keys in the target, unsupported column types, and a binlog that does not continue from the stored position. Connection failures and uncertain commits reconnect from the stored position.
+- A skipped transaction's end is stored with the next event 10 seconds after the last save. While the source is idle it sends a heartbeat every 30 seconds, and run stores that end then.
+- Ctrl+C or SIGTERM finishes the transaction being applied, stores the position and exits.
+- When the binlog at the stored position is gone ("a fresh copy is needed") it stops and does not build a new copy by itself. To start over: give the source account `LOCK TABLES`; check the previous tables in `growth_lab_cdc_old`, and the tables and owner rows of an unfinished init in `growth_lab_cdc_staging`, and clear them; only then remove the row in `growth_lab_cdc.position`, and run again.
+
+`init` only builds the copy, the first thing `run` does on a new target, and stops: a fresh copy of the tables swapped in on the target.
 
 ```bash
 bin/growth-lab-cdc init --defaults-file source.cnf --target-defaults-file target.cnf --database app --tables orders,users
@@ -33,26 +53,12 @@ bin/growth-lab-cdc init --defaults-file source.cnf --target-defaults-file target
 
 - On a separate connection it locks the followed tables for reading, opens a consistent snapshot, reads the binlog position and unlocks them, so the snapshot holds the followed tables' changes up to that position. The lock is held for milliseconds.
 - It tries to stop each lock attempt after 5 seconds and gives up after three unsuccessful attempts. While it waits, writes to tables it has already locked are delayed.
-- Taking the lock can roll back, with error 1213, an application transaction that writes two or more of the followed tables at that moment. Run `init` when writes are few. `run` takes no source table locks; it only holds the named lock on the target.
+- Taking the lock can roll back, with error 1213, an application transaction that writes two or more of the followed tables at that moment. Build the copy when writes are few. Once the copy is ready, `run` takes no source table locks; it only holds the named lock on the target.
 - It copies the tables from that snapshot into `growth_lab_cdc_staging` (primary key only) and replays the binlog from that position as `run` does.
 - It then rebuilds the secondary indexes (not the foreign keys; the copy has none), catches up again and swaps the staging tables in with one `RENAME TABLE`. The previous tables move to `growth_lab_cdc_old`; removing them is left to you. Without previous tables it is a first install.
-- The phase is stored with the position. Run `init` again after a stop or a crash and it resumes: a copy starts over, a replay continues, an index rebuild adds what is missing, and a swap is completed or found done from where this init's tables are, by their InnoDB table ids (reading them needs the `PROCESS` privilege on the target). Anything else, such as a table replaced by hand, stops it.
+- The phase is stored with the position. Run `init` or `run` again after a stop or a crash and it resumes: a copy starts over, a replay continues, an index rebuild adds what is missing, and a swap is completed or found done from where this init's tables are, by their InnoDB table ids (reading them needs the `PROCESS` privilege on the target). Anything else, such as a table replaced by hand, stops it.
 - `init` and `run` never write at the same time: both hold a named lock on the target, and `run` starts only once `init` has finished. Taking the lock raises a number in `growth_lab_cdc.lock_epoch` that every write checks in its transaction, so a process that lost the lock cannot write even before it notices. Table changes (creating, indexing, swapping) run on the lock's own connection, so the lock outlasts them.
 - The copy must finish within half the source's binlog retention (or `--max-copy-minutes`), so the replay still finds its start.
-
-`run` applies source changes to the same tables on a target MySQL server and stores its position there.
-
-```bash
-bin/growth-lab-cdc run --defaults-file source.cnf --target-defaults-file target.cnf \
-  --database app --tables orders,users --from mysql-bin.000012:4567
-```
-
-- `--tables` are exact names. After `init`, `run` continues from the stored position. Without `init`, the first run needs `--from`, the source position the target's data was taken at; later runs continue from the position stored in the target (`growth_lab_cdc.position`). The table set and the table definitions are stored too, and a later run with a different set or changed definitions stops. A position stored by a version without `init` stops too: remove its row and run `init`.
-- Each source transaction becomes one target transaction together with the new position, so a crash or a lost connection never applies a transaction twice or skips one.
-- Inserts are inserted, updates and deletes match the row's previous values (strings by bytes). A duplicate key, or an update or delete that does not match exactly one row, means the target differs from the source, and the run stops instead of overwriting.
-- It also stops on schema changes, statement-format changes outside the system databases, tables with triggers or cascading foreign keys in the source, triggers or any foreign keys in the target, unsupported column types, and a binlog that does not continue from the stored position. Connection failures and uncertain commits reconnect from the stored position.
-- A skipped transaction's end is stored with the next event 10 seconds after the last save. While the source is idle it sends a heartbeat every 30 seconds, and run stores that end then.
-- Ctrl+C or SIGTERM finishes the transaction being applied, stores the position and exits.
 
 The target account needs to create the `growth_lab_cdc` database and write the followed tables.
 

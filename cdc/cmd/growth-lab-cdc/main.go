@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -30,12 +31,13 @@ var usage = `Usage: growth-lab-cdc <command>
                           Defaults: from the oldest kept file to the current position, 200 MB, 600 seconds
   init --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
        [--host H] [--port N] [--server-id N] [--max-copy-minutes N]
-                          Build a fresh copy of the tables from one snapshot, catch up with the binlog and
+                          Only build a fresh copy of the tables from one snapshot, catch up with the binlog and
                           swap it in; the previous tables move to growth_lab_cdc_old. Resumes after a stop
   run --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
-      [--host H] [--port N] [--from FILE:POS] [--server-id N]
-                          Apply source changes to the same tables on the target and keep the position there
-                          --from: first run only, the position the target's data was taken at
+      [--host H] [--port N] [--from FILE:POS] [--server-id N] [--max-copy-minutes N]
+                          Build the copy as init does when the target has none or an unfinished one, then
+                          apply source changes to the same tables on the target and keep the position there
+                          --from: take over a copy whose data was taken at that position, without building one
                           Stops on anything it cannot apply exactly; Ctrl+C finishes the current transaction
   check --defaults-file FILE --target-defaults-file FILE --database DB --tables T1,T2,...
         [--host H] [--port N] [--writes-stopped] [--chunk-rows N] [--wait-seconds N]
@@ -347,6 +349,7 @@ func printCounts(m map[string]int64) {
 var runFlags = map[string]bool{
 	"--defaults-file": true, "--target-defaults-file": true, "--host": true, "--port": true,
 	"--database": true, "--tables": true, "--from": true, "--server-id": true,
+	"--max-copy-minutes": true,
 }
 
 func runCmd(args []string) (int, error) {
@@ -367,11 +370,19 @@ func runCmd(args []string) (int, error) {
 		}
 		o.From = &mysql.Position{Name: name, Pos: uint32(n)}
 	}
+	mins, err := intFlag(args, "--max-copy-minutes", 0, 1, 7*24*60)
+	if err != nil {
+		return 1, err
+	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	sum, err := cdc.Run(ctx, o)
+	sum, err := cdc.Follow(ctx, o, time.Duration(mins)*time.Minute)
 	printSummary(sum)
 	if err != nil {
+		if ctx.Err() != nil && errors.Is(err, context.Canceled) {
+			fmt.Fprintln(os.Stderr, "stopped before the copy was ready; run again to resume")
+			return 1, nil
+		}
 		return 1, err
 	}
 	return 0, nil

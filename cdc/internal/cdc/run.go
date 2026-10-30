@@ -41,6 +41,9 @@ type RunOptions struct {
 	HeartbeatPeriod time.Duration
 	Retries         int
 
+	// set by Follow: a copy with no finished init ends the session with errNeedsInit
+	initFirst bool
+
 	// set by init
 	lock     *copyLock // held by the caller; nil: each session takes its own
 	catchUp  bool      // return once the copy has reached the source position seen at the start
@@ -53,6 +56,7 @@ type RunSummary struct {
 	Saved   string // last stored position
 	Applied map[string]*Counts
 	Skipped int64 // transactions with no followed rows
+	reading bool  // a session got past its checks and read the binlog
 }
 
 // binlogPos is the position run stores: the end of the last finished source transaction,
@@ -88,6 +92,44 @@ func (o *RunOptions) names() []string {
 	return out
 }
 
+// errNeedsInit ends a Follow session that finds no copy, or an unfinished init.
+var errNeedsInit = errors.New("the copy needs init")
+
+// Follow builds the copy with init when it has none or an unfinished one, and then runs. A ready
+// copy goes straight to Run. Each step decides from the state it reads under the copy's lock.
+func Follow(ctx context.Context, o RunOptions, maxCopy time.Duration) (*RunSummary, error) {
+	o.initFirst = true
+	sum, err := Run(ctx, o)
+	if err == nil && ctx.Err() != nil && !sum.reading {
+		return sum, ctx.Err() // stopped before it knew the copy was ready
+	}
+	if !errors.Is(err, errNeedsInit) {
+		return sum, err
+	}
+	if err := hook("follow-before-init"); err != nil {
+		return nil, err
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	if err := Init(ctx, InitOptions{Source: o.Source, Target: o.Target, Database: o.Database, Tables: o.Tables,
+		ServerID: o.ServerID, Logf: o.Logf, MaxCopy: maxCopy, SaveEvery: o.SaveEvery, StopWait: o.StopWait,
+		HeartbeatPeriod: o.HeartbeatPeriod, Retries: o.Retries}); err != nil {
+		return nil, err
+	}
+	if err := hook("follow-before-run"); err != nil {
+		return nil, err
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	sum, err = Run(ctx, o)
+	if errors.Is(err, errNeedsInit) {
+		return sum, &StopError{"another process left the copy without a finished init; run again"}
+	}
+	return sum, err
+}
+
 // Run applies source changes to the copy until ctx is cancelled or a stop condition.
 // Connection failures and uncertain commits restart from the position stored in the copy.
 func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
@@ -114,6 +156,9 @@ func Run(ctx context.Context, o RunOptions) (*RunSummary, error) {
 	for attempt := 0; ; attempt++ {
 		started := time.Now()
 		err := session(ctx, &o, &from, sum)
+		if errors.Is(err, errNeedsInit) {
+			return sum, err
+		}
 		if o.catchUp && ctx.Err() != nil && (err == nil || errors.Is(err, context.Canceled)) {
 			return sum, ctx.Err() // init must not take a stop for having caught up
 		}
@@ -229,7 +274,14 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 	dataDB := o.Database
 	var pos binlogPos
 	create := false
+	initPhase := saved != nil && slices.Contains([]string{phaseCopying, phaseConverging, phaseCatchingUp, phaseSwapping}, saved.Phase)
 	switch {
+	case o.initFirst && saved == nil && from == nil:
+		return errNeedsInit
+	case o.initFirst && initPhase && from != nil:
+		return &StopError{"the copy is in the middle of an init (" + saved.Phase + "); run again without --from to finish it"}
+	case o.initFirst && initPhase:
+		return errNeedsInit
 	case saved == nil && from == nil:
 		return &StopError{"the copy has no stored position; run init, or give --from with the position its data was taken at"}
 	case saved == nil:
@@ -237,6 +289,8 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 		create = true // stored once the copy passes the checks below
 	case saved.Phase == phaseLegacy:
 		return &StopError{"the stored position is from before init existed; remove its row in " + positionTable + " and run init"}
+	case saved.Phase == phaseReady && o.phases == nil && (saved.InitID != "" || saved.DataDB != o.Database):
+		return &StopError{"the copy is ready but its stored row is not what init leaves"}
 	case from != nil && saved.Position == (binlogPos{File: from.Name, Pos: from.Pos}).String() && saved.Tables == tables && saved.SchemaFP == fp:
 		// the first run stored it but lost the reply
 		pos = binlogPos{File: from.Name, Pos: from.Pos}
@@ -291,6 +345,7 @@ func session(parent context.Context, o *RunOptions, fromp **mysql.Position, sum 
 		*fromp = nil
 		o.Logf("starting at %s:%d (trusted as given until the first transaction is stored with its event checksum)", pos.File, pos.Pos)
 	}
+	sum.reading = true
 	r := &reader{
 		o: o, sink: newTarget(dst, st.ServerUUID, dataDB, dstDefs, lock.epoch), defs: srcDefs, parser: parser.New(),
 		version: st.Version, saved: pos, last: pos, sum: sum, open: map[string]*Counts{}, lock: lock,

@@ -54,3 +54,24 @@ type UncertainError struct{ Err error }
 
 func (e *UncertainError) Error() string { return "commit outcome unknown: " + SafeError(e.Err).Error() }
 func (e *UncertainError) Unwrap() error { return e.Err }
+
+// Counts are the changed rows of one table in committed transactions.
+type Counts struct {
+	Inserts    int64 `json:"inserts"`
+	Updates    int64 `json:"updates"`
+	Deletes    int64 `json:"deletes"`
+	KeyChanges int64 `json:"key_changes"`
+	RowBytes   int64 `json:"row_bytes"`
+}
+
+// Add adds o to c.
+func (c *Counts) Add(o *Counts) {
+	c.Inserts += o.Inserts
+	c.Updates += o.Updates
+	c.Deletes += o.Deletes
+	c.KeyChanges += o.KeyChanges
+	c.RowBytes += o.RowBytes
+}
+
+// Rows is the number of changed rows.
+func (c *Counts) Rows() int64 { return c.Inserts + c.Updates + c.Deletes }

@@ -418,7 +418,9 @@ func (r *reader) stream(parent context.Context, id uint32) error {
 		Host: r.o.Source.Host, Port: uint16(r.o.Source.Port), User: r.o.Source.User, Password: r.o.Source.Password,
 		TLSConfig: source.TLSConfig(), DisableRetrySync: true, EventCacheCount: 256,
 		HeartbeatPeriod: r.o.HeartbeatPeriod, ReadTimeout: 3 * r.o.HeartbeatPeriod,
-		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		// a JSON double keeps its ".0", so the copy stores a double and not an integer
+		UseFloatWithTrailingZero: true,
+		Logger:                   slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
 	defer func() { go syncer.Close() }()
 	streamer, err := syncer.StartSync(start)
@@ -741,6 +743,10 @@ func (r *reader) rows(ctx context.Context, e *replication.RowsEvent, h *replicat
 					return &cdc.StopError{Msg: fmt.Sprintf("%s.%s: enum value number out of range%s", key, c.Name, at)}
 				}
 				v = c.Enum[n-1]
+			}
+			// an empty JSON document is read by MySQL as the JSON null
+			if b, ok := v.([]byte); ok && c.DataType == "json" && len(b) == 0 {
+				v = "null"
 			}
 			out[j] = v
 		}

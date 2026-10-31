@@ -55,7 +55,7 @@ type TableDef struct {
 
 var supportedTypes = map[string]bool{
 	"tinyint": true, "smallint": true, "mediumint": true, "int": true, "bigint": true,
-	"datetime": true, "varchar": true, "enum": true,
+	"date": true, "datetime": true, "varchar": true, "enum": true, "json": true,
 }
 
 // ReadDefs reads the definitions of the followed tables, named by their source "db.table".

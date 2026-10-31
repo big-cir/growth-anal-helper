@@ -88,6 +88,9 @@ func New(db *sql.DB, sourceID, dataDB string, defs map[string]*schema.TableDef, 
 			// strings compare by bytes: the column collation ignores case and trailing spaces
 			if c.DataType == "varchar" || c.DataType == "enum" {
 				match = append(match, "BINARY "+q+" <=> BINARY ?")
+			} else if c.DataType == "json" {
+				// a JSON column equals a string only as a JSON string scalar
+				match = append(match, q+" <=> CAST(? AS JSON)")
 			} else {
 				match = append(match, q+" <=> ?")
 			}

@@ -12,7 +12,9 @@ import (
 func TestHashPartPerType(t *testing.T) {
 	for typ, want := range map[string]string{
 		"bigint":   "CAST(`c` AS CHAR)",
+		"date":     "CAST(`c` AS CHAR)",
 		"datetime": "CAST(`c` AS CHAR)",
+		"json":     "CAST(`c` AS CHAR)",
 		"varchar":  "CAST(`c` AS BINARY)",
 		"enum":     "CAST(`c` + 0 AS CHAR)",
 	} {
@@ -63,6 +65,17 @@ func TestCheckSQL(t *testing.T) {
 	d.PK = []int{0}
 	if _, err := checkSQL(d, "a", "b"); err == nil {
 		t.Fatal("an enum key should stop")
+	}
+}
+
+func TestCheckSQLDateKey(t *testing.T) {
+	d := &schema.TableDef{Columns: []schema.Column{{Name: "day", DataType: "date"}, {Name: "doc", DataType: "json"}}, PK: []int{0}}
+	ct, err := checkSQL(d, "`app`.`t`", "`copy`.`t`")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(ct.ints, []bool{false}) {
+		t.Fatalf("a date key is not an integer: %v", ct.ints)
 	}
 }
 

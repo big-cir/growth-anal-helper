@@ -303,7 +303,7 @@ func checkSQL(d *schema.TableDef, srcName, dstName string) (*checkTable, error) 
 		}
 		q := cdc.QuoteName(c.Name)
 		ct.keys = append(ct.keys, q)
-		ct.ints = append(ct.ints, c.DataType != "datetime" && c.DataType != "varchar")
+		ct.ints = append(ct.ints, c.DataType != "date" && c.DataType != "datetime" && c.DataType != "varchar")
 		keyParts = append(keyParts, hashPart(c))
 		order = append(order, q+" ASC")
 	}

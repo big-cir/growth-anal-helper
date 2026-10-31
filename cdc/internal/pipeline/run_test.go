@@ -441,3 +441,26 @@ func TestReaderKeepsConvergingAtAHeartbeat(t *testing.T) {
 		t.Fatalf("the first end after p2 should still end converging: %v %v", sink.phases, r.converging)
 	}
 }
+
+func TestReaderPassesJSON(t *testing.T) {
+	sink := &fakeSink{}
+	r := testReader(sink, cdc.Pos{File: "bin.000001", Pos: 100})
+	r.defs["app.doc"] = &schema.TableDef{Columns: []schema.Column{{Name: "id", DataType: "bigint"}, {Name: "body", DataType: "json"}}}
+	r.sum.Applied["app.doc"] = &cdc.Counts{}
+	err := feed(t, r,
+		query(150, "app", "BEGIN"),
+		rowsEv(replication.WRITE_ROWS_EVENTv2, 200, "doc", []any{int64(1), `{"a": 1.0}`}, []any{int64(2), []byte{}}, []any{int64(3), nil}),
+		xid(250),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sink.applied) != 3 {
+		t.Fatalf("applied %d", len(sink.applied))
+	}
+	for i, want := range []any{`{"a": 1.0}`, "null", nil} {
+		if got := sink.applied[i].After[1]; got != want {
+			t.Errorf("row %d: %#v, want %#v", i, got, want)
+		}
+	}
+}

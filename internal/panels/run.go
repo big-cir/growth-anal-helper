@@ -30,13 +30,15 @@ type RunInput struct {
 	Roles       *collect.Roles
 	Lease       *query.SlotLease
 	Ctx         context.Context
+	// Timeout limits each query run (zero: no limit)
+	Timeout time.Duration
 	// Coverage turns on the data coverage checks
 	Coverage *coverage.Resolved
 	Lang     string
 }
 
 // RunResult: on success the columns and both copies' rows; otherwise the failed stage
-// (lint, exec, contract, invariant, id_column, id_dependent, metric_tables, sensitive, cancelled).
+// (lint, exec, timeout, contract, invariant, id_column, id_dependent, metric_tables, sensitive, cancelled).
 type RunResult struct {
 	OK         bool
 	Columns    []Column
@@ -149,12 +151,12 @@ func Run(o RunInput) RunResult {
 	}
 	req := func(path string) query.Request {
 		blocked := o.Blocked
-		return query.Request{Lease: o.Lease, SQL: o.Spec.SQL, Path: path, Mode: query.Panel, AsOf: o.AsOf, Today: o.Today, Params: o.Params, ReadablePrefixes: o.PanelPrefix, Blocked: &blocked, HeapLimitMb: o.HeapLimitMb, Ctx: o.Ctx}
+		return query.Request{Lease: o.Lease, SQL: o.Spec.SQL, Path: path, Mode: query.Panel, AsOf: o.AsOf, Today: o.Today, Params: o.Params, ReadablePrefixes: o.PanelPrefix, Blocked: &blocked, HeapLimitMb: o.HeapLimitMb, Ctx: o.Ctx, Timeout: o.Timeout}
 	}
 	real := query.RunQuery(req(o.RealPath))
 	if !real.OK {
 		switch real.Kind {
-		case "cancelled", "sensitive":
+		case "cancelled", "sensitive", "timeout":
 			return fail(real.Kind, real.Message)
 		}
 		hint := ""
@@ -188,7 +190,7 @@ func Run(o RunInput) RunResult {
 	agent := query.RunQuery(req(o.AgentPath))
 	if !agent.OK {
 		switch agent.Kind {
-		case "cancelled", "sensitive":
+		case "cancelled", "sensitive", "timeout":
 			return fail(agent.Kind, agent.Message)
 		}
 		return fail("exec", agent.Message)

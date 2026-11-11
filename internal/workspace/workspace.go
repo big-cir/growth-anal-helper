@@ -76,6 +76,10 @@ type Config struct {
 	Server           Server
 	OutDir           string
 	GA4              *ga4.Connection
+
+	// QueryTimeoutMs limits one query of a conversation or eval; BackgroundQueryTimeoutMs one background or verify query
+	QueryTimeoutMs           int
+	BackgroundQueryTimeoutMs int
 }
 
 // Workspace is a folder and its config.
@@ -88,6 +92,12 @@ type Workspace struct {
 type ConfigError struct{ Msg string }
 
 func (e *ConfigError) Error() string { return e.Msg }
+
+// Default query time limits.
+const (
+	DefaultQueryTimeoutMs           = 60000
+	DefaultBackgroundQueryTimeoutMs = 300000
+)
 
 func defaultAgent() Agent {
 	return Agent{Provider: "claude-code", Bin: "claude", CallBudgetUsd: 0.5, RequestBudget: 1.0, MaxTurns: 8, MaxProbes: 4, MaxFixes: 2, CallTimeoutMs: 90000, Concurrency: 2, DataMode: "pseudonymized", MaxOutputTokens: 8192, CoverageCheck: true}
@@ -292,7 +302,7 @@ func ParseConfig(raw any, dir, home string) (cfg Config, err error) {
 	if v, ok := get(root, "run"); ok {
 		r = obj(v, ".run")
 	}
-	onlyKeys(r, []string{"heapLimitMb"}, ".run")
+	onlyKeys(r, []string{"heapLimitMb", "queryTimeoutMs", "backgroundQueryTimeoutMs"}, ".run")
 	s := jsjson.Object{}
 	if v, ok := get(root, "server"); ok {
 		s = obj(v, ".server")
@@ -335,6 +345,13 @@ func ParseConfig(raw any, dir, home string) (cfg Config, err error) {
 	cfg.HeapLimitMb = 2048
 	if v, ok := get(r, "heapLimitMb"); ok {
 		cfg.HeapLimitMb = int(num(v, ".run.heapLimitMb", true, 64, false))
+	}
+	cfg.QueryTimeoutMs, cfg.BackgroundQueryTimeoutMs = DefaultQueryTimeoutMs, DefaultBackgroundQueryTimeoutMs
+	if v, ok := get(r, "queryTimeoutMs"); ok {
+		cfg.QueryTimeoutMs = int(num(v, ".run.queryTimeoutMs", true, 1, false))
+	}
+	if v, ok := get(r, "backgroundQueryTimeoutMs"); ok {
+		cfg.BackgroundQueryTimeoutMs = int(num(v, ".run.backgroundQueryTimeoutMs", true, 1, false))
 	}
 	cfg.Server = Server{Port: 4170, Auth: auth, PublicOrigin: publicOrigin, ProxyHops: 1, AuditRetentionDays: 90}
 	if v, ok := get(s, "port"); ok {
@@ -707,6 +724,13 @@ func (c Config) JS() jsjson.Object {
 	if !a.CoverageCheck {
 		agent = append(agent, jsjson.Member{Key: "coverageCheck", Value: false})
 	}
+	run := jsjson.Object{{Key: "heapLimitMb", Value: c.HeapLimitMb}}
+	if c.QueryTimeoutMs != DefaultQueryTimeoutMs {
+		run = append(run, jsjson.Member{Key: "queryTimeoutMs", Value: c.QueryTimeoutMs})
+	}
+	if c.BackgroundQueryTimeoutMs != DefaultBackgroundQueryTimeoutMs {
+		run = append(run, jsjson.Member{Key: "backgroundQueryTimeoutMs", Value: c.BackgroundQueryTimeoutMs})
+	}
 	var g any
 	if c.GA4 != nil {
 		g = c.GA4.JS()
@@ -714,7 +738,7 @@ func (c Config) JS() jsjson.Object {
 	return jsjson.Object{
 		{Key: "name", Value: c.Name}, {Key: "language", Value: c.Language}, {Key: "datasource", Value: ds},
 		{Key: "policy", Value: jsjson.Object{{Key: "readablePrefixes", Value: c.ReadablePrefixes}, {Key: "panelReadablePrefixes", Value: c.PanelPrefixes}}},
-		{Key: "params", Value: c.Params}, {Key: "agent", Value: agent}, {Key: "run", Value: jsjson.Object{{Key: "heapLimitMb", Value: c.HeapLimitMb}}},
+		{Key: "params", Value: c.Params}, {Key: "agent", Value: agent}, {Key: "run", Value: run},
 		{Key: "server", Value: jsjson.Object{{Key: "port", Value: c.Server.Port}, {Key: "auth", Value: c.Server.Auth}, {Key: "publicOrigin", Value: ptr(c.Server.PublicOrigin)}, {Key: "proxyHops", Value: c.Server.ProxyHops}, {Key: "auditRetentionDays", Value: c.Server.AuditRetentionDays}}},
 		{Key: "outDir", Value: c.OutDir}, {Key: "ga4", Value: g},
 	}

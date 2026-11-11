@@ -17,6 +17,7 @@ import (
 	"growth-lab/internal/quality"
 	"growth-lab/internal/query"
 	"growth-lab/internal/snapshot"
+	"growth-lab/internal/workspace"
 )
 
 // Conflict is a 409 error.
@@ -429,6 +430,15 @@ func (s *PanelService) Cancel(id string) (string, error) {
 	return "", &Conflict{i18n.Tr("No recompute is running or queued", "진행 중이거나 대기 중인 재계산이 없어요")}
 }
 
+// queryTimeout is the per-query limit of a slot kind: background jobs get the longer one.
+func queryTimeout(cfg workspace.Config, kind query.SlotKind) time.Duration {
+	ms := cfg.QueryTimeoutMs
+	if kind == query.Background {
+		ms = cfg.BackgroundQueryTimeoutMs
+	}
+	return time.Duration(ms) * time.Millisecond
+}
+
 func (s *PanelService) runOn(spec panels.Spec, real, agentPath, asOf string, kind query.SlotKind, ctx context.Context) panels.RunResult {
 	cfg := s.app.WS.Config
 	dict, _, err := s.app.Metrics()
@@ -438,7 +448,7 @@ func (s *PanelService) runOn(spec panels.Spec, real, agentPath, asOf string, kin
 	var r panels.RunResult
 	err = s.app.Slots.Run(ctx, kind, func(l *query.SlotLease) error {
 		r = panels.Run(panels.RunInput{Spec: spec, RealPath: real, AgentPath: agentPath, AsOf: asOf, Params: cfg.Params, PanelPrefix: cfg.PanelPrefixes,
-			Metrics: dict, Blocked: s.app.Blocked(), HeapLimitMb: float64(cfg.HeapLimitMb), Roles: s.app.Roles, Lease: l, Ctx: ctx})
+			Metrics: dict, Blocked: s.app.Blocked(), HeapLimitMb: float64(cfg.HeapLimitMb), Roles: s.app.Roles, Lease: l, Ctx: ctx, Timeout: queryTimeout(cfg, kind)})
 		return nil
 	})
 	if err != nil {
@@ -725,7 +735,7 @@ func (s *PanelService) runQuality(ctx context.Context) {
 			var r query.Result
 			if e := s.app.Slots.Run(ctx, query.Background, func(l *query.SlotLease) error {
 				r = query.RunQuery(query.Request{Lease: l, SQL: c.SQL, Path: snap.Real, Mode: query.Panel, AsOf: snap.AsOf, Params: cfg.Params, ReadablePrefixes: readable,
-					Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx})
+					Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx, Timeout: queryTimeout(cfg, query.Background)})
 				return nil
 			}); e != nil {
 				break

@@ -424,7 +424,8 @@ func Run(ws *workspace.Workspace, o Options) (*Report, error) {
 		}
 		var r query.Result
 		if err := slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
-			r = query.RunQuery(query.Request{Lease: l, SQL: c.SnapshotSQL, Path: cur.File, Mode: query.Panel, AsOf: asOf, Params: params, ReadablePrefixes: prefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx})
+			r = query.RunQuery(query.Request{Lease: l, SQL: c.SnapshotSQL, Path: cur.File, Mode: query.Panel, AsOf: asOf, Params: params, ReadablePrefixes: prefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx,
+				Timeout: time.Duration(cfg.BackgroundQueryTimeoutMs) * time.Millisecond})
 			return nil
 		}); err != nil {
 			return nil, ErrCancelled

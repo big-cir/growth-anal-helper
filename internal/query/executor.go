@@ -11,11 +11,13 @@ import (
 	"regexp"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 	"unicode/utf16"
 	"unicode/utf8"
 
+	"growth-lab/internal/i18n"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/sqllint"
 )
@@ -64,6 +66,8 @@ type Request struct {
 	Blocked          *BlockedList
 	HeapLimitMb      float64
 	Ctx              context.Context
+	// Timeout limits one run, counted after the slot is held; zero means no limit
+	Timeout time.Duration
 }
 
 // ResultColumn is a result column; Table and Column are nil for expressions.
@@ -79,7 +83,7 @@ type Tagged struct {
 	Value any
 }
 
-// Result is a query result; on failure Kind is lint, sqlite, type, limit, input, cancelled, crash or sensitive.
+// Result is a query result; on failure Kind is lint, sqlite, type, limit, input, cancelled, timeout, crash or sensitive.
 type Result struct {
 	OK             bool
 	Columns        []ResultColumn
@@ -132,6 +136,10 @@ func RunQuery(req Request) Result {
 var oomRE = regexp.MustCompile(`(?i)out of memory|heap`)
 
 func runWithLease(req Request) Result {
+	var deadline time.Time
+	if req.Timeout > 0 {
+		deadline = time.Now().Add(req.Timeout)
+	}
 	ctx := req.Ctx
 	if ctx == nil {
 		ctx = context.Background()
@@ -200,6 +208,14 @@ func runWithLease(req Request) Result {
 	killGroup := func() { once.Do(func() { _ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }) }
 	stop := context.AfterFunc(ctx, killGroup)
 	defer stop()
+	var timedOut atomic.Bool
+	if !deadline.IsZero() {
+		timer := time.AfterFunc(time.Until(deadline), func() {
+			timedOut.Store(true)
+			killGroup()
+		})
+		defer timer.Stop()
+	}
 
 	var out bytes.Buffer
 	var pending *Result
@@ -224,8 +240,11 @@ func runWithLease(req Request) Result {
 	if pending != nil {
 		return *pending
 	}
-	if ctx.Err() != nil {
+	switch stopKind(ctx.Err() != nil, timedOut.Load(), werr == nil) {
+	case "cancelled":
 		return failed("cancelled", "cancelled")
+	case "timeout":
+		return failed("timeout", TimeoutMessage(req.Timeout))
 	}
 	if werr != nil {
 		var ee *exec.ExitError
@@ -284,6 +303,25 @@ func runWithLease(req Request) Result {
 		r.Tables = []string{}
 	}
 	return r
+}
+
+// stopKind reports a stopped worker: a cancel wins over the deadline, and a worker that exited cleanly keeps its result.
+func stopKind(cancelled, timedOut, exitedOK bool) string {
+	switch {
+	case cancelled:
+		return "cancelled"
+	case timedOut && !exitedOK:
+		return "timeout"
+	}
+	return ""
+}
+
+// Seconds formats a limit in seconds ("60", "0.3").
+func Seconds(d time.Duration) string { return strconv.FormatFloat(d.Seconds(), 'f', -1, 64) }
+
+// TimeoutMessage is the user-facing message of a query stopped at its time limit.
+func TimeoutMessage(d time.Duration) string {
+	return i18n.Tr("Query did not finish within the time limit ("+Seconds(d)+"s)", "시간 제한("+Seconds(d)+"초) 안에 쿼리가 끝나지 않았어요")
 }
 
 // limitedText keeps the first 4096 characters of the worker's stderr.

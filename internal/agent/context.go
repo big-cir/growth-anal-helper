@@ -9,6 +9,7 @@ import (
 	"growth-lab/internal/assets"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
+	"growth-lab/internal/query"
 	"growth-lab/internal/sqlitec"
 )
 
@@ -80,7 +81,7 @@ func SnapshotSchema(agentPath string, readablePrefixes, panelPrefixes []string, 
 	}
 	tables := []string{}
 	for _, r := range rows {
-		if hasPrefix(r[0].Text, readablePrefixes) {
+		if hasPrefix(r[0].Text, readablePrefixes) && !query.SystemTable(r[0].Text) {
 			tables = append(tables, r[0].Text)
 		}
 	}

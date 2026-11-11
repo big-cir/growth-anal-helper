@@ -238,7 +238,7 @@ function offdictCard(ev) {
 function failedStep(ev) {
   const reasons = {
     turn_limit: tr('call limit', '호출 한도'), probe_limit: tr('probe limit', '탐색 한도'), fix_limit: tr('fix limit', '수정 한도'), request_budget: tr('request limit', '요청 한도'), call_budget: tr('call limit', '호출 한도'),
-    isolation: tr('isolation check failed', '격리 점검 실패'), timeout: tr('timeout', '시간 초과'), process: tr('process error', '실행 오류'), rate_limit: tr('API limit', 'API 제한'), resume: tr('session resume failed', '세션 복구 실패'),
+    isolation: tr('isolation check failed', '격리 점검 실패'), timeout: tr('timeout', '시간 초과'), query_timeout: tr('query timeout', '쿼리 시간 초과'), process: tr('process error', '실행 오류'), rate_limit: tr('API limit', 'API 제한'), resume: tr('session resume failed', '세션 복구 실패'),
     schema: tr('response format error', '응답 형식 오류'), error: tr('error', '오류'), outbound_blocked: tr('blocked before sending', '전송 차단'), server_restart: tr('server restart', '서버 재시작'), unavailable: tr('unavailable', '사용할 수 없음'),
   };
   const node = step('fail', '!', `<b>${tr('Request failed', '요청 실패')}</b> <span class="muted">(${esc(reasons[ev.data.reason] ?? ev.data.reason)})</span><div class="msgline">${esc(ev.data.message)}</div><div class="retry"><button type="button" class="btn sm" data-a="retry">${tr('Try again', '다시 시도')}</button><button type="button" class="btn sm" data-a="new">${tr('New conversation', '새 대화로')}</button></div>`);

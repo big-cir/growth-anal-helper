@@ -140,6 +140,11 @@ func reusedWord(reused bool) string {
 	return "finalized"
 }
 
+// printAnalyze prints how long ANALYZE took on the two query files.
+func printAnalyze(r snapshot.Result) {
+	fmt.Printf("ANALYZE: real %.2fs, pseudonymized %.2fs\n", r.AnalyzeReal.Seconds(), r.AnalyzeAgent.Seconds())
+}
+
 func pipelineCmd(cmd string) (int, error) {
 	ws, err := loadWorkspace()
 	if err != nil {
@@ -158,12 +163,14 @@ func pipelineCmd(cmd string) (int, error) {
 		if err != nil {
 			return 1, err
 		}
+		printAnalyze(r)
 		fmt.Printf("Snapshot %s: %s\n", reusedWord(r.Reused), r.SnapshotID)
 	case "derive":
 		r, err := snapshot.RunDerive(ws)
 		if err != nil {
 			return 1, err
 		}
+		printAnalyze(r)
 		fmt.Printf("Snapshot %s: %s\n", reusedWord(r.Reused), r.SnapshotID)
 	case "test-derived":
 		results, err := snapshot.RunTestDerived(ws)
@@ -326,6 +333,7 @@ func demoCmd(args []string) (int, error) {
 	if err != nil {
 		return 1, err
 	}
+	printAnalyze(r)
 	fmt.Printf("Snapshot %s: %s\n", reusedWord(r.Reused), r.SnapshotID)
 	return serve(ws, args)
 }

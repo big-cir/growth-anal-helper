@@ -38,6 +38,7 @@ var usage = `Usage: growth-lab <command>
   eval [--runs N] [--blind] [--case ID|--tag T] [--model M] [--max-cost-usd X] [--seed N]
                           Run the eval cases (workspace eval/cases) and save a report
   eval check | eval freeze [--case ID] | eval compare <before.json> <after.json>
+  eval --help             The eval options (needs no workspace)
   trace [--days N]        Step timings, cache hits and failures of web requests (default: last 7 days)
   verify [--week DATE]    Cross-check with the source (workspace verify.json; default: the Monday week 5 weeks before the cutoff)
   public-check [--history] [--require-denylist]

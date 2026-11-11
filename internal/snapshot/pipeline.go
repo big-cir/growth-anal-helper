@@ -232,6 +232,10 @@ func RunDerive(ws *workspace.Workspace) (Result, error) {
 				return Meta{}, err
 			}
 		}
+		// derived.sql runs without statistics as in collect; dropping a d_ table would otherwise delete stat rows it may not touch
+		if err := db.Exec("DROP TABLE IF EXISTS sqlite_stat1; DROP TABLE IF EXISTS sqlite_stat4"); err != nil {
+			return Meta{}, err
+		}
 		return Meta{m[0].(string), m[1].(string), m[2].(string)}, nil
 	}()
 	if err != nil {

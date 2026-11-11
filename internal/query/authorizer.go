@@ -42,13 +42,18 @@ type Blocked struct {
 	Columns, Tables map[string]bool
 }
 
+// SystemTable reports SQLite's own tables (sqlite_ names, any case), which are never readable whatever the prefixes.
+func SystemTable(name string) bool {
+	return strings.HasPrefix(strings.ToLower(name), "sqlite_")
+}
+
 // Authorizer allows reads of tables with a readable prefix and the allowed functions only.
 // Denied reads return IGNORE so preparation continues; the caller rejects the query before running it by checking seen.
 // cteOnly: WITH names (lowercase) that are not real schema objects. count(*) over a materialized WITH result makes
 // SQLite report a read of that name with column "" and DB NULL; it is not a real table, so it passes.
 func Authorizer(readablePrefixes []string, seen *Seen, blocked Blocked, cteOnly map[string]bool) sqlitec.AuthFunc {
 	readable := func(t *string) bool {
-		if t == nil {
+		if t == nil || SystemTable(*t) {
 			return false
 		}
 		for _, p := range readablePrefixes {

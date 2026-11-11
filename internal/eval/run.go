@@ -14,6 +14,7 @@ import (
 
 	"growth-lab/internal/agent"
 	"growth-lab/internal/jsjson"
+	"growth-lab/internal/jsstr"
 	"growth-lab/internal/server"
 	"growth-lab/internal/trace"
 	"growth-lab/internal/workspace"
@@ -267,11 +268,50 @@ func Run(ws *workspace.Workspace, o Options) (Report, string, error) {
 	if len(cases) == 0 {
 		return Report{}, "", &Error{"no cases match"}
 	}
+	// cases without a fixture on this snapshot get one from their reference now; existing fixtures are left as they are
+	var missing []*Case
+	for _, c := range cases {
+		if c.Reference == nil {
+			continue
+		}
+		f, err := ReadFixture(a, snap.ID, c.ID)
+		if err != nil {
+			return Report{}, "", err
+		}
+		if f == nil {
+			missing = append(missing, c)
+		}
+	}
+	var autoFrozen []AutoFrozen
+	freezeFailed := map[string]string{}
+	if len(missing) > 0 {
+		results, err := freezeCases(a, missing, "auto")
+		if err != nil {
+			return Report{}, "", err
+		}
+		var ids []string
+		for i, r := range results {
+			if !r.OK {
+				freezeFailed[r.ID] = "no fixture and the automatic freeze failed: " + r.Message
+				continue
+			}
+			autoFrozen = append(autoFrozen, AutoFrozen{r.ID, missing[i].Reference.Hash})
+			ids = append(ids, r.ID)
+		}
+		if len(ids) > 0 {
+			log("warning: no fixture on this snapshot, made from the reference now (check them): " + strings.Join(ids, ", "))
+		}
+	}
+
 	fixtures := map[string]*Fixture{}
 	var stale []StaleCase
 	var ready []*Case
 	for _, c := range cases {
 		if c.Reference != nil {
+			if why, ok := freezeFailed[c.ID]; ok {
+				stale = append(stale, StaleCase{c.ID, why})
+				continue
+			}
 			f, err := ReadFixture(a, snap.ID, c.ID)
 			if err != nil {
 				return Report{}, "", err
@@ -295,7 +335,7 @@ func Run(ws *workspace.Workspace, o Options) (Report, string, error) {
 		mode = "blind"
 	}
 	cv := a.ContextVersion(snap)
-	systemPrompt, err := a.SystemPrompt(snap, cv, o.Blind, Today(snap))
+	systemPrompt, seeds, err := a.SystemPromptSeeds(snap, cv, o.Blind, Today(snap))
 	if err != nil {
 		return Report{}, "", err
 	}
@@ -364,7 +404,8 @@ func Run(ws *workspace.Workspace, o Options) (Report, string, error) {
 	created := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
 	rep := Report{
 		Meta: Meta{CreatedAt: created, Workspace: ws.Config.Name, Provider: cfg.Provider, Model: cfg.Model, ContextMode: mode, ContextVersion: server.ContextJS(cv), SnapshotID: snap.ID, Env: env,
-			Runs: runs, Seed: seed, Order: done, GitCommit: gitCommit(), MaxCostUSD: o.MaxCostUSD, CostUSD: cost, Aborted: aborted, Stale: stale},
+			Runs: runs, Seed: seed, Order: done, GitCommit: gitCommit(), MaxCostUSD: o.MaxCostUSD, CostUSD: cost, Aborted: aborted, Stale: stale, AutoFrozen: autoFrozen,
+			SystemPromptChars: jsstr.U16Len(systemPrompt), SeedsInPrompt: seeds},
 		Cases:   caseReports,
 		Summary: Summarize(caseReports, cost),
 	}

@@ -235,6 +235,8 @@ type CaseReport struct {
 	Successes      int
 	Runs           []GradedRun
 	State          string
+	// share of runs verified by the machine, and share of successes (unreviewed ones included)
+	VerifiedRate, SuccessRate float64
 }
 
 func successMeasure(c *Case) string {
@@ -247,13 +249,20 @@ func successMeasure(c *Case) string {
 // BuildCaseReport counts successes and the case state.
 func BuildCaseReport(c *Case, runs []GradedRun) CaseReport {
 	m := successMeasure(c)
-	n := 0
+	n, v := 0, 0
 	for _, g := range runs {
+		if g.Verdict == "verified" {
+			v++
+		}
 		if g.Verdict == "verified" || (m == "unreviewed" && g.Verdict == "unreviewed") {
 			n++
 		}
 	}
-	return CaseReport{Case: c, SuccessMeasure: m, Successes: n, Runs: runs, State: CaseState(n, len(runs))}
+	r := CaseReport{Case: c, SuccessMeasure: m, Successes: n, Runs: runs, State: CaseState(n, len(runs))}
+	if len(runs) > 0 {
+		r.VerifiedRate, r.SuccessRate = float64(v)/float64(len(runs)), float64(n)/float64(len(runs))
+	}
+	return r
 }
 
 // JS is the case as the report stores it.
@@ -263,7 +272,8 @@ func (c CaseReport) JS() jsjson.Object {
 		runs[i] = g.JS()
 	}
 	return jsjson.Object{{Key: "id", Value: c.Case.ID}, {Key: "kind", Value: c.Case.Kind}, {Key: "tags", Value: c.Case.Tags}, {Key: "note", Value: sp(c.Case.Note)},
-		{Key: "success_measure", Value: c.SuccessMeasure}, {Key: "successes", Value: c.Successes}, {Key: "runs", Value: runs}, {Key: "state", Value: c.State}}
+		{Key: "success_measure", Value: c.SuccessMeasure}, {Key: "successes", Value: c.Successes}, {Key: "runs", Value: runs}, {Key: "state", Value: c.State},
+		{Key: "verified_rate", Value: c.VerifiedRate}, {Key: "success_rate", Value: c.SuccessRate}}
 }
 
 // Summary totals a report.
@@ -275,6 +285,47 @@ type Summary struct {
 	ReviewNeeded                  []Review
 	MedianMs, MedianTurns         *float64
 	CostUSD                       float64
+	// means of the per-case rates, so every case weighs the same; nil without cases
+	VerifiedRate, SuccessRate *float64
+	ByTag                     []TagRates
+}
+
+// TagRates are the rates of the cases with one tag.
+type TagRates struct {
+	Tag                       string
+	Cases                     int
+	VerifiedRate, SuccessRate float64
+}
+
+// meanRates are the mean verified and success rates of (verified, success) pairs.
+func meanRates(pairs [][2]float64) (verified, success float64) {
+	for _, p := range pairs {
+		verified += p[0]
+		success += p[1]
+	}
+	n := float64(len(pairs))
+	return verified / n, success / n
+}
+
+// tagRates groups (tags, rates) by tag; a case with two tags counts in both.
+func tagRates(tags [][]string, rates [][2]float64) []TagRates {
+	by := map[string][][2]float64{}
+	var names []string
+	for i, ts := range tags {
+		for _, t := range ts {
+			if _, ok := by[t]; !ok {
+				names = append(names, t)
+			}
+			by[t] = append(by[t], rates[i])
+		}
+	}
+	sort.Strings(names)
+	out := make([]TagRates, len(names))
+	for i, t := range names {
+		v, s := meanRates(by[t])
+		out[i] = TagRates{t, len(by[t]), v, s}
+	}
+	return out
 }
 
 // NamedCount is one failure code and how often it occurred, in first-seen order.
@@ -364,6 +415,16 @@ func Summarize(cases []CaseReport, cost float64) Summary {
 		}
 	}
 	s.MedianMs, s.MedianTurns = median(ms), median(turns)
+	if len(cases) > 0 {
+		tags := make([][]string, len(cases))
+		rates := make([][2]float64, len(cases))
+		for i, c := range cases {
+			tags[i], rates[i] = c.Case.Tags, [2]float64{c.VerifiedRate, c.SuccessRate}
+		}
+		v, sr := meanRates(rates)
+		s.VerifiedRate, s.SuccessRate = &v, &sr
+		s.ByTag = tagRates(tags, rates)
+	}
 	return s
 }
 
@@ -392,9 +453,14 @@ func (s Summary) JS() jsjson.Object {
 	for i, r := range s.ReviewNeeded {
 		review[i] = jsjson.Object{{Key: "case_id", Value: r.CaseID}, {Key: "run", Value: r.Run}, {Key: "what", Value: r.What}}
 	}
+	byTag := jsjson.Object{}
+	for _, t := range s.ByTag {
+		byTag = append(byTag, jsjson.Member{Key: t.Tag, Value: jsjson.Object{{Key: "cases", Value: t.Cases}, {Key: "verified_rate", Value: t.VerifiedRate}, {Key: "success_rate", Value: t.SuccessRate}}})
+	}
 	return jsjson.Object{{Key: "states", Value: counts(s.States, stateNames)}, {Key: "states_without_near_seed", Value: counts(s.StatesWithoutNearSeed, stateNames)},
 		{Key: "verdicts", Value: counts(s.Verdicts, verdictNames)}, {Key: "failure_codes", Value: fc}, {Key: "safety_blocks", Value: s.SafetyBlocks}, {Key: "review_needed", Value: review},
-		{Key: "median_ms", Value: optNum(s.MedianMs)}, {Key: "median_turns", Value: optNum(s.MedianTurns)}, {Key: "cost_usd", Value: s.CostUSD}}
+		{Key: "median_ms", Value: optNum(s.MedianMs)}, {Key: "median_turns", Value: optNum(s.MedianTurns)}, {Key: "cost_usd", Value: s.CostUSD},
+		{Key: "verified_rate", Value: optNum(s.VerifiedRate)}, {Key: "success_rate", Value: optNum(s.SuccessRate)}, {Key: "by_tag", Value: byTag}}
 }
 
 // Meta is the report's settings.
@@ -415,7 +481,14 @@ type Meta struct {
 	CostUSD        float64
 	Aborted        string // "", budget, interrupted
 	Stale          []StaleCase
+	AutoFrozen     []AutoFrozen
+	// length of the system prompt (UTF-16 units, as the context limit counts) and seed panels left in it
+	SystemPromptChars int
+	SeedsInPrompt     int
 }
+
+// AutoFrozen is a fixture this run made because the snapshot had none.
+type AutoFrozen struct{ ID, ReferenceHash string }
 
 // OrderItem is one run in the shuffled order.
 type OrderItem struct {
@@ -444,6 +517,10 @@ func (r Report) JS() jsjson.Object {
 	for i, s := range m.Stale {
 		stale[i] = jsjson.Object{{Key: "id", Value: s.ID}, {Key: "reason", Value: s.Reason}}
 	}
+	auto := make([]any, len(m.AutoFrozen))
+	for i, x := range m.AutoFrozen {
+		auto[i] = jsjson.Object{{Key: "id", Value: x.ID}, {Key: "reference_hash", Value: x.ReferenceHash}}
+	}
 	var aborted any
 	if m.Aborted != "" {
 		aborted = m.Aborted
@@ -451,7 +528,8 @@ func (r Report) JS() jsjson.Object {
 	meta := jsjson.Object{{Key: "created_at", Value: m.CreatedAt}, {Key: "workspace", Value: m.Workspace}, {Key: "provider", Value: m.Provider}, {Key: "model", Value: sp(m.Model)},
 		{Key: "context_mode", Value: m.ContextMode}, {Key: "context_version", Value: m.ContextVersion}, {Key: "snapshot_id", Value: m.SnapshotID}, {Key: "env", Value: m.Env},
 		{Key: "runs", Value: m.Runs}, {Key: "seed", Value: m.Seed}, {Key: "order", Value: order}, {Key: "git_commit", Value: sp(m.GitCommit)}, {Key: "max_cost_usd", Value: optNum(m.MaxCostUSD)},
-		{Key: "cost_usd", Value: m.CostUSD}, {Key: "aborted", Value: aborted}, {Key: "stale", Value: stale}}
+		{Key: "cost_usd", Value: m.CostUSD}, {Key: "aborted", Value: aborted}, {Key: "stale", Value: stale}, {Key: "auto_frozen", Value: auto},
+		{Key: "system_prompt_chars", Value: m.SystemPromptChars}, {Key: "seeds_in_prompt", Value: m.SeedsInPrompt}}
 	cases := make([]any, len(r.Cases))
 	for i, c := range r.Cases {
 		cases[i] = c.JS()
@@ -482,6 +560,10 @@ func ConsoleSummary(rep Report) []string {
 	w := 10
 	for _, c := range rep.Cases {
 		w = max(w, len([]rune(c.Case.ID)))
+	}
+	auto := map[string]bool{}
+	for _, x := range m.AutoFrozen {
+		auto[x.ID] = true
 	}
 	for _, c := range rep.Cases {
 		n := len(c.Runs)
@@ -526,6 +608,9 @@ func ConsoleSummary(rep Report) []string {
 			line += fmt.Sprintf("  workaround %d", extra)
 		}
 		line += fmt.Sprintf("  %ds  %s", round(md/1000), strings.Join(parts, ", "))
+		if auto[c.Case.ID] {
+			line += "  [fixture made by this run]"
+		}
 		lines = append(lines, strings.TrimRightFunc(line, jsstr.IsSpace))
 	}
 	for _, st := range m.Stale {
@@ -534,6 +619,9 @@ func ConsoleSummary(rep Report) []string {
 	st, ns := s.States, s.StatesWithoutNearSeed
 	if m.Runs > 1 {
 		lines = append(lines, fmt.Sprintf("cases: stable success %d · unstable %d · stable failure %d   (without near_seed: %d · %d · %d)", st["stable_success"], st["unstable"], st["stable_failure"], ns["stable_success"], ns["unstable"], ns["stable_failure"]))
+	}
+	if s.VerifiedRate != nil {
+		lines = append(lines, fmt.Sprintf("pass rate (mean per case): verified %s · success %s", pct(*s.VerifiedRate), pct(*s.SuccessRate)))
 	}
 	v := s.Verdicts
 	lines = append(lines, fmt.Sprintf("runs (this case set only): verified %d · unreviewed %d · workaround %d · failed %d · review needed %d", v["verified"], v["unreviewed"], v["workaround"], v["failed"], len(s.ReviewNeeded)))
@@ -572,6 +660,8 @@ func ConsoleSummary(rep Report) []string {
 	return lines
 }
 
+func pct(x float64) string { return trace.ToFixed(x*100, 1) + "%" }
+
 func addCount(xs []NamedCount, name string) []NamedCount {
 	for i := range xs {
 		if xs[i].Name == name {
@@ -592,12 +682,39 @@ type StoredReport struct {
 		ContextVersion map[string]string `json:"context_version"`
 		SnapshotID     string            `json:"snapshot_id"`
 	} `json:"meta"`
-	Cases []struct {
-		ID        string            `json:"id"`
-		Successes float64           `json:"successes"`
-		Runs      []json.RawMessage `json:"runs"`
-		State     string            `json:"state"`
-	} `json:"cases"`
+	Cases []StoredCase `json:"cases"`
+}
+
+// StoredCase is one case of a report file; the rates are missing in older reports.
+type StoredCase struct {
+	ID           string            `json:"id"`
+	Tags         []string          `json:"tags"`
+	Successes    float64           `json:"successes"`
+	Runs         []json.RawMessage `json:"runs"`
+	State        string            `json:"state"`
+	VerifiedRate *float64          `json:"verified_rate"`
+	SuccessRate  *float64          `json:"success_rate"`
+}
+
+// rates are the stored rates, or for older reports successes/runs and the share of verified runs.
+func (c StoredCase) rates() [2]float64 {
+	if c.VerifiedRate != nil && c.SuccessRate != nil {
+		return [2]float64{*c.VerifiedRate, *c.SuccessRate}
+	}
+	if len(c.Runs) == 0 {
+		return [2]float64{}
+	}
+	v := 0
+	for _, raw := range c.Runs {
+		var r struct {
+			Verdict string `json:"verdict"`
+		}
+		if json.Unmarshal(raw, &r) == nil && r.Verdict == "verified" {
+			v++
+		}
+	}
+	n := float64(len(c.Runs))
+	return [2]float64{float64(v) / n, c.Successes / n}
 }
 
 // ParseStoredReport reads a report file's JSON.
@@ -710,6 +827,7 @@ func CompareReports(a, b *StoredReport) ([]string, string, error) {
 		}
 	}
 	lines = append(lines, fmt.Sprintf("unchanged: %d", same))
+	lines = append(lines, rateLines(a, b)...)
 	verdict := "ok"
 	switch {
 	case toFailure > 0:
@@ -722,6 +840,49 @@ func CompareReports(a, b *StoredReport) ([]string, string, error) {
 		lines = append(lines, "no regression by the v0 rules")
 	}
 	return lines, verdict, nil
+}
+
+// rateLines compare the pass rates over the cases both reports have, overall and per tag (tags of the second report).
+func rateLines(a, b *StoredReport) []string {
+	before := map[string]StoredCase{}
+	for _, c := range a.Cases {
+		before[c.ID] = c
+	}
+	var tags [][]string
+	var ra, rb [][2]float64
+	inB := map[string]bool{}
+	for _, c := range b.Cases {
+		inB[c.ID] = true
+		p, ok := before[c.ID]
+		if !ok {
+			continue
+		}
+		tags, ra, rb = append(tags, c.Tags), append(ra, p.rates()), append(rb, c.rates())
+	}
+	only := len(b.Cases) - len(rb)
+	for _, c := range a.Cases {
+		if !inB[c.ID] {
+			only++
+		}
+	}
+	if len(rb) == 0 {
+		return []string{"pass rate: no case in both reports"}
+	}
+	change := func(x, y [2]float64) string {
+		return fmt.Sprintf("verified %s → %s · success %s → %s", pct(x[0]), pct(y[0]), pct(x[1]), pct(y[1]))
+	}
+	va, sa := meanRates(ra)
+	vb, sb := meanRates(rb)
+	line := fmt.Sprintf("pass rate (%d shared case(s)): %s", len(rb), change([2]float64{va, sa}, [2]float64{vb, sb}))
+	if only > 0 {
+		line += fmt.Sprintf(" · %d case(s) in one report only, left out", only)
+	}
+	out := []string{line}
+	ta, tb := tagRates(tags, ra), tagRates(tags, rb)
+	for i := range tb {
+		out = append(out, fmt.Sprintf("  tag %s (%d): %s", tb[i].Tag, tb[i].Cases, change([2]float64{ta[i].VerifiedRate, ta[i].SuccessRate}, [2]float64{tb[i].VerifiedRate, tb[i].SuccessRate})))
+	}
+	return out
 }
 
 func short(s string) string {

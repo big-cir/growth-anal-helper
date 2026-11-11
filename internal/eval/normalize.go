@@ -6,7 +6,9 @@ import (
 	"math/big"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 	"unicode/utf16"
 
 	"growth-lab/internal/civiltime"
@@ -227,9 +229,42 @@ func roleLayout(spec panels.Spec) (layout, error) {
 	return layout{}, fmt.Errorf("table panels are not graded")
 }
 
+var (
+	yearMonthRE = regexp.MustCompile(`^(\d{4})-?(0[1-9]|1[0-2])$`)
+	isoWeekRE   = regexp.MustCompile(`^(\d{4})(?:-W)?(\d{2})$`)
+)
+
+// isoWeekMonday reads an ISO week (YYYYWW or YYYY-Www, weeks start on Monday) as the date of its Monday.
+func isoWeekMonday(s string) (string, bool) {
+	m := isoWeekRE.FindStringSubmatch(s)
+	if m == nil {
+		return "", false
+	}
+	y, _ := strconv.Atoi(m[1])
+	w, _ := strconv.Atoi(m[2])
+	// January 4 is always in week 1
+	jan4 := time.Date(y, time.January, 4, 0, 0, 0, 0, time.UTC)
+	mon := jan4.AddDate(0, 0, 7*(w-1)-(int(jan4.Weekday())+6)%7)
+	if iy, iw := mon.ISOWeek(); iy != y || iw != w {
+		return "", false
+	}
+	return mon.Format("2006-01-02"), true
+}
+
+// timeKey buckets a time key by grain. Week keys may also be ISO weeks and month keys YYYY-MM or YYYYMM.
 func timeKey(v Cell, grain, role string) (Cell, error) {
 	if v == nil {
 		return nil, nil
+	}
+	switch {
+	case grain == "month":
+		if m := yearMonthRE.FindStringSubmatch(*v); m != nil {
+			return ptr(m[1] + "-" + m[2]), nil
+		}
+	case grain == "week":
+		if d, ok := isoWeekMonday(*v); ok {
+			return ptr(d), nil
+		}
 	}
 	ts, err := civiltime.Normalize(*v)
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"growth-lab/internal/civiltime"
 	"growth-lab/internal/collect"
@@ -454,11 +455,13 @@ func ReadMetaHashes(path string) *MetaHashes {
 	return &MetaHashes{s(r[0]), s(r[1]), s(r[2]), s(r[3]), s(r[4]), s(r[5])}
 }
 
-// Result is a finalized snapshot.
+// Result is a finalized snapshot; AnalyzeReal and AnalyzeAgent are the ANALYZE times of the two query files.
 type Result struct {
-	SnapshotID string
-	Reused     bool
-	Files      Files
+	SnapshotID   string
+	Reused       bool
+	Files        Files
+	AnalyzeReal  time.Duration
+	AnalyzeAgent time.Duration
 }
 
 // FinalizeOptions: FailAt forces a failure at a stage (tests).
@@ -489,6 +492,7 @@ func Finalize(o FinalizeOptions) (res Result, err error) {
 	}()
 	var id string
 	var roles *collect.Roles
+	var analyzeReal, analyzeAgent time.Duration
 	err = func() error {
 		db, err := sqlitec.Open(o.TmpPath, false)
 		if err != nil {
@@ -513,6 +517,13 @@ func Finalize(o FinalizeOptions) (res Result, err error) {
 			return &FinalizeError{"forced failure (build)"}
 		}
 		id, roles, err = build(db, o.Inputs, o.Meta)
+		if err != nil {
+			return err
+		}
+		if o.FailAt == "analyze" {
+			return &FinalizeError{"forced failure (analyze)"}
+		}
+		analyzeReal, err = analyze(db)
 		return err
 	}()
 	if err != nil {
@@ -524,20 +535,45 @@ func Finalize(o FinalizeOptions) (res Result, err error) {
 	if _, err = Pseudonymize(o.TmpPath, tmpAgent, tmpMap, roles); err != nil {
 		return res, err
 	}
+	if o.FailAt == "analyze-agent" {
+		return res, &FinalizeError{"forced failure (analyze-agent)"}
+	}
+	if analyzeAgent, err = analyzeFile(tmpAgent); err != nil {
+		return res, err
+	}
 	for _, p := range []string{o.TmpPath, tmpAgent, tmpMap} {
 		if err = FsyncPath(p); err != nil {
 			return res, err
 		}
 	}
-	if o.LockHeld {
-		return place(o, id, tmpAgent, tmpMap, cleanup)
+	if !o.LockHeld {
+		release, err := AcquireLock(o.SnapshotsDir)
+		if err != nil {
+			return res, err
+		}
+		defer release()
 	}
-	release, err := AcquireLock(o.SnapshotsDir)
+	res, err = place(o, id, tmpAgent, tmpMap, cleanup)
+	res.AnalyzeReal, res.AnalyzeAgent = analyzeReal, analyzeAgent
+	return res, err
+}
+
+// analyze writes full statistics, including the sampled ones that only a zero analysis_limit produces.
+func analyze(db *sqlitec.DB) (time.Duration, error) {
+	t0 := time.Now()
+	if err := db.Exec("PRAGMA analysis_limit = 0; ANALYZE"); err != nil {
+		return 0, err
+	}
+	return time.Since(t0), nil
+}
+
+func analyzeFile(path string) (time.Duration, error) {
+	db, err := sqlitec.Open(path, false)
 	if err != nil {
-		return res, err
+		return 0, err
 	}
-	defer release()
-	return place(o, id, tmpAgent, tmpMap, cleanup)
+	defer db.Close()
+	return analyze(db)
 }
 
 func exists(p string) bool {

@@ -150,7 +150,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			var r query.Result
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
 				r = query.RunQuery(query.Request{Lease: l, SQL: sql, Path: snap.Agent, Mode: query.Probe, AsOf: snap.AsOf, Today: in.Today, Params: a.QueryParams(snap),
-					ReadablePrefixes: cfg.ReadablePrefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx})
+					ReadablePrefixes: cfg.ReadablePrefixes, Blocked: &blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Ctx: ctx, Timeout: queryTimeout(cfg, query.Interactive)})
 				return nil
 			})
 			if err != nil {
@@ -166,7 +166,7 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 			var r panels.RunResult
 			err := a.Slots.Run(ctx, query.Interactive, func(l *query.SlotLease) error {
 				r = panels.Run(panels.RunInput{Spec: spec, RealPath: snap.Real, AgentPath: snap.Agent, AsOf: snap.AsOf, Today: in.Today, Params: a.QueryParams(snap), PanelPrefix: cfg.PanelPrefixes, Coverage: cov, Lang: a.Lang,
-					Metrics: in.Metrics, Blocked: blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Roles: a.Roles, Lease: l, Ctx: ctx})
+					Metrics: in.Metrics, Blocked: blocked, HeapLimitMb: float64(cfg.HeapLimitMb), Roles: a.Roles, Lease: l, Ctx: ctx, Timeout: queryTimeout(cfg, query.Interactive)})
 				return nil
 			})
 			if err != nil {
@@ -194,7 +194,15 @@ func MakeLoopDeps(a *App, in LoopInput) agent.LoopDeps {
 		OnIsolationFailure: func() {
 			a.DisableAgent(i18n.Tr("Agent isolation check failed: the agent is unavailable until the server restarts", "에이전트 격리 점검 실패: 서버를 다시 시작하기 전까지 에이전트를 쓸 수 없어요"))
 		},
-		Lang: a.Lang,
+		Lang:           a.Lang,
+		QueryTimeoutMs: cfg.QueryTimeoutMs,
+		Indexes: func(panel bool) []string {
+			prefixes := cfg.ReadablePrefixes
+			if panel {
+				prefixes = cfg.PanelPrefixes
+			}
+			return agent.IndexedColumns(snap.Agent, prefixes, blocked)
+		},
 	}
 }
 

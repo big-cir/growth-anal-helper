@@ -4,12 +4,14 @@ import (
 	"growth-lab/internal/jsstr"
 	"math"
 	"strings"
+	"time"
 	"unicode/utf16"
 
 	"growth-lab/internal/collect"
 	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
+	"growth-lab/internal/query"
 )
 
 // Tagged is a typed cell from the query worker: n (null), s, i, f.
@@ -248,7 +250,31 @@ func (o *Outbound) ProbeResult(r QueryResult, remaining int) (string, error) {
 
 var stageNames = map[string]string{
 	"lint": "static check", "exec": "execution", "contract": "result contract", "invariant": "invariants", "id_column": "ID column in output",
-	"id_dependent": "depends on ID values", "metric_tables": "metric dictionary table rule", "cancelled": "cancelled",
+	"id_dependent": "depends on ID values", "metric_tables": "metric dictionary table rule", "cancelled": "cancelled", "timeout": "query timeout",
+}
+
+// timeoutAdvice asks for a lighter query after a timeout and lists the indexed columns.
+func timeoutAdvice(timeoutMs int, indexes []string) string {
+	secs := query.Seconds(time.Duration(timeoutMs) * time.Millisecond)
+	s := "The query was stopped because it did not finish within the time limit (" + secs + "s). The result was not wrong, only too slow. Rewrite it as a lighter query:\n" +
+		"- Instead of EXISTS or correlated subqueries that rescan a large table for every row, aggregate first in a WITH clause and then join.\n" +
+		"- Do not wrap indexed columns in functions in join or filter conditions.\n" +
+		"- Narrow the period if the question allows it.\n" +
+		"One more query over the time limit ends the request."
+	if len(indexes) > 0 {
+		s += "\nIndexed columns:\n- " + strings.Join(indexes, "\n- ")
+	}
+	return s
+}
+
+// ProbeTimeout sends a probe stopped at the time limit.
+func (o *Outbound) ProbeTimeout(remaining, timeoutMs int, indexes []string) (string, error) {
+	return o.render(text("Probe query failed (timeout).\n"+timeoutAdvice(timeoutMs, indexes)), text("Probes left: "+itoa(remaining)+"."))
+}
+
+// PanelTimeout sends a panel stopped at the time limit.
+func (o *Outbound) PanelTimeout(remainingFixes, timeoutMs int, indexes []string) (string, error) {
+	return o.render(text("Panel check failed — stage: " + stageNames["timeout"] + ". Fixes left: " + itoa(remainingFixes) + ".\n" + timeoutAdvice(timeoutMs, indexes)))
 }
 
 // PanelFailure sends a failed panel check.

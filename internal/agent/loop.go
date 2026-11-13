@@ -12,6 +12,7 @@ import (
 	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
+	"growth-lab/internal/query"
 	"growth-lab/internal/sensitive"
 )
 
@@ -130,6 +131,10 @@ type LoopDeps struct {
 	// Keep returns the current preview's result when it can be shown again as is (same snapshot and context);
 	// nil (or no Keep) reruns the current panel instead
 	Keep func() *KeptResult
+	// QueryTimeoutMs is the per-query limit named in timeout messages (60000 when 0)
+	QueryTimeoutMs int
+	// Indexes lists indexed columns for a timeout reply: panel tables only when panel is true, else every readable table
+	Indexes func(panel bool) []string
 }
 
 // KeptResult is the result of the current preview panel.
@@ -153,6 +158,9 @@ const MinCallBudget = 0.02
 var rateWaits = []int{10000, 30000}
 
 var errStop = errors.New("stop")
+
+// maxQueryTimeouts is the timeout count (probes and panels together) that ends a request.
+const maxQueryTimeouts = 2
 
 // AllZero: there are rows, at least one number column, and every number is 0.
 func AllZero(rows []panels.Row) bool {
@@ -201,6 +209,7 @@ type Request struct {
 	Turns     int
 	Probes    int
 	Fixes     int
+	Timeouts  int
 	CostTotal float64
 	sessionID string
 	ask       *pendingAsk
@@ -223,6 +232,9 @@ func NewRequest(id string, deps LoopDeps) *Request {
 	ctx, cancel := context.WithCancel(context.Background())
 	if deps.HeartbeatMs == 0 {
 		deps.HeartbeatMs = 5000
+	}
+	if deps.QueryTimeoutMs == 0 {
+		deps.QueryTimeoutMs = 60000
 	}
 	return &Request{ID: id, state: "calling", deps: deps, ctx: ctx, cancelFn: cancel}
 }
@@ -649,6 +661,15 @@ func (r *Request) drive(firstInput string) error {
 			} else {
 				r.emit(Event{Type: "step", Kind: "query_done", Text: action.Purpose + ": " + i18n.In(lang, "failed", "실패") + " (" + res.Message + ")"})
 			}
+			if !res.OK && res.Kind == "timeout" {
+				if err := r.queryTimedOut(); err != nil {
+					return err
+				}
+				if input, err = r.deps.Outbound.ProbeTimeout(L.MaxProbes-r.Probes, r.deps.QueryTimeoutMs, r.indexes(false)); err != nil {
+					return err
+				}
+				continue
+			}
 			if input, err = r.deps.Outbound.ProbeResult(res, L.MaxProbes-r.Probes); err != nil {
 				return err
 			}
@@ -718,16 +739,48 @@ func (r *Request) drive(firstInput string) error {
 			if res.Stage == "sensitive" {
 				return r.fail("sensitive", SensitiveMessage(lang))
 			}
-			r.emit(Event{Type: "step", Kind: "check_failed", Text: i18n.In(lang, "Panel check failed ("+res.Stage+") → fixing", "패널 검사 실패("+res.Stage+") → 수정 중")})
+			timedOut := res.Stage == "timeout"
+			if timedOut {
+				if err := r.queryTimedOut(); err != nil {
+					return err
+				}
+			} else {
+				r.emit(Event{Type: "step", Kind: "check_failed", Text: i18n.In(lang, "Panel check failed ("+res.Stage+") → fixing", "패널 검사 실패("+res.Stage+") → 수정 중")})
+			}
 			if r.Fixes >= L.MaxFixes {
 				return r.fail("fix_limit", i18n.In(lang, "Reached the panel fix limit ("+itoa(L.MaxFixes)+"): "+res.Message, "패널 수정 한도("+itoa(L.MaxFixes)+"회)에 도달했어요: "+res.Message))
 			}
 			r.fixPending = true
-			if input, err = r.deps.Outbound.PanelFailure(res, L.MaxFixes-r.Fixes-1); err != nil {
+			if timedOut {
+				input, err = r.deps.Outbound.PanelTimeout(L.MaxFixes-r.Fixes-1, r.deps.QueryTimeoutMs, r.indexes(true))
+			} else {
+				input, err = r.deps.Outbound.PanelFailure(res, L.MaxFixes-r.Fixes-1)
+			}
+			if err != nil {
 				return err
 			}
 		}
 	}
+}
+
+// queryTimedOut counts a query timeout: the second one ends the request, the first shows that a lighter query is coming.
+func (r *Request) queryTimedOut() error {
+	lang := r.deps.Lang
+	secs := query.Seconds(time.Duration(r.deps.QueryTimeoutMs) * time.Millisecond)
+	r.Timeouts++
+	if r.Timeouts >= maxQueryTimeouts {
+		return r.fail("query_timeout", i18n.In(lang, "The query did not finish within "+secs+"s, so the request stopped. Narrow the period (for example, the last 4 weeks) or ask about one metric at a time.",
+			"쿼리가 "+secs+"초 안에 끝나지 않아 멈췄어요. 기간을 좁히거나(예: 최근 4주), 지표를 하나씩 나눠 물어봐 주세요."))
+	}
+	r.emit(Event{Type: "step", Kind: "check_failed", Text: i18n.In(lang, "Query did not finish within "+secs+"s → rewriting a lighter query", "쿼리가 "+secs+"초 안에 끝나지 않음 → 더 가벼운 쿼리로 다시 작성 중")})
+	return nil
+}
+
+func (r *Request) indexes(panel bool) []string {
+	if r.deps.Indexes == nil {
+		return nil
+	}
+	return r.deps.Indexes(panel)
 }
 
 // coverageCaveats adds the coverage findings as one caveat within the caveat limits.

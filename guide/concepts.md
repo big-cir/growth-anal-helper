@@ -44,4 +44,5 @@ Each snapshot has three files:
 | `<id>.pseudo-map.sqlite` | Mapping between real and random identifiers |
 
 - **Snapshot build:** creating the agent's copy keeps every distinct identifier value in memory, so memory grows with the number of distinct IDs. This memory can be reclaimed once the copy is written.
-- **Queries:** each query opens the snapshot read-only in a worker process. `run.heapLimitMb` (default 2048) sets SQLite's heap limit there.
+- **Statistics:** the full snapshot and the agent's copy each get a full `ANALYZE` when the snapshot is built, so SQLite can pick good query plans. `collect` and `derive` print how long it took. The statistics tables are never readable by the agent and never shown in its schema.
+- **Queries:** each query opens the snapshot read-only in a worker process. `run.heapLimitMb` (default 2048) sets SQLite's heap limit there. A query that runs past its time limit (`run.queryTimeoutMs`, `run.backgroundQueryTimeoutMs`) is stopped.

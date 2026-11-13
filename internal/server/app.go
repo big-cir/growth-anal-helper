@@ -65,6 +65,7 @@ type App struct {
 		key string
 		r   *coverage.Resolved
 	}
+	endCache *struct{ key, end string }
 }
 
 // NewApp loads the workspace definitions and checks what goes into the agent context.

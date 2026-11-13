@@ -41,6 +41,34 @@ func (a *App) Coverage(snap *Snapshot) (*coverage.Resolved, error) {
 	return r, nil
 }
 
+// DataEnd is the snapshot's last complete day for the screen ("" when agent.coverageCheck is off or the check fails).
+// It makes no gap copies; a failure is not kept, so the next request tries again.
+func (a *App) DataEnd(snap *Snapshot) string {
+	if !a.WS.Config.Agent.CoverageCheck || snap == nil {
+		return ""
+	}
+	key := snap.ID + "|" + a.CoverageKey()
+	a.covMu.Lock()
+	defer a.covMu.Unlock()
+	if a.covCache != nil && a.covCache.key == key {
+		return a.covCache.r.AppEnd
+	}
+	if a.endCache != nil && a.endCache.key == key {
+		return a.endCache.end
+	}
+	cfg, _, err := coverage.LoadConfig(a.WS.Dir)
+	if err != nil {
+		return ""
+	}
+	f, err := coverage.ReadFreshness(cfg, snap.Real, snap.AsOf)
+	if err != nil {
+		slog.Error("data end for the screen", "err", err)
+		return ""
+	}
+	a.endCache = &struct{ key, end string }{key, f.End}
+	return f.End
+}
+
 // CoverageKey identifies the coverage settings and coverage.json in context versions and cache keys ("" when off).
 func (a *App) CoverageKey() string {
 	if !a.WS.Config.Agent.CoverageCheck {

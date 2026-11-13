@@ -91,7 +91,7 @@ func TestResolveAndGapCopies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.AppEnd != "2018-09-21" || r.GA4Start != "2016-06-01" || r.GA4End != "2018-09-20" || len(r.Kinds) != 1 || len(r.Kinds[0].First) != 1 || r.Kinds[0].First["b"] != "2017-04-03" {
+	if r.AppEnd != "2016-07-31" || !r.Fresh.Stale() || r.GA4Start != "2016-06-01" || r.GA4End != "2018-09-20" || len(r.Kinds) != 1 || len(r.Kinds[0].First) != 1 || r.Kinds[0].First["b"] != "2017-04-03" {
 		t.Fatalf("resolved %+v", r)
 	}
 	if err := r.EnsureGapCopies(path); err != nil || len(r.GapPaths) != 2 {
@@ -126,8 +126,112 @@ func TestResolveAndGapCopies(t *testing.T) {
 		t.Fatal("copy not reused")
 	}
 	g := r.Guide()
-	if !strings.Contains(g, ":data_end") || !strings.Contains(g, "GA4 tables (g_*)") || !strings.Contains(g, "2014-03-01") || !strings.Contains(g, "e_events.kind = 'b': first record in this snapshot on 2017-04-03") {
+	if !strings.Contains(g, ":data_end") || !strings.Contains(g, "GA4 tables (g_*)") || !strings.Contains(g, "2014-03-01") || !strings.Contains(g, "e_events.kind = 'b': first record in this snapshot on 2017-04-03") ||
+		!strings.Contains(g, "complete through 2016-07-31 (:data_end)") || !strings.Contains(g, "Records in tables other than the GA4 tables end at 2016-08-01 10:00.") {
 		t.Fatalf("guide %s", g)
+	}
+}
+
+const asOf = "2024-06-10 12:00:00.000000"
+
+func freshness(t *testing.T, events string, stmts ...string) (*Resolved, error) {
+	t.Helper()
+	path := snapshot(t, append([]string{"CREATE TABLE e_events (kind TEXT, at TEXT)", "CREATE TABLE e_posts (created_at TEXT)"}, stmts...)...)
+	return Resolve(loadConfig(t, `{"events": `+events+`}`), path, asOf, nil)
+}
+
+const bothEvents = `[{"table": "e_events", "time": "at"}, {"table": "e_posts", "time": "created_at"}]`
+
+func TestDataEndFromLastRecord(t *testing.T) {
+	for _, c := range []struct {
+		name, last, end string
+		stale           bool
+	}{
+		{"three days before", "2024-06-07 16:52:00.000000", "2024-06-06", true},
+		{"same day", "2024-06-10 09:00:00.000000", "2024-06-09", false},
+		{"day before", "2024-06-09 23:00:00.000000", "2024-06-08", true},
+	} {
+		r, err := freshness(t, `[{"table": "e_events", "time": "at"}]`, "INSERT INTO e_events VALUES ('a', '2024-05-01 10:00:00.000000'), ('a', '"+c.last+"')")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if r.AppEnd != c.end || r.Fresh.End != c.end || r.Fresh.DayBefore != "2024-06-09" || r.Fresh.LastRecord != c.last || r.Fresh.Stale() != c.stale {
+			t.Errorf("%s: %+v", c.name, r.Fresh)
+		}
+		if v, _ := r.Params().Get("data_end"); v != c.end {
+			t.Errorf("%s: data_end %v", c.name, v)
+		}
+		g := r.Guide()
+		if has := strings.Contains(g, "Table records end at "+c.last[:16]+"."); has != c.stale {
+			t.Errorf("%s: guide %s", c.name, g)
+		}
+		if !c.stale && strings.Contains(g, "records end at") {
+			t.Errorf("%s: fresh snapshot guide %s", c.name, g)
+		}
+	}
+}
+
+func TestDataEndEarliestTable(t *testing.T) {
+	r, err := freshness(t, bothEvents,
+		"INSERT INTO e_events VALUES ('a', '2024-06-10 08:00:00.000000')",
+		"INSERT INTO e_posts VALUES ('2024-06-05 11:00:00.000000'), ('2024-06-04 11:00:00.000000')")
+	if err != nil || r.AppEnd != "2024-06-04" || r.Fresh.LastRecord != "2024-06-05 11:00:00.000000" {
+		t.Fatalf("%v %+v", err, r)
+	}
+}
+
+func TestDataEndEmptyTables(t *testing.T) {
+	r, err := freshness(t, bothEvents, "INSERT INTO e_posts VALUES ('2024-06-07 11:00:00.000000')")
+	if err != nil || r.AppEnd != "2024-06-06" {
+		t.Fatalf("one empty table: %v %+v", err, r)
+	}
+	r, err = freshness(t, bothEvents)
+	if err != nil || r.AppEnd != "2024-06-09" || r.Fresh.LastRecord != "" || r.Fresh.Stale() || strings.Contains(r.Guide(), "records end at") {
+		t.Fatalf("all empty: %v %+v", err, r)
+	}
+	r, err = freshness(t, "[]", "INSERT INTO e_posts VALUES ('2024-06-07 11:00:00.000000')")
+	if err != nil || r.AppEnd != "2024-06-09" {
+		t.Fatalf("no events: %v %+v", err, r)
+	}
+	r, err = freshness(t, bothEvents, "INSERT INTO e_events VALUES ('a', 20240601)", "INSERT INTO e_posts VALUES ('2024')")
+	if err != nil || r.AppEnd != "2024-06-09" {
+		t.Fatalf("non-text times: %v %+v", err, r)
+	}
+}
+
+func TestDataEndIgnoresLaterRows(t *testing.T) {
+	r, err := freshness(t, `[{"table": "e_events", "time": "at"}]`, "INSERT INTO e_events VALUES ('a', '2024-06-07 16:52:00.000000'), ('a', '2024-06-11 09:00:00.000000')")
+	if err != nil || r.AppEnd != "2024-06-06" || r.Fresh.LastRecord != "2024-06-07 16:52:00.000000" {
+		t.Fatalf("%v %+v", err, r)
+	}
+}
+
+func TestDataEndLeavesGA4End(t *testing.T) {
+	path := snapshot(t,
+		"CREATE TABLE e_events (kind TEXT, at TEXT)",
+		"CREATE TABLE g_daily (date TEXT)",
+		"INSERT INTO e_events VALUES ('a', '2024-06-07 16:52:00.000000')",
+		"INSERT INTO g_daily VALUES ('2024-05-01'), ('2024-06-09')")
+	r, err := Resolve(loadConfig(t, `{"events": [{"table": "e_events", "time": "at"}], "ga4": {"table": "g_daily", "date": "date", "prefix": "g_"}}`), path, asOf, nil)
+	if err != nil || r.AppEnd != "2024-06-06" || r.GA4End != "2024-06-09" {
+		t.Fatalf("%v %+v", err, r)
+	}
+	if v, _ := r.Params().Get("ga4_data_end"); v != "2024-06-09" {
+		t.Fatalf("ga4_data_end %v", v)
+	}
+	if g := r.Guide(); !strings.Contains(g, "Records in tables other than the GA4 tables end at 2024-06-07 16:52.") || !strings.Contains(g, "complete through 2024-06-09 (:ga4_data_end)") {
+		t.Fatalf("guide %s", g)
+	}
+}
+
+func TestReadFreshness(t *testing.T) {
+	path := snapshot(t, "CREATE TABLE e_events (kind TEXT, at TEXT)", "INSERT INTO e_events VALUES ('a', '2024-06-07 16:52:00')")
+	f, err := ReadFreshness(loadConfig(t, `{"events": [{"table": "e_events", "time": "at"}]}`), path, asOf)
+	if err != nil || f.End != "2024-06-06" || !f.Stale() {
+		t.Fatalf("%v %+v", err, f)
+	}
+	if _, err := ReadFreshness(loadConfig(t, `{"events": [{"table": "e_events", "time": "missing"}]}`), path, asOf); err == nil || !strings.Contains(err.Error(), "e_events.missing") {
+		t.Fatalf("missing column accepted: %v", err)
 	}
 }
 

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"growth-lab/internal/jsstr"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -372,6 +373,36 @@ func toAny(pairs [][2]string) []any {
 		out = append(out, []any{p[0], p[1]})
 	}
 	return out
+}
+
+func TestBuildContextSeeds(t *testing.T) {
+	files, _ := filepath.Glob(filepath.Join("..", "..", "examples", "demo", "seed-panels", "*.json"))
+	var seeds []SeedPanel
+	for _, f := range files {
+		b, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		v, err := jsjson.Parse(string(b))
+		if err != nil {
+			t.Fatal(err)
+		}
+		seeds = append(seeds, SeedPanel{ID: filepath.Base(f), Spec: *specOf(t, v)})
+	}
+	if len(seeds) == 0 {
+		t.Fatal("no demo seed panels")
+	}
+	in := ContextInput{Schema: "s", Metrics: "m", Guide: "g", SeedPanels: seeds, State: ContextState{AsOf: "a", Today: "t"}, Lang: "en"}
+	text, n, err := BuildContextSeeds(in, true)
+	if old, _ := BuildContext(in, true); err != nil || n != len(seeds) || text != old {
+		t.Fatalf("all seeds fit: %d of %d, %v", n, len(seeds), err)
+	}
+	// a guide that leaves no room for any seed panel
+	bare, _, _ := BuildContextSeeds(ContextInput{Schema: "s", Metrics: "m", Guide: "g", State: in.State, Lang: "en"}, true)
+	in.Guide = "g" + strings.Repeat("x", ContextLimit-jsstr.U16Len(bare)-10)
+	if _, n, err = BuildContextSeeds(in, true); err != nil || n != 0 {
+		t.Fatalf("no room: %d seeds, %v", n, err)
+	}
 }
 
 func TestClaudePieces(t *testing.T) {

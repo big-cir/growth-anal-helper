@@ -4,6 +4,7 @@ package eval
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"growth-lab/internal/jsstr"
 	"os"
 	"path/filepath"
@@ -339,6 +340,14 @@ func LoadCases(wsDir string, metricIDs map[string]bool) ([]*Case, []string, erro
 	sort.Strings(names)
 	var cases []*Case
 	var problems []string
+	vocab, err := loadTags(wsDir)
+	if err != nil {
+		var e *Error
+		if !asError(err, &e) {
+			return nil, nil, err
+		}
+		problems = append(problems, e.Msg)
+	}
 	for _, n := range names {
 		c, err := ParseCase(filepath.Join(dir, n), metricIDs)
 		if err != nil {
@@ -349,12 +358,49 @@ func LoadCases(wsDir string, metricIDs map[string]bool) ([]*Case, []string, erro
 			problems = append(problems, e.Msg)
 			continue
 		}
+		var unknown []string
+		for _, t := range c.Tags {
+			if vocab != nil && !vocab[t] {
+				unknown = append(unknown, t)
+			}
+		}
+		if len(unknown) > 0 {
+			problems = append(problems, "eval/cases/"+n+": tag not in eval/tags.json: "+strings.Join(unknown, ", "))
+			continue
+		}
 		cases = append(cases, c)
 	}
 	if len(cases) == 0 && len(problems) == 0 {
 		problems = append(problems, "no case files in "+dir)
 	}
 	return cases, problems, nil
+}
+
+// loadTags reads eval/tags.json ({"<tag>": "<meaning>"}); nil when the file is absent, so tags are not checked.
+func loadTags(wsDir string) (map[string]bool, error) {
+	b, err := os.ReadFile(filepath.Join(wsDir, "eval", "tags.json"))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	v, err := jsjson.Parse(string(b))
+	if err != nil {
+		return nil, &Error{"eval/tags.json: not valid JSON (" + err.Error() + ")"}
+	}
+	o, ok := v.(jsjson.Object)
+	if !ok {
+		return nil, &Error{`eval/tags.json: must be { "<tag>": "<meaning>" }`}
+	}
+	tags := map[string]bool{}
+	for _, m := range o {
+		if s, isStr := m.Value.(string); !isStr || m.Key == "" || jsstr.Trim(s) == "" {
+			return nil, &Error{"eval/tags.json: " + jsjson.QuoteString(m.Key) + " needs a meaning"}
+		}
+		tags[m.Key] = true
+	}
+	return tags, nil
 }
 
 func asError(err error, target **Error) bool {

@@ -1,0 +1,7 @@
+{
+  "core": "Main cases",
+  "near_seed": "Nearly the same question as a seed panel, counted apart",
+  "smoke": "Quick run set",
+  "needs:table": "The tables and the metric dictionary are enough to answer",
+  "needs:rule": "Needs a workspace rule from the guide or the seed panels"
+}

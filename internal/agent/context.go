@@ -184,6 +184,12 @@ func seedText(ps []SeedPanel, withSQL []bool) string {
 // BuildContext assembles the system prompt. Over the limit it drops seed panel SQL, then seed panels, from the end.
 // seedSQL false leaves out all seed SQL (blind evaluation).
 func BuildContext(o ContextInput, seedSQL bool) (string, error) {
+	t, _, err := BuildContextSeeds(o, seedSQL)
+	return t, err
+}
+
+// BuildContextSeeds is BuildContext that also returns how many seed panels stayed in the prompt.
+func BuildContextSeeds(o ContextInput, seedSQL bool) (string, int, error) {
 	state := []string{"# Current state", "- Snapshot cutoff (:as_of): " + o.State.AsOf, "- Today (:today): " + o.State.Today}
 	if o.State.CalendarStart != "" {
 		state = append(state, "- Data start (calendar_start): "+o.State.CalendarStart)
@@ -229,7 +235,7 @@ func BuildContext(o ContextInput, seedSQL bool) (string, error) {
 		t = assemble(ps, withSQL[:len(ps)])
 	}
 	if jsstr.U16Len(t) > ContextLimit {
-		return "", &ContextError{fmt.Sprintf("context is over %d characters (%d): shorten guide.md", ContextLimit, jsstr.U16Len(t))}
+		return "", 0, &ContextError{fmt.Sprintf("context is over %d characters (%d): shorten guide.md", ContextLimit, jsstr.U16Len(t))}
 	}
-	return t, nil
+	return t, len(ps), nil
 }

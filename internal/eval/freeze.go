@@ -22,6 +22,8 @@ type Fixture struct {
 	Env           jsjson.Object
 	ReferenceHash string
 	XGrain        *string
+	// "auto" when a run made it because the snapshot had none
+	FrozenBy string
 	RoleRows
 }
 
@@ -120,7 +122,7 @@ func ReadFixture(a *server.App, snapshotID, caseID string) (*Fixture, error) {
 	o, _ := v.(jsjson.Object)
 	f := &Fixture{RoleRows: roleRowsFrom(o)}
 	s := func(k string) string { x, _ := o.Get(k); r, _ := x.(string); return r }
-	f.CaseID, f.SnapshotID, f.ReferenceHash = s("case_id"), s("snapshot_id"), s("reference_hash")
+	f.CaseID, f.SnapshotID, f.ReferenceHash, f.FrozenBy = s("case_id"), s("snapshot_id"), s("reference_hash"), s("frozen_by")
 	if e, _ := o.Get("env"); e != nil {
 		f.Env, _ = e.(jsjson.Object)
 	}
@@ -137,6 +139,9 @@ func (f *Fixture) js() jsjson.Object {
 		g = *f.XGrain
 	}
 	o := jsjson.Object{{Key: "format", Value: 1}, {Key: "case_id", Value: f.CaseID}, {Key: "snapshot_id", Value: f.SnapshotID}, {Key: "env", Value: f.Env}, {Key: "reference_hash", Value: f.ReferenceHash}, {Key: "x_grain", Value: g}}
+	if f.FrozenBy != "" {
+		o = append(o, jsjson.Member{Key: "frozen_by", Value: f.FrozenBy})
+	}
 	return append(o, f.RoleRows.JS()...)
 }
 
@@ -149,6 +154,10 @@ type FreezeResult struct {
 
 // FreezeCases runs each reference with the same panel checks as the web app. Existing fixtures are never overwritten.
 func FreezeCases(a *server.App, cases []*Case) ([]FreezeResult, error) {
+	return freezeCases(a, cases, "")
+}
+
+func freezeCases(a *server.App, cases []*Case, by string) ([]FreezeResult, error) {
 	snap, env, err := CheckEnv(a)
 	if err != nil {
 		return nil, err
@@ -195,7 +204,7 @@ func FreezeCases(a *server.App, cases []*Case) ([]FreezeResult, error) {
 			}
 			return nil, err
 		}
-		f := &Fixture{CaseID: c.ID, SnapshotID: snap.ID, Env: env, ReferenceHash: c.Reference.Hash, RoleRows: rows}
+		f := &Fixture{CaseID: c.ID, SnapshotID: snap.ID, Env: env, ReferenceHash: c.Reference.Hash, FrozenBy: by, RoleRows: rows}
 		if c.XGrain != "" {
 			f.XGrain = ptr(c.XGrain)
 		}

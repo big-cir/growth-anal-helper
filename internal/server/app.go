@@ -59,7 +59,7 @@ type App struct {
 	agentStatus   AgentStatus
 	agentReady    chan struct{}
 	excludedSeeds map[string]bool
-	ctxCache      *struct{ key, text string }
+	ctxCache      *promptCache
 	covMu         sync.Mutex
 	covCache      *struct {
 		key string
@@ -332,8 +332,20 @@ func (a *App) PanelVersions(snap *Snapshot) jsjson.Object {
 	return append(ContextJS(a.ContextVersion(snap)), jsjson.Member{Key: "pattern_contract_version", Value: float64(panels.PatternContractVersion)}, jsjson.Member{Key: "renderer_version", Value: float64(panels.RendererVersion)})
 }
 
+// promptCache is the last system prompt and the number of seed panels in it.
+type promptCache struct {
+	key, text string
+	seeds     int
+}
+
 // SystemPrompt builds the agent context for the request date today; blind leaves out seed panel SQL.
 func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool, today string) (string, error) {
+	t, _, err := a.SystemPromptSeeds(snap, ctx, blind, today)
+	return t, err
+}
+
+// SystemPromptSeeds is SystemPrompt that also returns how many seed panels stayed in the prompt.
+func (a *App) SystemPromptSeeds(snap *Snapshot, ctx panels.ContextVersion, blind bool, today string) (string, int, error) {
 	a.mu.Lock()
 	var excluded []string
 	for k := range a.excludedSeeds {
@@ -344,15 +356,15 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	key := fmt.Sprintf("%s|%s|%v|%s|%s", ctx.Key(), strings.Join(excluded, ","), blind, today, a.CoverageKey())
 	a.mu.Lock()
 	if a.ctxCache != nil && a.ctxCache.key == key {
-		t := a.ctxCache.text
+		t, n := a.ctxCache.text, a.ctxCache.seeds
 		a.mu.Unlock()
-		return t, nil
+		return t, n, nil
 	}
 	a.mu.Unlock()
 	guide := a.Guide()
 	cov, err := a.Coverage(snap)
 	if err != nil {
-		return "", &agent.ContextError{Msg: err.Error()}
+		return "", 0, &agent.ContextError{Msg: err.Error()}
 	}
 	if cov != nil {
 		guide += "\n\n" + cov.Guide()
@@ -360,11 +372,11 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	cfg := a.WS.Config
 	dict, _, err := a.Metrics()
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	schemaText, have, err := agent.SnapshotSchema(snap.Agent, cfg.ReadablePrefixes, cfg.PanelPrefixes, guide)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	var missing []string
 	for _, t := range append(append([]string{}, dict.DimensionTables...), metricTables(dict)...) {
@@ -373,11 +385,11 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 		}
 	}
 	if len(missing) > 0 {
-		return "", &agent.ContextError{Msg: "metric dictionary tables missing from the snapshot: " + strings.Join(missing, ", ")}
+		return "", 0, &agent.ContextError{Msg: "metric dictionary tables missing from the snapshot: " + strings.Join(missing, ", ")}
 	}
 	seeds, _, err := LoadSeedPanels(a.WS.Dir)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	var kept []agent.SeedPanel
 	for _, s := range seeds {
@@ -389,17 +401,17 @@ func (a *App) SystemPrompt(snap *Snapshot, ctx panels.ContextVersion, blind bool
 	if v, ok := cfg.Params.Get("calendar_start"); ok {
 		calendar, _ = v.(string)
 	}
-	text, err := agent.BuildContext(agent.ContextInput{
+	text, n, err := agent.BuildContextSeeds(agent.ContextInput{
 		Schema: schemaText, Metrics: panels.MetricsContext(dict), Guide: guide, SeedPanels: kept, Lang: a.Lang,
 		State: agent.ContextState{AsOf: snap.AsOf, Today: today, CalendarStart: calendar, Params: a.QueryParams(snap)},
 	}, !blind)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	a.mu.Lock()
-	a.ctxCache = &struct{ key, text string }{key, text}
+	a.ctxCache = &promptCache{key, text, n}
 	a.mu.Unlock()
-	return text, nil
+	return text, n, nil
 }
 
 // SetExcludedSeeds leaves failed seed panels out of the context.

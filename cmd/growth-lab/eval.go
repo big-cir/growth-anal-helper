@@ -43,10 +43,50 @@ func evalFlag(args []string, name string) (string, error) {
 	return v, nil
 }
 
+const evalUsage = `Usage: growth-lab eval [--runs N] [--blind] [--case ID|--tag T] [--model M] [--max-cost-usd X] [--seed N]
+       growth-lab eval check
+       growth-lab eval freeze [--case ID]
+       growth-lab eval compare <before.json> <after.json>`
+
+// evalFlags are the options each subcommand takes ("" is a run); true when the option takes a value.
+var evalFlags = map[string]map[string]bool{
+	"":       {"--runs": true, "--blind": false, "--case": true, "--tag": true, "--model": true, "--max-cost-usd": true, "--seed": true},
+	"check":  {},
+	"freeze": {"--case": true},
+}
+
+// checkEvalArgs rejects arguments the subcommand does not take, before anything is read or run.
+func checkEvalArgs(sub string, args []string) error {
+	allowed := evalFlags[sub]
+	for i := 0; i < len(args); i++ {
+		takesValue, ok := allowed[args[i]]
+		if !ok {
+			if strings.HasPrefix(args[i], "-") {
+				return fmt.Errorf("unknown option: %s", args[i])
+			}
+			return fmt.Errorf("unexpected argument: %s", args[i])
+		}
+		if takesValue && i+1 < len(args) && !strings.HasPrefix(args[i+1], "--") {
+			i++
+		}
+	}
+	return nil
+}
+
 func evalCmd(args []string) (int, error) {
-	sub := ""
-	if len(args) > 0 {
-		sub = args[0]
+	if contains(args, "--help") || contains(args, "-h") {
+		fmt.Println(evalUsage)
+		return 0, nil
+	}
+	sub, opts := "", args
+	if len(args) > 0 && (args[0] == "check" || args[0] == "freeze" || args[0] == "compare") {
+		sub, opts = args[0], args[1:]
+	}
+	if sub != "compare" {
+		if err := checkEvalArgs(sub, opts); err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n%s\n", err.Error(), evalUsage)
+			return 2, nil
+		}
 	}
 	if sub == "compare" {
 		if len(args) != 3 {

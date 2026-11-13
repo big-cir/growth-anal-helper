@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"growth-lab/internal/collect"
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/sqlitec"
 	"growth-lab/internal/workspace"
@@ -172,8 +173,50 @@ func RunCollect(ws *workspace.Workspace, log func(string), onSource func(collect
 	r, err := Finalize(FinalizeOptions{TmpPath: c.TmpPath, SnapshotsDir: dir, Inputs: inputs, Meta: Meta{c.Cutoff, c.StartedAt, c.FinishedAt}, ApplyCutoffFirst: true, LockHeld: true})
 	if err == nil {
 		step("finalize (derived tables, pseudonymized copy, indexes)", t0)
+		warnStale(ws, r.Files.Real, log)
 	}
 	return r, err
+}
+
+// warnStale logs a warning when the event tables of coverage.json end before the day before as_of. A failed check is only a warning.
+func warnStale(ws *workspace.Workspace, realPath string, log func(string)) {
+	if log == nil {
+		return
+	}
+	cfg, _, err := coverage.LoadConfig(ws.Dir)
+	if err == nil && len(cfg.Events) == 0 {
+		return
+	}
+	var f coverage.Freshness
+	if err == nil {
+		f, err = coverage.ReadFreshness(cfg, realPath, snapshotAsOf(realPath))
+	}
+	if err != nil {
+		log("warning: could not check how far the event tables are filled: " + err.Error())
+		return
+	}
+	if f.Stale() {
+		last := f.LastRecord
+		if len(last) > 16 {
+			last = last[:16]
+		}
+		log(fmt.Sprintf("warning: event records end at %s, so the snapshot is complete through %s, not through the day before the cutoff (%s). Check that the source was synced (CDC) before collect.", last, f.End, f.DayBefore))
+	}
+}
+
+// snapshotAsOf is the cutoff in a snapshot's meta ("" when unreadable).
+func snapshotAsOf(path string) string {
+	db, err := sqlitec.Open(path, true)
+	if err != nil {
+		return ""
+	}
+	defer db.Close()
+	rows, _, err := db.QueryJS("SELECT source_cutoff_at FROM snapshot_meta")
+	if err != nil || len(rows) == 0 {
+		return ""
+	}
+	s, _ := rows[0][0].(string)
+	return s
 }
 
 // RunDerive rebuilds derived tables and the pseudonymized copy from the current snapshot's raw tables (the source is not read).

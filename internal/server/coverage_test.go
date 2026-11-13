@@ -3,9 +3,11 @@ package server
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"growth-lab/internal/jsjson"
+	"growth-lab/internal/panels"
 	"growth-lab/internal/sqlitec"
 	"growth-lab/internal/workspace"
 )
@@ -107,5 +109,101 @@ func TestBrokenCoverageConfigFails(t *testing.T) {
 	}
 	if _, err := a.Coverage(snap); err == nil {
 		t.Fatal("a reference to a missing column is accepted")
+	}
+}
+
+// addEvents writes event rows into a snapshot file.
+func addEvents(t *testing.T, path string, times ...string) {
+	t.Helper()
+	db, err := sqlitec.Open(path, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	for _, at := range times {
+		if _, err := db.RunOnce("INSERT INTO e_events VALUES ('a', ?)", at); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func viewDataEnd(s *PanelService, snap *Snapshot, resultSnapshot string) any {
+	p := &panels.SavedPanel{Fields: jsjson.Object{{Key: "id", Value: "p00000000001"}, {Key: "last_result", Value: jsjson.Object{{Key: "snapshot_id", Value: resultSnapshot}, {Key: "as_of", Value: "2018-09-22 10:00:00.000000"}}}}}
+	lr, _ := s.View(p, snap, false).Get("last_result")
+	v, _ := lr.(jsjson.Object).Get("data_end")
+	return v
+}
+
+func TestDataEndDoesNotChangeVersions(t *testing.T) {
+	a, fresh := coverageApp(t, true)
+	stale := &Snapshot{ID: "s2", Real: filepath.Join(a.WS.Dir, "snap2.sqlite"), AsOf: fresh.AsOf}
+	b, err := os.ReadFile(fresh.Real)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(stale.Real, b, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	addEvents(t, fresh.Real, "2018-09-22 08:00:00.000000")
+	addEvents(t, stale.Real, "2018-09-19 10:00:00.000000")
+	before := a.PanelVersions(fresh)
+	rf, err := a.Coverage(fresh)
+	if err != nil || rf.AppEnd != "2018-09-21" {
+		t.Fatalf("fresh %v %+v", err, rf)
+	}
+	rs, err := a.Coverage(stale)
+	if err != nil || rs.AppEnd != "2018-09-18" || !strings.Contains(rs.Guide(), "records end at 2018-09-19 10:00") {
+		t.Fatalf("stale %v %+v", err, rs)
+	}
+	after := a.PanelVersions(stale)
+	if changed := panels.ChangedRules(before, after); len(changed) != 0 {
+		t.Fatalf("rule versions changed: %v", changed)
+	}
+	p := panels.SavedPanel{Fields: jsjson.Object{{Key: "status", Value: "ok"}, {Key: "versions", Value: before}, {Key: "last_result", Value: jsjson.Object{{Key: "snapshot_id", Value: fresh.ID}}}}}
+	if d := panels.Decide(p, after); d != "auto" {
+		t.Fatalf("decision %s", d)
+	}
+}
+
+func TestPanelViewDataEnd(t *testing.T) {
+	a, snap := coverageApp(t, true)
+	addEvents(t, snap.Real, "2018-09-19 10:00:00.000000")
+	s := &PanelService{app: a}
+	if v := viewDataEnd(s, snap, snap.ID); v != "2018-09-18" {
+		t.Fatalf("current snapshot result: %v", v)
+	}
+	if v := viewDataEnd(s, snap, "s0"); v != nil {
+		t.Fatalf("other snapshot result: %v", v)
+	}
+	if v := viewDataEnd(s, nil, snap.ID); v != nil {
+		t.Fatalf("no snapshot: %v", v)
+	}
+	// the view makes no gap copies even though the workspace has a gap
+	if gaps, _ := filepath.Glob(filepath.Join(a.WS.Dir, "*.gap*")); len(gaps) != 0 {
+		t.Fatalf("gap copies made by the view: %v", gaps)
+	}
+	off, offSnap := coverageApp(t, false)
+	addEvents(t, offSnap.Real, "2018-09-19 10:00:00.000000")
+	if v := viewDataEnd(&PanelService{app: off}, offSnap, offSnap.ID); v != nil {
+		t.Fatalf("coverage check off: %v", v)
+	}
+}
+
+func TestDataEndRetriesAfterFailure(t *testing.T) {
+	a, snap := coverageApp(t, true)
+	addEvents(t, snap.Real, "2018-09-19 10:00:00.000000")
+	moved := snap.Real + ".moved"
+	if err := os.Rename(snap.Real, moved); err != nil {
+		t.Fatal(err)
+	}
+	s := &PanelService{app: a}
+	if v := viewDataEnd(s, snap, snap.ID); v != nil {
+		t.Fatalf("unreadable snapshot: %v", v)
+	}
+	if err := os.Rename(moved, snap.Real); err != nil {
+		t.Fatal(err)
+	}
+	if v := viewDataEnd(s, snap, snap.ID); v != "2018-09-18" {
+		t.Fatalf("no retry after recovery: %v", v)
 	}
 }

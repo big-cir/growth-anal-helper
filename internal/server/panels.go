@@ -837,6 +837,13 @@ func (s *PanelService) View(p *panels.SavedPanel, snap *Snapshot, full bool) jsj
 		def[i] = []string{d[0], d[1]}
 	}
 	createdBy := get(p.Fields, "created_by")
+	// the last complete day only for a result of the current snapshot
+	var dataEnd any
+	if sid, _ := get(r, "snapshot_id").(string); snap != nil && sid == snap.ID {
+		if d := s.app.DataEnd(snap); d != "" {
+			dataEnd = d
+		}
+	}
 	base := jsjson.Object{
 		{Key: "id", Value: p.Str("id")}, {Key: "title", Value: get(p.Fields, "title")}, {Key: "description", Value: get(p.Fields, "description")},
 		{Key: "summary", Value: get(p.Fields, "summary")}, {Key: "summary_snapshot_id", Value: get(p.Fields, "summary_snapshot_id")},
@@ -845,7 +852,7 @@ func (s *PanelService) View(p *panels.SavedPanel, snap *Snapshot, full bool) jsj
 		{Key: "created_at", Value: get(p.Fields, "created_at")}, {Key: "legacy", Value: p.Legacy}, {Key: "view", Value: get(p.Fields, "view")},
 		{Key: "last_result", Value: jsjson.Object{{Key: "columns", Value: names}, {Key: "rows", Value: get(r, "rows")}, {Key: "headline", Value: get(r, "headline")},
 			{Key: "caveats", Value: get(r, "caveats")}, {Key: "as_of", Value: get(r, "as_of")}, {Key: "computed_at", Value: get(r, "computed_at")},
-			{Key: "mode", Value: get(r, "mode")}, {Key: "snapshot_id", Value: get(r, "snapshot_id")}}},
+			{Key: "mode", Value: get(r, "mode")}, {Key: "snapshot_id", Value: get(r, "snapshot_id")}, {Key: "data_end", Value: dataEnd}}},
 		{Key: "full", Value: full},
 	}
 	if !full {

@@ -2,6 +2,7 @@ package eval
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"math/rand/v2"
@@ -286,7 +287,13 @@ func Run(ws *workspace.Workspace, o Options) (Report, string, error) {
 	freezeFailed := map[string]string{}
 	if len(missing) > 0 {
 		results, err := freezeCases(a, missing, "auto")
-		if err != nil {
+		var staleSnap *StaleSnapshotError
+		if errors.As(err, &staleSnap) {
+			// the cases without a fixture are left out; the others still run
+			for _, c := range missing {
+				freezeFailed[c.ID] = "the automatic freeze stopped: " + staleSnap.Msg
+			}
+		} else if err != nil {
 			return Report{}, "", err
 		}
 		var ids []string

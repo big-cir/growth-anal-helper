@@ -135,6 +135,8 @@ type Resolved struct {
 	Events           []Column
 	// Kinds are the first record days of kinds that first appear late, per kind column.
 	Kinds []KindFirst
+	// Fresh is how far the event tables are filled; AppEnd is its End.
+	Fresh Freshness
 	// GapPaths are the copies of the real snapshot, one per gap, without event rows before that gap's end.
 	GapPaths []string
 	// GapError is why the gap copies could not be made ("" = made or no gaps).
@@ -151,8 +153,71 @@ func addDays(d string, n int) string {
 	return t.AddDate(0, 0, n).Format(day)
 }
 
-// Resolve reads the gaps from the workspace params and the GA4 range and kind first days from the snapshot.
-// App data is complete through the day before as_of. Tables or columns in the config that the snapshot lacks are an error.
+// Freshness is how far the event tables of a snapshot are filled.
+type Freshness struct {
+	// DayBefore is the day before as_of.
+	DayBefore string
+	// LastRecord is the earliest of the event tables' last records at or before as_of ("" = no records).
+	LastRecord string
+	// End is the last complete day: the day before as_of, or the day before LastRecord's day when that is earlier.
+	End string
+}
+
+// Stale is true when the event tables end before the day before as_of.
+func (f Freshness) Stale() bool { return f.End < f.DayBefore }
+
+// ReadFreshness opens the real snapshot read-only and measures its event tables.
+func ReadFreshness(c *Config, realPath, asOf string) (Freshness, error) {
+	db, err := sqlitec.Open(realPath, true)
+	if err != nil {
+		return Freshness{}, err
+	}
+	defer db.Close()
+	return MeasureFreshness(db, c.Events, asOf)
+}
+
+// MeasureFreshness takes each event table's last time at or before as_of and keeps the earliest.
+// Empty tables and non-text times are skipped; a table or column the snapshot lacks is an error.
+func MeasureFreshness(db *sqlitec.DB, events []Column, asOf string) (Freshness, error) {
+	if len(asOf) < 10 {
+		return Freshness{}, fmt.Errorf("coverage: snapshot as_of is not a timestamp")
+	}
+	f := Freshness{DayBefore: addDays(asOf[:10], -1)}
+	f.End = f.DayBefore
+	for _, e := range events {
+		if err := hasColumn(db, e.Table, e.Time); err != nil {
+			return Freshness{}, err
+		}
+	}
+	for _, e := range events {
+		st, err := db.Prepare(fmt.Sprintf("SELECT max(%q) FROM %q WHERE %q <= ?", e.Time, e.Table, e.Time))
+		if err != nil {
+			return Freshness{}, err
+		}
+		if err := st.Bind(asOf); err != nil {
+			st.Finalize()
+			return Freshness{}, err
+		}
+		ok, err := st.Step()
+		if err != nil {
+			st.Finalize()
+			return Freshness{}, err
+		}
+		if v := st.Value(0); ok && v.Type == sqlitec.Text && len(v.Text) >= 10 && (f.LastRecord == "" || v.Text < f.LastRecord) {
+			f.LastRecord = v.Text
+		}
+		st.Finalize()
+	}
+	if f.LastRecord != "" {
+		if end := addDays(f.LastRecord[:10], -1); end < f.End {
+			f.End = end
+		}
+	}
+	return f, nil
+}
+
+// Resolve reads the gaps from the workspace params and the data end, GA4 range and kind first days from the snapshot.
+// Tables or columns in the config that the snapshot lacks are an error.
 func Resolve(c *Config, realPath, asOf string, params jsjson.Object) (*Resolved, error) {
 	if len(asOf) < 10 {
 		return nil, fmt.Errorf("coverage: snapshot as_of is not a timestamp")
@@ -161,17 +226,16 @@ func Resolve(c *Config, realPath, asOf string, params jsjson.Object) (*Resolved,
 	if err != nil {
 		return nil, err
 	}
-	r := &Resolved{AppEnd: addDays(asOf[:10], -1), Gaps: gaps, Events: c.Events}
+	r := &Resolved{Gaps: gaps, Events: c.Events}
 	db, err := sqlitec.Open(realPath, true)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
-	for _, e := range c.Events {
-		if err := hasColumn(db, e.Table, e.Time); err != nil {
-			return nil, err
-		}
+	if r.Fresh, err = MeasureFreshness(db, c.Events, asOf); err != nil {
+		return nil, err
 	}
+	r.AppEnd = r.Fresh.End
 	if g := c.GA4; g != nil {
 		if err := hasColumn(db, g.Table, g.Date); err != nil {
 			return nil, err
@@ -255,6 +319,17 @@ func (r *Resolved) Guide() string {
 		fmt.Fprintf(&b, "- GA4 tables (%s*): data from %s, complete through %s (:ga4_data_end).\n", r.GA4Prefix, r.GA4Start, r.GA4End)
 	} else {
 		fmt.Fprintf(&b, "- Tables: complete through %s (:data_end).\n", r.AppEnd)
+	}
+	if r.Fresh.Stale() {
+		at := r.Fresh.LastRecord
+		if len(at) > 16 {
+			at = at[:16]
+		}
+		if r.GA4End != "" {
+			fmt.Fprintf(&b, "- Records in tables other than the GA4 tables end at %s. Days after that have no data; they are not zero.\n", at)
+		} else {
+			fmt.Fprintf(&b, "- Table records end at %s. Days after that have no data; they are not zero.\n", at)
+		}
 	}
 	for _, g := range r.Gaps {
 		fmt.Fprintf(&b, "- Data gap from %s until %s: events in it are missing. Do not let rows before the gap feed values after it (for example lag(), first/last values or running totals across the gap); bound such panels to after the gap.", g[0], g[1])

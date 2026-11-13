@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"growth-lab/internal/coverage"
 	"growth-lab/internal/jsjson"
 	"growth-lab/internal/panels"
 	"growth-lab/internal/query"
@@ -157,9 +158,38 @@ func FreezeCases(a *server.App, cases []*Case) ([]FreezeResult, error) {
 	return freezeCases(a, cases, "")
 }
 
+// StaleSnapshotError stops a freeze on a snapshot whose event tables end before the day before the cutoff.
+type StaleSnapshotError struct{ Msg string }
+
+func (e *StaleSnapshotError) Error() string { return e.Msg }
+
+// checkFresh refuses a snapshot whose event tables (coverage.json events) end early, whatever agent.coverageCheck says.
+func checkFresh(a *server.App, snap *server.Snapshot) error {
+	cfg, _, err := coverage.LoadConfig(a.WS.Dir)
+	if err != nil {
+		return err
+	}
+	f, err := coverage.ReadFreshness(cfg, snap.Real, snap.AsOf)
+	if err != nil {
+		return err
+	}
+	if !f.Stale() {
+		return nil
+	}
+	last := f.LastRecord
+	if len(last) > 16 {
+		last = last[:16]
+	}
+	return &StaleSnapshotError{fmt.Sprintf("snapshot data is not complete through the day before the cutoff: event records end at %s, last complete day %s, day before the cutoff %s. "+
+		"Reference SQL takes midnight of the cutoff day as the data end, so a fixture frozen now would count days without data. Sync the source, run collect, then freeze again", last, f.End, f.DayBefore)}
+}
+
 func freezeCases(a *server.App, cases []*Case, by string) ([]FreezeResult, error) {
 	snap, env, err := CheckEnv(a)
 	if err != nil {
+		return nil, err
+	}
+	if err := checkFresh(a, snap); err != nil {
 		return nil, err
 	}
 	dir := FixturesDir(a, snap.ID)

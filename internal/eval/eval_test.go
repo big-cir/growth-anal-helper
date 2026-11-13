@@ -87,6 +87,12 @@ type env struct {
 // newEnv builds the demo workspace with its eval cases, a snapshot and frozen fixtures.
 func newEnv(t *testing.T) *env {
 	t.Helper()
+	return newEnvAt(t, cutoff)
+}
+
+// newEnvAt is newEnv with the source clock at now.
+func newEnvAt(t *testing.T, now string) *env {
+	t.Helper()
 	dir := t.TempDir()
 	demoDir := filepath.Join(root, "examples", "demo")
 	for _, f := range []string{"tables.json", "derived.sql", "derived-columns.json", "metrics.json", "guide.md"} {
@@ -116,7 +122,7 @@ func newEnv(t *testing.T) *env {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Setenv("GROWTH_LAB_TEST_SOURCE_NOW", cutoff)
+	t.Setenv("GROWTH_LAB_TEST_SOURCE_NOW", now)
 	if _, err := snapshot.RunCollect(ws, nil, nil); err != nil {
 		t.Fatal(err)
 	}
